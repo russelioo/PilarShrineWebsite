@@ -20,7 +20,7 @@ const links = [
     </div>
     <nav class="navbar page-width">
       <a class="brand" href="#/home">
-        <div class="brand-mark">♕</div>
+        <img class="brand-logo" :src="'/images/pilar-shrine-logo.png'" alt="Our Lady of the Pillar Parish logo">
         <div><strong>PILAR SHRINE<br></strong>SORSOGON</div>
       </a>
       <button class="menu-button" aria-label="Toggle menu" @click="open = !open">☰</button>

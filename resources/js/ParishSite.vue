@@ -11,6 +11,7 @@ onUnmounted(() => removeEventListener('hashchange', syncRoute))
 
 const active = computed(() => route.value)
 const church = '/images/church-interior.png'
+const parishAerial = '/images/pilar-shrine-aerial.png'
 const altar = 'https://images.unsplash.com/photo-1519491050282-cf00c82424b4?auto=format&fit=crop&w=1600&q=85'
 const prayer = 'https://images.unsplash.com/photo-1507692049790-de58290a4334?auto=format&fit=crop&w=1400&q=85'
 const news = [
@@ -27,18 +28,43 @@ const productImages = [prayer,'https://images.unsplash.com/photo-1602173574767-3
   <main>
     <template v-if="route === 'home'">
       <section class="home-hero" :style="{ backgroundImage:`linear-gradient(90deg,rgba(239,247,255,.96) 0%,rgba(239,247,255,.68) 43%,rgba(0,0,0,.05)),url(${church})` }">
-        <div class="page-width hero-copy"><em>Welcome to</em><h1>Diocesan Shrine and Parish of<br>Our Lady of the Pillar </h1><div class="gold-rule left">✣</div><p>A community of believers journeying together<br>in faith, hope and love.</p><div><a class="button" href="#/schedule">▣ View mass schedule</a><a class="button secondary" href="#/sacraments">♙ Request sacrament</a></div></div>
+        <div class="page-width hero-copy"><em>Welcome to the</em><h1>Diocesan Shrine and Parish of<br>Our Lady of the Pillar </h1><div class="gold-rule left">✣</div><p>Home of the Episcopally Crowned Image of Our Lady of the Pillar<br>Patroness of the Town of Pilar, Province of Sorsogon</p><div><a class="button" href="#/schedule">▣ View mass schedule</a><a class="button secondary" href="#/sacraments">♙ Request sacrament</a></div></div>
       </section>
       <section class="help-panel page-width"><h2>How can we help you?</h2><div class="quick-grid"><a v-for="item in ['Mass Schedule','Mass Intention','Baptism Request','Wedding Request','Sacraments Info','Donate Online','Events & Calendar','Contact Parish']" :key="item" href="#/schedule"><b>♢</b>{{ item }}</a></div></section>
-      <section class="intro-grid page-width"><article><h3>About our parish</h3><p>Established in 1862, the Diocesan Shrine and Parish of Our Lady of the Pillar serves as the spiritual home and cultural anchor for the Catholic community in Pilar, Sorsogon. Under the patronage of Nuestra Señora del Pilar, holding the distinct privilege of enshrined distinction as the only crowned image in both the province and the Diocese of Sorsogon. Our parish stands as a testament to generations of faith, community life, and religious tradition in the municipality.</p><a class="button secondary" href="#/about">Read more</a></article><img :src="altar" alt="Church altar"><aside><h3>Mass schedule today</h3><p><b>6:00 AM</b> — Holy Mass</p><p><b>8:00 AM</b> — Holy Mass</p><p><b>10:00 AM</b> — Solemn Mass</p><p><b>5:00 PM</b> — Holy Mass</p><h3>Confession</h3><p>Saturday, 4:00 PM – 5:00 PM</p></aside></section>
+      <section class="intro-grid page-width"><article><h3>About our parish</h3><p>Established in 1862, the Diocesan Shrine and Parish of Our Lady of the Pillar serves as the spiritual home and cultural anchor for the Catholic community in Pilar, Sorsogon. Under the patronage of Nuestra Señora del Pilar, holding the distinct privilege of enshrined distinction as the only crowned image in both the province and the Diocese of Sorsogon. Our parish stands as a testament to generations of faith, community life, and religious tradition in the municipality.</p><a class="button secondary" href="#/about">Read more</a></article><img :src="parishAerial" alt="Aerial view of Our Lady of the Pillar Shrine"><aside><h3>Mass Schedule</h3><h4 class="schedule-group">Daily Mass</h4><p><b>Monday & Wednesday</b> — 5:00 PM</p><p><b>Tuesday, Thursday & Friday</b> — 6:00 AM</p><p><b>Saturday</b> — 6:00 AM</p><p><b>Anticipated Mass (Saturday)</b> — 5:00 PM</p><h4 class="schedule-group">Sunday Mass</h4><p><b>5:00 AM</b> — Holy Mass</p><p><b>7:30 AM</b> — Holy Mass</p><p><b>5:00 PM</b> — Holy Mass</p></aside></section>
     </template>
 
     <template v-else-if="route === 'about'">
-      <section class="soft-page"><SectionTitle eyebrow="Home  ›  About Us" title="About Our Parish"/><div class="page-width"><img class="wide-image" :src="altar" alt="Interior of church"><div class="values"><article v-for="v in [['Our History','Rooted in devotion to our Blessed Mother, our parish has been a beacon of faith and hope for generations.'],['Mission','To proclaim Christ and make disciples through worship, formation and service.'],['Vision',`A vibrant parish community witnessing God's love, growing in holiness and mission.`]]" :key="v[0]"><i>✥</i><div><h2>{{ v[0] }}</h2><p>{{ v[1] }}</p></div></article></div></div><div class="stats"><div><b>1954</b><span>Year Established</span></div><div><b>8,500+</b><span>Parishioners</span></div><div><b>25+</b><span>Ministries</span></div></div></section>
+      <section class="soft-page">
+        <SectionTitle eyebrow="Home  ›  About Us" title="About Our Parish"/>
+        <div class="page-width">
+          <img class="wide-image" :src="altar" alt="Interior of church">
+          <div class="values">
+            <article>
+              <div>
+                <h2>Our History</h2>
+                <p>The seed of Christianity was sowed in the Bicol Region in 1569 in the person of Captain Luis Enriquez de Guzman and Fray Alonzo Jimenez, an Augustinian friar This was probably during the Legazpi-Urdaneta expedition.</p>
+                <p>The cross and the sword, symbolized by Urdaneta and Legazpi respectively, went together hand and hand throughout the islands, the "cross soothing the wounds inflicted by the sword." In Sorsogon, known as the "Ibalon of the region of the Camarines," evangelization by missionary friars started around 1574 and this spread throughout the province.</p>
+                <p>The missionaries, besides preaching the gospel and baptizing the people, also taught the rudiments of house building and the art of civilized living among the natives. Around 1635, a missionary settlement, known as "Abucay-Catamlangan Mission" was organized by a certain Father Bartolome de Espritu Santo, OFM. Due to its proximity, this settlement was under the jurisdiction of Cagsawa, Albay. But on August 6, 1861, by virtue of a decree from the Superior Government of Manila, Pilar was formally organized as a town which included the barrios of Putiao, Sto. Niño, Sapa and Catamlangan of Cagsawa (now Daraga) Albay, and of Inang and Panlatuan of Albay.</p>
+                <p>In the sitio of Sto. Niño, previously Langatong and now Binanuahan, a wealthy businessman, Felix Milleza, touched by Christianity, donated a foot-high image of the Child Jesus holding the cross to the people. There was already a "capilla" constructed through the well-attested religiosity of the people. This image was first entrusted under the care of Capitan Luis Loriaga and was supposed to be handed down to the next hermano or hermana until changes of ecclesiastical officials. The custom was delegated only to the hermano mayor but was stopped when it reached the hands of a family in Binanuahan who claimed ownership of the image. The real owner is the Church, in other words, the people who comprise the Church. An ecclesiastical memorandum to Sto. Niño ordered the assignment of a Curate named Padre Presbetero Eduardo as the first parish priest of the newly organized pueblo.</p>
+                <p>The gobernadorcillo, Sabas Milleza, brother of Felix Milleza, also donated an image of "Our Lady of the Pillar" to the people, just like the image of the Sto. Niño. In 1861, the town, then called Sto. Niño, adopted the name Pilar, in honor of the then new-born infant princess, Pilar, daughter of the rulers of Spain, King Philip II and Queen Isabel I. The town became a full-fledged parish, with Our Lady of the Pillar as its titular. This was probably in 1862 because of "parroquia de Pillar 1862" as inscribed in the two bells in the parish. The Parish of Pilar is located east of Donsol and west of Castilla, 56 kilometers from the provincial capital.</p>
+              </div>
+            </article>
+          </div>
+          <section class="history-milestones" aria-labelledby="milestones-title">
+            <span>Parish milestone</span>
+            <h2 id="milestones-title">Important Historical Dates / Milestones</h2>
+            <div>
+              <time datetime="2018-10-12">October 12, 2018</time>
+              <p>Solemn Dedication of the Church, Declaration as Diocesan Shrine and Episcopal Coronation of the Image of Our Lady of the Pillar</p>
+            </div>
+          </section>
+        </div>
+      </section>
     </template>
 
     <template v-else-if="route === 'schedule'">
-      <section class="soft-page"><SectionTitle eyebrow="Home  ›  Mass Schedule" title="Mass & Liturgical Schedule"/><div class="schedule-layout page-width"><div><article class="schedule-card" v-for="s in [['Daily Mass','Monday – Friday','6:00 AM — Holy Mass|12:00 NN — Holy Mass|Saturday — 7:00 AM'],['Sunday Mass','Sunday','6:00 AM — Holy Mass|8:00 AM — Holy Mass|10:00 AM — Solemn Mass|4:00 PM — Holy Mass|6:00 PM — Holy Mass'],['Confession','Saturday','3:00 PM – 4:00 PM|or by appointment'],['Adoration','Every Thursday','after 7:00 AM Mass|8:00 AM – 6:00 PM']]" :key="s[0]"><i>♢</i><div><h2>{{ s[0] }}</h2><b>{{ s[1] }}</b><p v-for="line in s[2].split('|')" :key="line">{{ line }}</p></div></article></div><img class="tall-image" :src="altar" alt="Church sanctuary"></div></section>
+      <section class="soft-page"><SectionTitle eyebrow="Home  ›  Mass Schedule" title="Mass & Liturgical Schedule"/><div class="schedule-layout page-width"><div><article class="schedule-card" v-for="s in [['Daily Mass','Monday and Wednesday','5:00 PM — Holy Mass|Tuesday, Thursday and Friday — 6:00 AM — Holy Mass|Saturday — 6:00 AM — Holy Mass|Anticipated Mass (Saturday) — 5:00 PM'],['Sunday Mass','Sunday','5:00 AM — Holy Mass|7:30 AM — Holy Mass (FB Live) |5:00 PM — Holy Mass (FB Live)'],['Confession','Every First Thursday of the Month','5:00 PM'],['Monthly Devotion to Our Lady of the Pillar','Every 12th of the Month','5:00 PM — Mass|6:00 PM — Procession'],['Other Liturgical Activities','Special monthly observances','Every First Tuesday — Healing Mass — 6:00 AM|Every First Monday — Misa sa Campo Santo — 6:00 AM|First Saturday — Mass at Our Lady of Fatima Chapel (Banuyo) — 6:00 AM|Every First Friday — Holy Hour after Mass']]" :key="s[0]"><i>♢</i><div><h2>{{ s[0] }}</h2><b>{{ s[1] }}</b><p v-for="line in s[2].split('|')" :key="line">{{ line }}</p></div></article></div><img class="tall-image" :src="altar" alt="Church sanctuary"></div></section>
     </template>
 
     <template v-else-if="route === 'sacraments'">
@@ -67,3 +93,93 @@ const productImages = [prayer,'https://images.unsplash.com/photo-1602173574767-3
 </template>
 
 <style src="./parish.css"></style>
+
+<style>
+.values article:first-child {
+  display: block;
+  border: 0;
+  padding: 0;
+}
+
+.values article:first-child > i {
+  display: none;
+}
+
+.values article:first-child h2 {
+  margin: 0 0 20px;
+  font-size: 27px;
+}
+
+.values article:first-child p {
+  color: #34445a;
+  font-size: 15px;
+  line-height: 1.85;
+  white-space: pre-line;
+}
+
+.values article:not(:first-child) {
+  display: none;
+}
+
+.history-milestones {
+  max-width: 750px;
+  margin: 0 auto 70px;
+  padding: 28px 30px;
+  border-left: 4px solid var(--gold);
+  background: #fff;
+  box-shadow: 0 10px 25px rgba(14, 50, 95, .08);
+}
+
+.history-milestones > span {
+  color: #9b7628;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.history-milestones h2 {
+  margin: 8px 0 20px;
+  font-size: 22px;
+}
+
+.history-milestones div {
+  display: grid;
+  grid-template-columns: 145px 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+.history-milestones time {
+  color: var(--blue);
+  font-weight: 700;
+}
+
+.history-milestones p {
+  margin: 0;
+  color: #34445a;
+  line-height: 1.65;
+}
+
+.schedule-group {
+  margin: 20px 0 5px;
+  color: #9b7628;
+  font-size: 11px;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.schedule-group:first-of-type {
+  margin-top: 0;
+}
+
+@media (max-width: 720px) {
+  .history-milestones {
+    padding: 22px;
+  }
+
+  .history-milestones div {
+    grid-template-columns: 1fr;
+    gap: 7px;
+  }
+}
+</style>
