@@ -14,8 +14,8 @@ const links = [
 <template>
   <header class="site-header">
     <div class="top-strip">
-      <span>☎ (02) 1234 5678</span><span>✉ info@olopshrine.org</span>
-      <span>⌖ Banuyo, Pilar, Sorsogon</span>
+      <span>☎ 0946-869-1254</span><span>✉ olppspilarsorsogon@gmail.com</span>
+      <span>⌖ Binanuahan, Pilar, Sorsogon</span>
       <span class="socials">f&nbsp;&nbsp;▶&nbsp;&nbsp;◎</span>
     </div>
     <nav class="navbar page-width">
