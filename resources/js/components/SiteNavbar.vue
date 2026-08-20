@@ -21,7 +21,7 @@ const links = [
     <nav class="navbar page-width">
       <a class="brand" href="#/home">
         <div class="brand-mark">♕</div>
-        <div><strong>OUR LADY OF<br>THE PILLAR SHRINE</strong><small>A Parish of Faith, Love and Service</small></div>
+        <div><strong>PILAR SHRINE<br></strong>SORSOGON</div>
       </a>
       <button class="menu-button" aria-label="Toggle menu" @click="open = !open">☰</button>
       <div class="nav-links" :class="{ open }">

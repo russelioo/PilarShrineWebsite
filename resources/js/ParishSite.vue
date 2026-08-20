@@ -10,7 +10,7 @@ onMounted(() => { syncRoute(); addEventListener('hashchange', syncRoute) })
 onUnmounted(() => removeEventListener('hashchange', syncRoute))
 
 const active = computed(() => route.value)
-const church = 'https://images.unsplash.com/photo-1548625361-98739e23d63d?auto=format&fit=crop&w=1800&q=85'
+const church = '/images/church-interior.png'
 const altar = 'https://images.unsplash.com/photo-1519491050282-cf00c82424b4?auto=format&fit=crop&w=1600&q=85'
 const prayer = 'https://images.unsplash.com/photo-1507692049790-de58290a4334?auto=format&fit=crop&w=1400&q=85'
 const news = [
@@ -27,10 +27,10 @@ const productImages = [prayer,'https://images.unsplash.com/photo-1602173574767-3
   <main>
     <template v-if="route === 'home'">
       <section class="home-hero" :style="{ backgroundImage:`linear-gradient(90deg,rgba(239,247,255,.96) 0%,rgba(239,247,255,.68) 43%,rgba(0,0,0,.05)),url(${church})` }">
-        <div class="page-width hero-copy"><em>Welcome to</em><h1>Our Lady of<br>the Pillar Shrine</h1><div class="gold-rule left">✣</div><p>A community of believers journeying together<br>in faith, hope and love.</p><div><a class="button" href="#/schedule">▣ View mass schedule</a><a class="button secondary" href="#/sacraments">♙ Request sacrament</a></div></div>
+        <div class="page-width hero-copy"><em>Welcome to</em><h1>Diocesan Shrine and Parish of<br>Our Lady of the Pillar </h1><div class="gold-rule left">✣</div><p>A community of believers journeying together<br>in faith, hope and love.</p><div><a class="button" href="#/schedule">▣ View mass schedule</a><a class="button secondary" href="#/sacraments">♙ Request sacrament</a></div></div>
       </section>
       <section class="help-panel page-width"><h2>How can we help you?</h2><div class="quick-grid"><a v-for="item in ['Mass Schedule','Mass Intention','Baptism Request','Wedding Request','Sacraments Info','Donate Online','Events & Calendar','Contact Parish']" :key="item" href="#/schedule"><b>♢</b>{{ item }}</a></div></section>
-      <section class="intro-grid page-width"><article><h3>About our parish</h3><p>Our Lady of the Pillar Shrine is a Roman Catholic parish devoted to Mary under the title of Our Lady of the Pillar. We are a faith community committed to proclaiming the Gospel, celebrating the Sacraments and serving God's people.</p><a class="button secondary" href="#/about">Read more</a></article><img :src="altar" alt="Church altar"><aside><h3>Mass schedule today</h3><p><b>6:00 AM</b> — Holy Mass</p><p><b>8:00 AM</b> — Holy Mass</p><p><b>10:00 AM</b> — Solemn Mass</p><p><b>5:00 PM</b> — Holy Mass</p><h3>Confession</h3><p>Saturday, 4:00 PM – 5:00 PM</p></aside></section>
+      <section class="intro-grid page-width"><article><h3>About our parish</h3><p>Established in 1862, the Diocesan Shrine and Parish of Our Lady of the Pillar serves as the spiritual home and cultural anchor for the Catholic community in Pilar, Sorsogon. Under the patronage of Nuestra Señora del Pilar, holding the distinct privilege of enshrined distinction as the only crowned image in both the province and the Diocese of Sorsogon. Our parish stands as a testament to generations of faith, community life, and religious tradition in the municipality.</p><a class="button secondary" href="#/about">Read more</a></article><img :src="altar" alt="Church altar"><aside><h3>Mass schedule today</h3><p><b>6:00 AM</b> — Holy Mass</p><p><b>8:00 AM</b> — Holy Mass</p><p><b>10:00 AM</b> — Solemn Mass</p><p><b>5:00 PM</b> — Holy Mass</p><h3>Confession</h3><p>Saturday, 4:00 PM – 5:00 PM</p></aside></section>
     </template>
 
     <template v-else-if="route === 'about'">
