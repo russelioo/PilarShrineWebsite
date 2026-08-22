@@ -13,7 +13,8 @@ onUnmounted(() => removeEventListener('hashchange', syncRoute))
 const active = computed(() => route.value)
 const church = '/images/church-interior.png'
 const parishAerial = '/images/pilar-shrine-aerial.png'
-const altar = 'https://images.unsplash.com/photo-1519491050282-cf00c82424b4?auto=format&fit=crop&w=1600&q=85'
+const altar = '/images/pilar-shrine-sanctuary.jpg'
+const massScheduleImage = '/images/pilar-mass-schedule.jpg'
 const prayer = 'https://images.unsplash.com/photo-1507692049790-de58290a4334?auto=format&fit=crop&w=1400&q=85'
 const news = [
   { title:'May Crowning Celebration 2025', date:'May 10, 2025', place:'Church Grounds', image:'https://images.unsplash.com/photo-1473177104440-ffee2f376098?auto=format&fit=crop&w=900&q=80' },
@@ -22,13 +23,30 @@ const news = [
 ]
 const products = ['Pillar Statue','Pillar Rosary','Marian Prayer Book','Novena Booklet','Pillar Medal','Parish Shirt','Devotional Candle','Souvenir Keychain']
 const productImages = [prayer,'https://images.unsplash.com/photo-1602173574767-37ac01994b2a?auto=format&fit=crop&w=600&q=80','https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=600&q=80','https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=600&q=80','https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=600&q=80','https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=600&q=80','https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=600&q=80','https://images.unsplash.com/photo-1603561596112-db1d3d140b8c?auto=format&fit=crop&w=600&q=80']
+const dailyScheduleLabels = new Set([
+  'Tuesday, Thursday and Friday',
+  'Saturday',
+  'Anticipated Mass (Saturday)',
+])
+
+const splitScheduleLine = (line) => {
+  const separator = ' — '
+  const position = line.indexOf(separator)
+
+  return position === -1
+    ? { label: line, details: '' }
+    : { label: line.slice(0, position), details: line.slice(position + separator.length) }
+}
 </script>
 
 <template>
   <SiteNavbar :active="active" />
   <main>
     <template v-if="route === 'home'">
-      <section class="home-hero" :style="{ backgroundImage:`linear-gradient(90deg,rgba(239,247,255,.96) 0%,rgba(239,247,255,.68) 43%,rgba(0,0,0,.05)),url(${church})` }">
+      <section class="home-hero">
+        <video class="home-hero-video" autoplay muted loop playsinline preload="metadata" :poster="'/images/church-interior.png'" aria-hidden="true">
+          <source :src="'/videos/pilar-shrine-hero.mp4'" type="video/mp4">
+        </video>
         <div class="page-width hero-copy"><em>Welcome to the</em><h1>Diocesan Shrine and Parish of<br>Our Lady of the Pillar </h1><div class="gold-rule left">✣</div><p>Home of the Episcopally Crowned Image of Our Lady of the Pillar<br>Patroness of the Town of Pilar, Province of Sorsogon</p><div><a class="button" href="#/schedule">▣ View mass schedule</a><a class="button secondary" href="#/sacraments">♙ Request sacrament</a></div></div>
       </section>
       <section class="help-panel page-width"><h2>How can we help you?</h2><div class="quick-grid"><a v-for="item in ['Mass Schedule','Mass Intention','Baptism Request','Wedding Request','Sacraments Info','Donate Online','Events & Calendar','Contact Parish']" :key="item" href="#/schedule"><b>♢</b>{{ item }}</a></div></section>
@@ -65,7 +83,7 @@ const productImages = [prayer,'https://images.unsplash.com/photo-1602173574767-3
     </template>
 
     <template v-else-if="route === 'schedule'">
-      <section class="soft-page"><SectionTitle eyebrow="Home  ›  Mass Schedule" title="Mass & Liturgical Schedule"/><div class="schedule-layout page-width"><div><article class="schedule-card" v-for="s in [['Daily Mass','Monday and Wednesday','5:00 PM — Holy Mass|Tuesday, Thursday and Friday — 6:00 AM — Holy Mass|Saturday — 6:00 AM — Holy Mass|Anticipated Mass (Saturday) — 5:00 PM'],['Sunday Mass','Sunday','5:00 AM — Holy Mass|7:30 AM — Holy Mass (FB Live) |5:00 PM — Holy Mass (FB Live)'],['Confession','Every First Thursday of the Month','5:00 PM'],['Monthly Devotion to Our Lady of the Pillar','Every 12th of the Month','5:00 PM — Mass|6:00 PM — Procession'],['Other Liturgical Activities','Special monthly observances','Every First Tuesday — Healing Mass — 6:00 AM|Every First Monday — Misa sa Campo Santo — 6:00 AM|First Saturday — Mass at Our Lady of Fatima Chapel (Banuyo) — 6:00 AM|Every First Friday — Holy Hour after Mass']]" :key="s[0]"><i>♢</i><div><h2>{{ s[0] }}</h2><b>{{ s[1] }}</b><p v-for="line in s[2].split('|')" :key="line">{{ line }}</p></div></article></div><img class="tall-image" :src="altar" alt="Church sanctuary"></div></section>
+      <section class="soft-page"><SectionTitle eyebrow="Home  ›  Mass Schedule" title="Mass & Liturgical Schedule"/><div class="schedule-layout page-width"><div><article class="schedule-card" v-for="s in [['Daily Mass','Monday and Wednesday','5:00 PM — Holy Mass|Tuesday, Thursday and Friday — 6:00 AM — Holy Mass|Saturday — 6:00 AM — Holy Mass|Anticipated Mass (Saturday) — 5:00 PM'],['Sunday Mass','Sunday','5:00 AM — Holy Mass|7:30 AM — Holy Mass (FB Live) |5:00 PM — Holy Mass (FB Live)'],['Confession','Every First Thursday of the Month','5:00 PM'],['Monthly Devotion to Our Lady of the Pillar','Every 12th of the Month','5:00 PM — Mass|6:00 PM — Procession'],['Other Liturgical Activities','Special monthly observances','Every First Tuesday — Healing Mass — 6:00 AM|Every First Monday — Misa sa Campo Santo — 6:00 AM|First Saturday — Mass at Our Lady of Fatima Chapel (Banuyo) — 6:00 AM|Every First Friday — Holy Hour after Mass']]" :key="s[0]"><i>♢</i><div><h2>{{ s[0] }}</h2><b>{{ s[1] }}</b><p v-for="line in s[2].split('|')" :key="line"><template v-if="s[0] === 'Daily Mass' && dailyScheduleLabels.has(splitScheduleLine(line).label)"><span class="schedule-day">{{ splitScheduleLine(line).label }}</span> — {{ splitScheduleLine(line).details }}</template><template v-else>{{ line }}</template></p></div></article></div><img class="tall-image" :src="massScheduleImage" alt="Altar at Our Lady of the Pillar Shrine"></div></section>
     </template>
 
     <template v-else-if="route === 'sacraments'">
@@ -174,6 +192,11 @@ const productImages = [prayer,'https://images.unsplash.com/photo-1602173574767-3
   margin-top: 0;
 }
 
+.schedule-day {
+  color: var(--blue);
+  font-weight: 700;
+}
+
 @media (max-width: 720px) {
   .history-milestones {
     padding: 22px;
@@ -182,6 +205,41 @@ const productImages = [prayer,'https://images.unsplash.com/photo-1602173574767-3
   .history-milestones div {
     grid-template-columns: 1fr;
     gap: 7px;
+  }
+}
+
+.home-hero {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: #dfeaf2;
+}
+
+.home-hero::before {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  content: '';
+  background: linear-gradient(90deg, rgba(239, 247, 255, .94) 0%, rgba(239, 247, 255, .68) 45%, rgba(0, 16, 38, .16));
+}
+
+.home-hero-video {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.home-hero .hero-copy {
+  position: relative;
+  z-index: 2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-hero-video {
+    display: none;
   }
 }
 </style>
