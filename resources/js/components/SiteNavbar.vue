@@ -28,6 +28,7 @@ const links = [
         <a v-for="[key, label] in links" :key="key" :href="`#/${key}`" :class="{ active: active === key }" @click="open = false">{{ label }}</a>
         <a class="outline-action" href="#/novenas">Request prayer</a>
         <a class="solid-action" href="#/forms">Online forms</a>
+        <a class="login-action" href="#/login">♙ Sign in</a>
       </div>
     </nav>
   </header>

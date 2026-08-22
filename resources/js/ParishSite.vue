@@ -2,6 +2,7 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import SiteNavbar from './components/SiteNavbar.vue'
 import SiteFooter from './components/SiteFooter.vue'
+import AuthPortal from './components/AuthPortal.vue'
 import SectionTitle from './components/SectionTitle.vue'
 
 const route = ref('home')
@@ -87,6 +88,7 @@ const productImages = [prayer,'https://images.unsplash.com/photo-1602173574767-3
       <section class="intention-hero" :style="{backgroundImage:`linear-gradient(90deg,#fff 10%,rgba(255,255,255,.35)),url(${prayer})`}"><div class="page-width"><h1>Online Mass<br>Intention Request</h1><div class="gold-rule left">✣</div><p>Submit your Mass intention online.<br>We will pray for you and your loved ones.</p></div></section><div class="form-layout page-width"><form class="request-form" @submit.prevent><h2>Mass Intention Details</h2><div class="form-row"><label>Name of Requester *<input placeholder="Enter your full name"></label><label>Contact Number *<input placeholder="09XX XXX XXXX"></label><label>Email Address<input type="email" placeholder="Enter your email address"></label></div><label>Intention Type *</label><div class="choice-row"><button v-for="x in ['Thanksgiving','Healing','Birthday','Anniversary','Death Anniversary','Special Intention','Other']" :key="x" type="button">♡<small>{{ x }}</small></button></div><label>Name/s or Intention Being Offered *<input placeholder="Enter name/s or intention"></label><div class="form-row two"><label>Preferred Mass Date *<input type="date"></label><label>Preferred Mass Schedule *<select><option>Select Mass Schedule</option></select></label></div><label>Additional Message or Prayer Intention<textarea placeholder="Write your message or prayer intention..."></textarea></label><button class="button submit">➤ Submit request</button></form><aside class="info-panel"><h2>About Mass Intentions</h2><p>A Mass intention is a special prayer offered during the Holy Mass for a particular intention.</p><hr><h2>How it works</h2><h3>♢ Submit your request</h3><p>Fill out the form with your intention details.</p><h3>♢ We will confirm</h3><p>Our parish office will review your request.</p><h3>♡ We pray for you</h3><p>Our priests and community will pray for your intention.</p></aside></div>
     </template>
 
+    <AuthPortal v-else-if="route === 'login' || route === 'register'" :mode="route" />
     <template v-else><section class="soft-page"><SectionTitle :title="route.replace('-', ' ')" subtitle="This static page is ready for parish content."/></section></template>
   </main>
   <SiteFooter />
