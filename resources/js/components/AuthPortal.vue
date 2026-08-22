@@ -5,14 +5,21 @@ const audience = ref('parishioner')
 const show = ref(false)
 const confirmShow = ref(false)
 const success = ref(false)
-const login = () => { location.hash = '/home' }
+const login = () => {
+  if (audience.value === 'staff') {
+    window.location.href = '/admin/dashboard'
+    return
+  }
+
+  location.hash = '/home'
+}
 const register = () => { success.value = true; setTimeout(() => { location.hash = '/login' }, 1200) }
 </script>
 
 <template>
 <section class="auth-page"><div class="auth-shell page-width">
   <aside class="auth-welcome"><div>
-    <img src="/images/pilar-shrine-logo.png" alt="Pilar Shrine seal">
+    <img :src="'/images/pilar-shrine-logo.png'" alt="Pilar Shrine seal">
     <span class="auth-kicker">{{ mode === 'login' ? 'Welcome to our parish portal' : 'Join our parish community' }}</span>
     <h1>{{ mode === 'login' ? 'Faith brings us closer together.' : 'Your faith journey continues here.' }}</h1>
     <div class="auth-ornament"><span></span>✣<span></span></div>

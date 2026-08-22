@@ -34,10 +34,6 @@ const closeNavigation = () => {
       </a>
       <button class="menu-button" type="button" aria-label="Toggle menu" :aria-expanded="open" @click="open = !open; moreOpen = false">☰</button>
       <div class="nav-links" :class="{ open }">
-        <a v-for="[key, label] in links" :key="key" :href="`#/${key}`" :class="{ active: active === key }" @click="open = false">{{ label }}</a>
-        <a class="outline-action" href="#/novenas">Request prayer</a>
-        <a class="solid-action" href="#/forms">Online forms</a>
-        <a class="login-action" href="#/login">♙ Sign in</a>
         <a v-for="[key, label] in primaryLinks" :key="key" :href="'#/' + key" :class="{ active: props.active === key }" :aria-current="props.active === key ? 'page' : undefined" @click="closeNavigation">{{ label }}</a>
         <div class="more-nav">
           <button class="nav-more" type="button" :class="{ active: moreIsActive }" aria-haspopup="menu" :aria-expanded="moreOpen" @click="moreOpen = !moreOpen" @keydown.esc="moreOpen = false">

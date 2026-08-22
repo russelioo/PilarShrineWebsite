@@ -109,6 +109,7 @@ const splitScheduleLine = (line) => {
     <AuthPortal v-else-if="route === 'login' || route === 'register'" :mode="route" />
     <template v-else><section class="soft-page"><SectionTitle :title="route.replace('-', ' ')" subtitle="This static page is ready for parish content."/></section></template>
   </main>
+  <a v-if="route !== 'login' && route !== 'register'" class="account-launcher" href="#/login" aria-label="Open parish account login">♙ <span>Parish account</span></a>
   <SiteFooter />
 </template>
 
