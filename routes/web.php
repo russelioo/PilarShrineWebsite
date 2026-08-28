@@ -7,6 +7,11 @@ Route::get('/', function () {
     return view('parish');
 });
 
+// Parishioners - Static page for now
+Route::get('/admin/parishioners', function () {
+    return view('admin.parishioners');
+})->name('admin.parishioners');
+
 // Add ->middleware(['auth', 'role:admin']) after backend login is connected.
 Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])
     ->name('admin.dashboard');
