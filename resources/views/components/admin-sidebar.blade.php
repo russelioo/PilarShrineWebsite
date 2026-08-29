@@ -17,7 +17,10 @@
          class="{{ request()->routeIs('admin.parishioners*') ? 'active' : '' }}">
         <b>♙</b><span>Parishioners</span>
       </a>
-      <a href="#"><b>♜</b><span>Staff Management</span></a>
+      <a href="{{ route('admin.staff') }}" 
+         class="{{ request()->routeIs('admin.staff*') ? 'active' : '' }}">
+        <b>♜</b><span>Staff Management</span>
+      </a>
       <a href="#"><b>♚</b><span>Roles &amp; Permissions</span></a>
     </div>
 

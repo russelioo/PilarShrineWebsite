@@ -12,6 +12,10 @@ Route::get('/admin/parishioners', function () {
     return view('admin.parishioners');
 })->name('admin.parishioners');
 
+Route::get('/admin/staff', function () {
+    return view('admin.staff');
+})->name('admin.staff');
+
 // Add ->middleware(['auth', 'role:admin']) after backend login is connected.
 Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])
     ->name('admin.dashboard');
