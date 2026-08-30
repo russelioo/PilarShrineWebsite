@@ -1,17 +1,33 @@
 <?php
 
 use App\Http\Controllers\AdminDashboardController;
-use App\Http\Controllers\StaffLoginController;
+use App\Http\Controllers\LoginController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('parish');
 });
 
-Route::post('/login/staff', [StaffLoginController::class, 'store'])
+Route::post('/login', [LoginController::class, 'store'])
     ->middleware('guest')
-    ->name('login.staff');
+    ->name('login');
 
+Route::prefix('parishioner')->name('parishioner.')->group(function () {
+    Route::view('/dashboard', 'parishioner.dashboard')->name('dashboard');
+    Route::view('/mass-intentions', 'parishioner.mass-intentions')->name('mass-intentions');
+    Route::view('/sacrament-requests', 'parishioner.sacrament-requests')->name('sacrament-requests');
+    Route::view('/inquiries', 'parishioner.inquiries')->name('inquiries');
+    Route::view('/request-mass-intention', 'parishioner.request-mass-intention')->name('request-mass-intention');
+    Route::view('/request-sacrament', 'parishioner.request-sacrament')->name('request-sacrament');
+    Route::view('/other-requests', 'parishioner.other-requests')->name('other-requests');
+    Route::view('/events-schedule', 'parishioner.events-schedule')->name('events-schedule');
+    Route::view('/announcements', 'parishioner.announcements')->name('announcements');
+    Route::view('/donations', 'parishioner.donations')->name('donations');
+    Route::view('/ministries', 'parishioner.ministries')->name('ministries');
+    Route::view('/messages-inquiries', 'parishioner.messages-inquiries')->name('messages-inquiries');
+    Route::view('/profile-settings', 'parishioner.profile-settings')->name('profile-settings');
+    Route::post('/logout', [AdminDashboardController::class, 'logout'])->name('logout');
+});
 Route::prefix('admin')->name('admin.')->group(function () {
     // Static pages; replace with controllers when CRUD is implemented.
     Route::view('/parishioners', 'admin.parishioners')->name('parishioners');

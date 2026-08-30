@@ -5,16 +5,23 @@ namespace App\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
-class StaffLoginController extends Controller
+class LoginController extends Controller
 {
     public function store(Request $request): JsonResponse
     {
-        $credentials = $request->validate([
+        $validated = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required', 'string'],
+            'audience' => ['required', Rule::in(['parishioner', 'staff'])],
         ]);
+
+        $credentials = [
+            'email' => $validated['email'],
+            'password' => $validated['password'],
+        ];
 
         if (! Auth::attempt($credentials, $request->boolean('remember'))) {
             throw ValidationException::withMessages([
@@ -24,21 +31,26 @@ class StaffLoginController extends Controller
 
         $request->session()->regenerate();
         $user = $request->user();
+        $allowed = $validated['audience'] === 'staff'
+            ? in_array($user->role, ['admin', 'staff'], true)
+            : $user->role === 'user';
 
-        if (! in_array($user->role, ['admin', 'staff'], true)) {
+        if (! $allowed) {
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
             return response()->json([
-                'message' => 'This sign-in is only available to parish staff.',
+                'message' => 'Please use the correct account type for this account.',
             ], 403);
         }
 
-        return response()->json([
-            'redirect' => $user->role === 'admin'
-                ? route('admin.dashboard')
-                : route('staff.dashboard'),
-        ]);
+        $redirect = match ($user->role) {
+            'admin' => route('admin.dashboard'),
+            'staff' => route('staff.dashboard'),
+            default => route('parishioner.dashboard'),
+        };
+
+        return response()->json(['redirect' => $redirect]);
     }
 }

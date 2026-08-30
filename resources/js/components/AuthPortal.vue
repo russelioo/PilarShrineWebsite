@@ -16,15 +16,10 @@ const success = ref(false)
 const login = async () => {
   error.value = ''
 
-  if (audience.value === 'parishioner') {
-    location.hash = '/home'
-    return
-  }
-
   loading.value = true
 
   try {
-    const response = await fetch('/login/staff', {
+    const response = await fetch('/login', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -35,6 +30,7 @@ const login = async () => {
         email: email.value,
         password: password.value,
         remember: remember.value,
+        audience: audience.value,
       }),
     })
 

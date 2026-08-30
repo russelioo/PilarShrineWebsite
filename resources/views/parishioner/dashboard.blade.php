@@ -1,0 +1,8 @@
+@extends('layouts.parishioner')
+@section('title', 'Dashboard')
+@section('content')
+<section class="welcome"><div><h2>Parishioner Dashboard</h2><p>Track your requests and stay connected with Pilar Shrine.</p></div><div class="date">{{ now()->format('l, F j, Y') }}</div></section>
+<div class="portal-stats"><article><strong>2</strong><span>Active Requests</span></article><article><strong>1</strong><span>Upcoming Schedule</span></article><article><strong>1</strong><span>Unread Message</span></article></div>
+<div class="portal-panel"><h3>Recent activity</h3><p><b>Mass intention received</b><span>Pending parish office review</span></p><p><b>Baptism inquiry answered</b><span>Reply received August 28, 2026</span></p><p><b>Sunday Mass</b><span>September 6, 2026 at 7:30 AM</span></p></div>
+@endsection
+@push('styles')<style>.portal-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.portal-stats article,.portal-panel{padding:21px;border:1px solid var(--line);border-radius:11px;background:#fff}.portal-stats strong,.portal-stats span{display:block}.portal-stats strong{color:var(--navy);font:700 28px Georgia}.portal-stats span{margin-top:6px;color:var(--muted);font-size:10px}.portal-panel{margin-top:20px}.portal-panel h3{margin:0 0 12px;color:var(--navy);font-family:Georgia,serif}.portal-panel p{display:flex;justify-content:space-between;margin:0;padding:13px 0;border-top:1px solid #edf2f7;font-size:11px}.portal-panel p span{color:var(--muted)}@media(max-width:620px){.portal-stats{grid-template-columns:1fr}.portal-panel p{display:block}.portal-panel p span{display:block;margin-top:4px}}</style>@endpush
