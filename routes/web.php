@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\MassScheduleController;
 use App\Http\Controllers\Parishioner\MassIntentionController;
 use Illuminate\Support\Facades\Route;
 
@@ -34,7 +35,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
     // Static pages; replace with controllers when CRUD is implemented.
     Route::view('/parishioners', 'admin.parishioners')->name('parishioners');
     Route::view('/staff', 'admin.staff')->name('staff');
-    Route::view('/mass-schedules', 'admin.mass-schedules')->name('mass-schedules');
+    Route::middleware('auth')->group(function () {
+        Route::get('/mass-schedules', [MassScheduleController::class, 'index'])->name('mass-schedules');
+        Route::post('/mass-schedules', [MassScheduleController::class, 'store'])->name('mass-schedules.store');
+        Route::put('/mass-schedules/{massSchedule}', [MassScheduleController::class, 'update'])->name('mass-schedules.update');
+        Route::delete('/mass-schedules/{massSchedule}', [MassScheduleController::class, 'destroy'])->name('mass-schedules.destroy');
+    });
     Route::view('/time-slots', 'admin.time-slots')->name('time-slots');
     Route::view('/mass-intentions', 'admin.mass-intentions')->name('mass-intentions');
     Route::view('/appointments', 'admin.appointments')->name('appointments');
@@ -56,7 +62,12 @@ Route::prefix('staff')->name('staff.')->group(function () {
     Route::view('/sacrament-requests', 'staff.sacrament-requests')->name('sacrament-requests');
     Route::view('/inquiries', 'staff.inquiries')->name('inquiries');
 
-    Route::view('/mass-schedules', 'staff.mass-schedules')->name('mass-schedules');
+    Route::middleware('auth')->group(function () {
+        Route::get('/mass-schedules', [MassScheduleController::class, 'index'])->name('mass-schedules');
+        Route::post('/mass-schedules', [MassScheduleController::class, 'store'])->name('mass-schedules.store');
+        Route::put('/mass-schedules/{massSchedule}', [MassScheduleController::class, 'update'])->name('mass-schedules.update');
+        Route::delete('/mass-schedules/{massSchedule}', [MassScheduleController::class, 'destroy'])->name('mass-schedules.destroy');
+    });
     Route::view('/sacrament-schedules', 'staff.sacrament-schedules')->name('sacrament-schedules');
     Route::view('/events-calendar', 'staff.events-calendar')->name('events-calendar');
 
