@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\Parishioner\MassIntentionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -12,12 +13,13 @@ Route::post('/login', [LoginController::class, 'store'])
     ->middleware('guest')
     ->name('login');
 
-Route::prefix('parishioner')->name('parishioner.')->group(function () {
+Route::prefix('parishioner')->name('parishioner.')->middleware('auth')->group(function () {
     Route::view('/dashboard', 'parishioner.dashboard')->name('dashboard');
-    Route::view('/mass-intentions', 'parishioner.mass-intentions')->name('mass-intentions');
+    Route::get('/mass-intentions', [MassIntentionController::class, 'index'])->name('mass-intentions');
     Route::view('/sacrament-requests', 'parishioner.sacrament-requests')->name('sacrament-requests');
     Route::view('/inquiries', 'parishioner.inquiries')->name('inquiries');
-    Route::view('/request-mass-intention', 'parishioner.request-mass-intention')->name('request-mass-intention');
+    Route::get('/request-mass-intention', [MassIntentionController::class, 'create'])->name('request-mass-intention');
+    Route::post('/mass-intentions', [MassIntentionController::class, 'store'])->name('mass-intentions.store');
     Route::view('/request-sacrament', 'parishioner.request-sacrament')->name('request-sacrament');
     Route::view('/other-requests', 'parishioner.other-requests')->name('other-requests');
     Route::view('/events-schedule', 'parishioner.events-schedule')->name('events-schedule');
