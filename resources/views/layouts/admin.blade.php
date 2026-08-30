@@ -11,11 +11,17 @@
         :root{--navy:#062f78;--blue:#0b58b5;--gold:#d6aa3e;--ink:#1b2b40;--muted:#718096;--bg:#f3f7fb;--line:#dce5ee;--side-top:#052b69;--side-bottom:#073f94}
         *{box-sizing:border-box}
         body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,sans-serif}
-        .layout{min-height:100vh;display:grid;grid-template-columns:280px 1fr}
+        .layout{min-height:100vh;display:grid;grid-template-columns:280px 1fr;transition:grid-template-columns .25s ease}
+        .layout.sidebar-collapsed{grid-template-columns:76px 1fr}
 
         /* ===== Sidebar ===== */
-        .sidebar{position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column;padding:26px 18px 26px;background:linear-gradient(180deg,var(--side-top),var(--side-bottom));color:#fff}
+        .sidebar{position:sticky;top:0;height:100vh;overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none;display:flex;flex-direction:column;padding:26px 18px;background:linear-gradient(180deg,var(--side-top),var(--side-bottom));color:#fff;transition:padding .25s ease}
+        .sidebar::-webkit-scrollbar{display:none}
         .brand{display:flex;align-items:center;gap:11px;padding:4px 8px 18px}
+        .brand-copy{min-width:0;white-space:nowrap}
+        .sidebar-toggle{width:30px;height:30px;flex:none;display:grid;place-items:center;margin-left:auto;padding:0;border:1px solid #ffffff35;border-radius:7px;background:#ffffff16;color:#fff;cursor:pointer}
+        .sidebar-toggle:hover{background:#ffffff2b}
+        .sidebar-toggle svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .25s ease}
         .brand-mark{width:42px;height:42px;flex:none;border-radius:50%;background:#fff;display:grid;place-items:center;overflow:hidden}
         .brand-mark img{width:26px;height:32px;object-fit:contain}
         .brand b{display:block;font:700 14px Georgia,serif;color:#fff}
@@ -29,8 +35,18 @@
         .nav-group-label{margin:0 12px 8px;color:#8fb1dc;font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
         .nav-group a{display:flex;gap:12px;align-items:center;padding:10px 12px;margin:2px 0;border-radius:7px;color:#dce9f8;font-size:12px;text-decoration:none}
         .nav-group a b{width:16px;text-align:center;font-size:13px;font-style:normal}
+        .nav-icon{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
         .nav-group a.active,.nav-group a:hover{background:#ffffff1c;color:#fff}
         .nav-group a.active{border-left:3px solid var(--gold);padding-left:9px}
+        .sidebar-collapsed .sidebar{padding-left:10px;padding-right:10px}
+        .sidebar-collapsed .brand{justify-content:center;padding-left:0;padding-right:0}
+        .sidebar-collapsed .brand-mark,.sidebar-collapsed .brand-copy,.sidebar-collapsed .nav-group-label,.sidebar-collapsed .nav a span{display:none}
+        .sidebar-collapsed .sidebar-toggle{margin-left:0}
+        .sidebar-collapsed .sidebar-toggle svg{transform:rotate(180deg)}
+        .sidebar-collapsed .nav-top,.sidebar-collapsed .nav-group a{justify-content:center;padding-left:12px;padding-right:12px}
+        .sidebar-collapsed .nav-group a.active{padding-left:9px}
+        .sidebar-tooltip{position:fixed;z-index:1000;padding:7px 10px;border-radius:6px;background:#152238;color:#fff;box-shadow:0 6px 18px #0003;font-size:11px;font-weight:700;white-space:nowrap;pointer-events:none;opacity:0;transform:translateX(-4px);transition:opacity .12s ease,transform .12s ease}
+        .sidebar-tooltip.visible{opacity:1;transform:translateX(0)}
 
         /* ===== Main / topbar / content shell ===== */
         .main{min-width:0}
@@ -89,6 +105,53 @@
         </main>
     </div>
 
+
+    <div class="sidebar-tooltip" id="sidebar-tooltip" role="tooltip"></div>
+
+    <script>
+        (() => {
+            const layout = document.querySelector('.layout');
+            const toggle = document.getElementById('sidebar-toggle');
+            const tooltip = document.getElementById('sidebar-tooltip');
+            const sidebar = document.querySelector('.sidebar');
+            if (!layout || !toggle || !tooltip) return;
+
+            const hideTooltip = () => tooltip.classList.remove('visible');
+            const showTooltip = (link) => {
+                if (!layout.classList.contains('sidebar-collapsed')) return;
+                const label = link.querySelector('span')?.textContent.trim();
+                if (!label) return;
+                const rect = link.getBoundingClientRect();
+                tooltip.textContent = label;
+                tooltip.style.left = `${rect.right + 10}px`;
+                tooltip.style.top = `${rect.top + (rect.height / 2)}px`;
+                tooltip.style.transform = 'translateY(-50%)';
+                tooltip.classList.add('visible');
+            };
+
+            document.querySelectorAll('.nav a').forEach((link) => {
+                link.addEventListener('mouseenter', () => showTooltip(link));
+                link.addEventListener('mouseleave', hideTooltip);
+                link.addEventListener('focus', () => showTooltip(link));
+                link.addEventListener('blur', hideTooltip);
+            });
+            sidebar?.addEventListener('scroll', hideTooltip);
+
+            const setCollapsed = (collapsed) => {
+                layout.classList.toggle('sidebar-collapsed', collapsed);
+                toggle.setAttribute('aria-expanded', String(!collapsed));
+                toggle.setAttribute('aria-label', collapsed ? 'Expand sidebar' : 'Collapse sidebar');
+            };
+
+            setCollapsed(localStorage.getItem('admin-sidebar-collapsed') === 'true');
+            toggle.addEventListener('click', () => {
+                hideTooltip();
+                const collapsed = !layout.classList.contains('sidebar-collapsed');
+                setCollapsed(collapsed);
+                localStorage.setItem('admin-sidebar-collapsed', String(collapsed));
+            });
+        })();
+    </script>
     <!-- Scripts -->
     @stack('scripts')
 </body>
