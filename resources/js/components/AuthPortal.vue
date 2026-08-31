@@ -3,7 +3,6 @@ import { ref } from 'vue'
 
 defineProps({ mode: String })
 
-const audience = ref('parishioner')
 const email = ref('')
 const password = ref('')
 const remember = ref(false)
@@ -30,7 +29,6 @@ const login = async () => {
         email: email.value,
         password: password.value,
         remember: remember.value,
-        audience: audience.value,
       }),
     })
 
@@ -70,14 +68,12 @@ const register = () => {
     <form v-if="mode === 'login'" class="auth-card" @submit.prevent="login">
       <a class="auth-back" href="#/home">← &nbsp; Back to home</a><span class="auth-kicker">Account access</span>
       <h2>Sign in to your account</h2><p class="auth-intro">Welcome back. Please enter your details below.</p>
-      <div class="account-switch"><button type="button" :class="{active:audience==='parishioner'}" @click="audience='parishioner'">♙ <span>Parishioner</span></button><button type="button" :class="{active:audience==='staff'}" @click="audience='staff'">♜ <span>Staff / Admin</span></button></div>
-      <div v-if="audience==='staff'" class="staff-notice">Authorized parish personnel only. Staff activity may be monitored.</div>
       <label class="auth-field"><span>Email address</span><div><i>✉</i><input v-model="email" type="email" autocomplete="email" placeholder="you@example.com" required></div></label>
       <label class="auth-field"><span>Password</span><div><i>⌑</i><input v-model="password" :type="show?'text':'password'" autocomplete="current-password" placeholder="Enter your password" required><button type="button" @click="show=!show">{{ show?'◉':'◎' }}</button></div></label>
       <div class="auth-options"><label><input v-model="remember" type="checkbox"> Remember me</label><a href="#/forgot-password">Forgot password?</a></div>
       <p v-if="error" class="auth-error" role="alert">{{ error }}</p>
       <button class="auth-submit" :disabled="loading">{{ loading ? 'Signing in...' : 'Sign in' }} <span>→</span></button>
-      <p v-if="audience==='parishioner'" class="auth-alternate">New to the parish portal? <a href="#/register">Create an account</a></p><p v-else class="auth-alternate">Need staff access? Contact the parish administrator.</p>
+      <p class="auth-alternate">New to the parish portal? <a href="#/register">Create an account</a></p>
       <p class="auth-security">▣ &nbsp; Your information is protected and kept confidential.</p>
     </form>
     <form v-else class="auth-card auth-card-wide" @submit.prevent="register">
