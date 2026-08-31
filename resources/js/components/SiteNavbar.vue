@@ -6,10 +6,10 @@ const open = ref(false)
 const moreOpen = ref(false)
 
 const primaryLinks = [
-  ['home', 'Home'], ['about', 'About'], ['schedule', 'Mass Schedule'], ['events', 'Events'],
+  ['home', 'Home'], ['about', 'About'], ['schedule', 'Mass Schedule'], ['sacraments', 'Sacraments'],
 ]
 const moreLinks = [
-  ['sacraments', 'Sacraments'], ['ministries', 'Ministries'], ['news', 'News'],
+  ['events', 'Events & News'], ['ministries', 'Ministries'],
   ['novenas', 'Novenas'], ['store', 'Store'], ['contact', 'Contact'],
 ]
 const moreIsActive = computed(() => moreLinks.some(([key]) => key === props.active) || props.active === 'novena-details')
