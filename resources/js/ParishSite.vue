@@ -77,7 +77,7 @@ const splitScheduleLine = (line) => {
     <template v-if="route === 'home'">
       <section class="home-hero">
         <video class="home-hero-video" autoplay muted loop playsinline preload="metadata" :poster="'/images/church-interior.png'" aria-hidden="true">
-          <source :src="'/videos/pilar-shrine-hero.mp4'" type="video/mp4">
+          <source :src="'/videos/pilar-shrine-hero-h264.mp4'" type="video/mp4; codecs=avc1.640028">
         </video>
         <div class="page-width hero-copy"><em>Welcome to the</em><h1>Diocesan Shrine and Parish of<br>Our Lady of the Pillar </h1><div class="gold-rule left">✣</div><p>Home of the Episcopally Crowned Image of Our Lady of the Pillar<br>Patroness of the Town of Pilar, Province of Sorsogon</p><div><a class="button" href="#/schedule">▣ View mass schedule</a><a class="button secondary" href="#/sacraments">♙ Sacrament requirements</a></div></div>
       </section>
