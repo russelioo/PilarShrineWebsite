@@ -1,0 +1,2 @@
+<script setup>defineProps({ items: { type: Array, default: () => [] } })</script>
+<template><nav v-if="items.length" class="site-breadcrumbs" aria-label="Breadcrumb"><template v-for="(item, index) in items" :key="item.label"><a v-if="item.href" :href="item.href">{{ item.label }}</a><span v-else>{{ item.label }}</span><i v-if="index < items.length - 1" aria-hidden="true">›</i></template></nav></template>

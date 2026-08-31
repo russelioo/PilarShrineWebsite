@@ -1,0 +1,1051 @@
+/* Unified public-site design system */
+:root {
+  --blue: #0a377f;
+  --bright: #1262bd;
+  --gold: #d8aa3c;
+  --ink: #17263a;
+  --muted: #607086;
+  --soft: #f4f7fb;
+  --line: #dfe7f0;
+  --surface: #ffffff;
+  --radius-sm: 10px;
+  --radius: 18px;
+  --radius-lg: 28px;
+  --shadow: 0 16px 44px rgba(24, 52, 88, .09);
+  --shadow-hover: 0 20px 50px rgba(24, 52, 88, .15);
+}
+
+body {
+  overflow-x: hidden;
+  color: var(--ink);
+  background: #fff;
+  -webkit-font-smoothing: antialiased;
+}
+
+a,
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.site-header {
+  border-bottom: 1px solid rgba(219, 228, 238, .8);
+  box-shadow: 0 8px 28px rgba(17, 44, 78, .07);
+}
+
+.top-strip {
+  height: 30px;
+  gap: 24px;
+  background: linear-gradient(90deg, #082f6d, #0b438d);
+  color: rgba(255, 255, 255, .86);
+  font-size: 9px;
+  letter-spacing: .015em;
+}
+
+.top-strip span {
+  display: inline-flex;
+  align-items: center;
+}
+
+.top-strip .socials {
+  color: #fff;
+  letter-spacing: .08em;
+}
+
+.brand {
+  gap: 10px;
+}
+
+.brand > div {
+  letter-spacing: -.02em;
+}
+
+.page-width {
+  width: min(1180px, calc(100% - 56px));
+}
+
+.button {
+  min-height: 50px;
+  padding: 16px 24px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #0a377f, #1262bd);
+  box-shadow: 0 10px 24px rgba(10, 55, 127, .2);
+  letter-spacing: .025em;
+  transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+}
+
+.button:hover,
+.button:focus-visible {
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 15px 30px rgba(10, 55, 127, .26);
+}
+
+.button.secondary {
+  border-color: rgba(10, 55, 127, .2);
+  background: rgba(255, 255, 255, .94);
+  color: var(--blue);
+  box-shadow: 0 8px 20px rgba(22, 43, 70, .1);
+}
+
+.button.secondary:hover,
+.button.secondary:focus-visible {
+  border-color: var(--blue);
+  background: #fff;
+  color: var(--blue);
+}
+
+/* Homepage hero */
+.home-hero {
+  min-height: 510px;
+  align-items: center;
+  background-color: #18324a;
+}
+
+body .home-hero::before {
+  background:
+    linear-gradient(90deg, rgba(6, 28, 58, .9) 0%, rgba(7, 35, 70, .72) 44%, rgba(7, 28, 52, .18) 78%),
+    linear-gradient(0deg, rgba(5, 23, 44, .28), transparent 45%);
+}
+
+.home-hero-video {
+  filter: saturate(.9) contrast(1.03);
+}
+
+.home-hero .hero-copy {
+  padding-block: 64px;
+}
+
+.hero-copy em {
+  display: inline-flex;
+  align-items: center;
+  color: #f2cd72;
+  font-family: Montserrat, Arial, sans-serif;
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: .17em;
+  text-transform: uppercase;
+}
+
+.hero-copy em::before {
+  display: none;
+}
+
+.hero-copy h1 {
+  max-width: 1120px;
+  margin: 18px 0 20px;
+  color: #fff;
+  font-size: clamp(38px, 3.25vw, 58px);
+  line-height: 1.12;
+  letter-spacing: -.025em;
+  text-shadow: 0 3px 22px rgba(0, 0, 0, .2);
+}
+
+.hero-copy .gold-rule {
+  display: none;
+}
+
+.hero-copy p {
+  max-width: 720px;
+  margin: 0 0 34px;
+  color: rgba(255, 255, 255, .88);
+  font-size: 16px;
+  line-height: 1.75;
+}
+
+.hero-copy .button.secondary {
+  border-color: rgba(255, 255, 255, .65);
+  background: rgba(255, 255, 255, .1);
+  color: #fff;
+  box-shadow: none;
+  backdrop-filter: blur(10px);
+}
+
+.hero-copy .button.secondary:hover {
+  background: #fff;
+  color: var(--blue);
+}
+
+/* Homepage content */
+.intro-grid {
+  grid-template-columns: 1.12fr .9fr .82fr;
+  gap: 26px;
+  align-items: stretch;
+  padding: 82px 0 90px;
+}
+
+.intro-grid article,
+.intro-grid aside {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+  box-shadow: var(--shadow);
+}
+
+.intro-grid article {
+  padding: 36px;
+}
+
+.intro-grid h3,
+.schedule-card h2 {
+  margin-top: 0;
+  font-size: 14px;
+  letter-spacing: .08em;
+}
+
+.intro-grid p {
+  color: #506176;
+  font-size: 13px;
+  line-height: 1.85;
+}
+
+.intro-grid img {
+  height: 100%;
+  min-height: 390px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.intro-grid aside {
+  padding: 30px;
+  background: linear-gradient(155deg, #f4f8fc, #fff);
+}
+
+.intro-grid aside p {
+  padding: 12px 0;
+}
+
+/* Shared inner-page treatment */
+.soft-page {
+  min-height: 680px;
+  background: linear-gradient(180deg, #eef4fa 0, #f9fbfd 250px, #fff 620px);
+}
+
+.section-title {
+  padding: 72px 0 42px;
+}
+
+.section-title > span {
+  color: #8b6a20;
+  letter-spacing: .12em;
+}
+
+.section-title h1 {
+  margin-top: 14px;
+  font-size: clamp(34px, 4vw, 50px);
+  letter-spacing: -.025em;
+}
+
+.section-title p {
+  max-width: 650px;
+  margin: 14px auto 0;
+  line-height: 1.7;
+}
+
+/* About page */
+.about-page .section-title {
+  width: min(1180px, calc(100% - 56px));
+  margin-inline: auto;
+  padding: 54px 0 32px;
+  text-align: left;
+}
+
+.about-page .section-title > span {
+  font-size: 10px;
+}
+
+.about-page .section-title h1 {
+  margin: 10px 0 0;
+  font-size: clamp(38px, 4vw, 54px);
+}
+
+.about-page .section-title .gold-rule {
+  display: none;
+}
+
+.about-visual {
+  position: relative;
+}
+
+.about-page .about-visual .wide-image {
+  height: 440px;
+  object-position: center 42%;
+  border-radius: 24px;
+}
+
+.about-image-caption {
+  position: absolute;
+  bottom: 24px;
+  left: 24px;
+  display: grid;
+  min-width: 290px;
+  padding: 18px 22px;
+  border: 1px solid rgba(255, 255, 255, .35);
+  border-radius: 14px;
+  background: rgba(5, 35, 74, .82);
+  color: #fff;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .16);
+  backdrop-filter: blur(12px);
+}
+
+.about-image-caption span {
+  color: #f0cc70;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.about-image-caption strong {
+  margin: 5px 0 4px;
+  font-family: 'Libre Baskerville', Georgia, serif;
+  font-size: 18px;
+}
+
+.about-image-caption small {
+  color: rgba(255, 255, 255, .72);
+  font-size: 10px;
+}
+
+.about-page .values {
+  max-width: 920px;
+  margin: 58px auto 34px;
+}
+
+.about-page .values article:first-child {
+  padding: 46px 52px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+  box-shadow: var(--shadow);
+}
+
+.about-page .values article:first-child h2 {
+  margin-bottom: 24px;
+  color: var(--blue);
+  font: 700 30px 'Libre Baskerville', Georgia, serif;
+  letter-spacing: -.02em;
+}
+
+.about-page .values article:first-child p {
+  color: #4b5d72;
+  font-size: 14px;
+  line-height: 1.9;
+}
+
+.about-page .values article:first-child p:first-of-type::first-letter {
+  float: left;
+  margin: 8px 8px 0 0;
+  color: var(--blue);
+  font: 700 48px/38px 'Libre Baskerville', Georgia, serif;
+}
+
+.about-page .history-milestones {
+  max-width: 920px;
+  margin-bottom: 90px;
+  padding: 36px 42px;
+  border: 1px solid #e4d5aa;
+  border-left: 5px solid var(--gold);
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, #fffdf7, #fff);
+  box-shadow: var(--shadow);
+}
+
+.about-page .history-milestones h2 {
+  margin-bottom: 24px;
+}
+
+.about-page .history-milestones div {
+  grid-template-columns: 170px 1fr;
+  align-items: center;
+  padding-top: 20px;
+  border-top: 1px solid #eadfbf;
+}
+
+.about-page .history-milestones time {
+  font-family: 'Libre Baskerville', Georgia, serif;
+  font-size: 16px;
+}
+
+/* Mass schedule page */
+.schedule-page .section-title {
+  width: min(1180px, calc(100% - 56px));
+  margin-inline: auto;
+  padding: 54px 0 32px;
+  text-align: left;
+}
+
+.schedule-page .section-title h1 {
+  margin: 10px 0 0;
+  font-size: clamp(38px, 4vw, 54px);
+}
+
+.schedule-page .section-title .gold-rule {
+  display: none;
+}
+
+.schedule-page .section-title p {
+  margin: 12px 0 0;
+}
+
+.schedule-page .schedule-layout {
+  grid-template-columns: minmax(0, 1.05fr) minmax(360px, .95fr);
+  gap: 36px;
+  align-items: start;
+  padding: 12px 0 90px;
+}
+
+.schedule-list {
+  display: grid;
+  gap: 14px;
+}
+
+.schedule-page .schedule-card {
+  grid-template-columns: 52px minmax(0, 1fr);
+  gap: 18px;
+  margin: 0;
+  padding: 22px 24px;
+  border-left: 0;
+  border-radius: 15px;
+  overflow: visible;
+}
+
+.schedule-page .schedule-card::before {
+  top: 18px;
+  bottom: 18px;
+  left: 0;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--gold);
+}
+
+.schedule-page .schedule-card:nth-child(n)::before {
+  background: var(--gold);
+}
+
+.schedule-page .schedule-card i {
+  width: 52px;
+  height: 52px;
+  border-radius: 13px;
+  background: #eef4fa;
+  font-size: 20px;
+}
+
+.schedule-page .schedule-card h2 {
+  font-size: 14px;
+  letter-spacing: .06em;
+}
+
+.schedule-page .schedule-card b {
+  color: #64758a;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.schedule-page .schedule-card p {
+  padding-top: 9px;
+  color: #465970;
+}
+
+.schedule-visual {
+  position: sticky;
+  top: 24px;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 20px;
+  background: #082f6d;
+  box-shadow: var(--shadow);
+}
+
+.schedule-page .schedule-visual .tall-image {
+  position: static;
+  display: block;
+  height: 650px;
+  min-height: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.schedule-visual figcaption {
+  display: grid;
+  padding: 24px 26px;
+  color: #fff;
+}
+
+.schedule-visual figcaption span {
+  color: #f0cc70;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+}
+
+.schedule-visual figcaption strong {
+  margin: 5px 0;
+  font-family: 'Libre Baskerville', Georgia, serif;
+  font-size: 17px;
+}
+
+.schedule-visual figcaption small {
+  color: rgba(255, 255, 255, .7);
+  line-height: 1.5;
+}
+
+/* Sacraments page */
+.sacrament-page .section-title {
+  width: min(1180px, calc(100% - 56px));
+  margin-inline: auto;
+  padding: 54px 0 32px;
+  text-align: left;
+}
+
+.sacrament-page .section-title h1 {
+  margin: 0;
+  font-size: clamp(38px, 4vw, 54px);
+}
+
+.sacrament-page .section-title .gold-rule {
+  display: none;
+}
+
+.sacrament-page .section-title p {
+  margin: 12px 0 0;
+}
+
+.sacrament-page .tabs {
+  gap: 12px;
+}
+
+.sacrament-page .tabs button {
+  min-height: 112px;
+  padding: 18px 12px;
+  border-radius: 15px;
+}
+
+.sacrament-page .tabs button:hover,
+.sacrament-page .tabs button:focus-visible {
+  transform: translateY(-3px);
+}
+
+.sacrament-page .tabs button.active {
+  border-color: #b9d0e6;
+  border-bottom-color: var(--bright);
+  background: #f3f8fd;
+}
+
+.sacrament-page .tabs .sacrament-icon {
+  width: 44px;
+  height: 44px;
+  margin-bottom: 10px;
+  background: #edf4fa;
+}
+
+.sacrament-page .sacrament-icon svg {
+  width: 23px;
+  height: 23px;
+}
+
+.sacrament-page .tabs button.active .sacrament-icon {
+  background: var(--blue);
+}
+
+.sacrament-page .tabs b {
+  margin: 0;
+  font-size: 13px;
+}
+
+.sacrament-page .sacrament-layout {
+  grid-template-columns: minmax(0, 1.05fr) minmax(360px, .95fr);
+  gap: 30px;
+  max-width: 1180px;
+  align-items: stretch;
+  padding: 34px 0 90px;
+}
+
+.sacrament-page .sacrament-layout article {
+  padding: 38px 42px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+  box-shadow: var(--shadow);
+}
+
+.sacrament-page .sacrament-layout h1 {
+  margin: 0 0 14px;
+  font-size: 34px;
+}
+
+.sacrament-page .sacrament-layout h2 {
+  font-size: 15px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.sacrament-page .sacrament-layout .lead {
+  color: #53657a;
+  font-size: 15px;
+  line-height: 1.75;
+}
+
+.sacrament-page .sacrament-layout img {
+  height: 100%;
+  min-height: 540px;
+  max-height: 680px;
+  object-fit: cover;
+  border-radius: var(--radius);
+}
+
+/* Novenas landing page */
+.novena-landing-hero {
+  height: 430px;
+  min-height: 430px;
+  background-position: center 42%;
+}
+
+.novena-landing-hero > .site-container {
+  padding-bottom: 45px;
+}
+
+.novena-landing-hero span {
+  display: block;
+  margin-bottom: 13px;
+  color: #efca6b;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+}
+
+.novena-landing-hero h1 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(40px, 4vw, 58px);
+  line-height: 1.08;
+  letter-spacing: -.03em;
+}
+
+.novena-landing-hero .gold-rule {
+  display: none;
+}
+
+.novena-landing-hero p {
+  margin: 22px 0 0;
+  color: rgba(255, 255, 255, .82);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.novena-feature-section {
+  padding-bottom: 100px;
+}
+
+.novena-feature-section .feature-card {
+  grid-template-columns: 330px minmax(0, 1fr);
+  gap: 54px;
+  max-width: 1080px;
+  margin: -58px auto 0;
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 24px 60px rgba(12, 42, 78, .16);
+}
+
+.novena-feature-section .feature-card .novena-official-image {
+  height: 410px;
+  border-radius: 16px;
+  background: #293535;
+}
+
+.novena-feature-copy {
+  align-self: center;
+  padding-right: 34px;
+}
+
+.novena-feature-copy > span {
+  color: #8b6a20;
+  font-size: 9px;
+  letter-spacing: .12em;
+}
+
+.novena-feature-copy h1 {
+  margin: 10px 0 16px;
+  font-size: clamp(34px, 3.5vw, 46px);
+  line-height: 1.12;
+  letter-spacing: -.025em;
+}
+
+.novena-feature-copy > p {
+  max-width: 590px;
+  color: #56687d;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.novena-feature-copy .mini-features {
+  gap: 18px;
+  margin: 26px 0 30px;
+}
+
+.novena-feature-copy .mini-features b {
+  min-width: 190px;
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #f7f9fc;
+  color: var(--blue);
+  font-size: 11px;
+}
+
+.novena-feature-copy .mini-features i {
+  margin-right: 5px;
+  color: #a77e20;
+  font-style: normal;
+}
+
+.novena-feature-copy .mini-features small {
+  display: block;
+  margin: 6px 0 0 20px;
+  color: #67788c;
+  font-size: 11px;
+}
+
+.wide-image,
+.tall-image,
+.sacrament-layout img {
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.schedule-card,
+.news-card,
+.feature-card,
+.request-form,
+.info-panel {
+  border-color: var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.schedule-card {
+  margin-bottom: 18px;
+  padding: 24px;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.schedule-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+.tabs {
+  gap: 14px;
+}
+
+.tabs button {
+  min-height: 122px;
+  height: auto;
+  border: 1px solid var(--line);
+  border-bottom: 4px solid transparent;
+  border-radius: var(--radius);
+  background: #fff;
+}
+
+.tabs button.active {
+  border-color: #cbdbea;
+  border-bottom-color: var(--bright);
+  background: linear-gradient(180deg, #fff, #f4f8fc);
+}
+
+.sacrament-layout {
+  gap: 52px;
+  align-items: start;
+  padding-top: 56px;
+  padding-bottom: 90px;
+}
+
+.sacrament-layout article {
+  padding: 8px 0;
+}
+
+.sacrament-layout hr {
+  margin: 28px 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+}
+
+.sacrament-layout li {
+  color: #4d5e73;
+  line-height: 1.65;
+}
+
+.feature-card {
+  gap: 54px;
+  padding: 34px;
+  background: linear-gradient(135deg, #eef5fb, #fff);
+}
+
+.feature-card img {
+  height: 360px;
+  border-radius: 14px;
+}
+
+.novena-feature-section {
+  padding-bottom: 100px;
+}
+
+.form-layout {
+  gap: 30px;
+  padding: 55px 0 90px;
+}
+
+.request-form,
+.info-panel {
+  padding: 32px;
+}
+
+.request-form input,
+.request-form select,
+.request-form textarea {
+  border-radius: 9px;
+  transition: border .2s, box-shadow .2s;
+}
+
+.request-form input:focus,
+.request-form select:focus,
+.request-form textarea:focus {
+  border-color: var(--bright);
+  outline: 0;
+  box-shadow: 0 0 0 4px rgba(18, 98, 189, .1);
+}
+
+.site-footer {
+  background: #082b62;
+}
+
+.footer-grid {
+  gap: 56px;
+  padding-top: 10px;
+}
+
+.site-footer h3 {
+  margin-bottom: 16px;
+  color: #f0cd71;
+  letter-spacing: .08em;
+}
+
+.site-footer p,
+.footer-links a {
+  color: rgba(255, 255, 255, .78);
+}
+
+.footer-links a {
+  transition: color .2s ease, transform .2s ease;
+}
+
+.footer-links a:hover {
+  color: #fff;
+  transform: translateX(3px);
+}
+
+.copyright {
+  color: rgba(255, 255, 255, .65);
+}
+
+@media (max-width: 1050px) {
+  .home-hero {
+    min-height: 500px;
+  }
+
+  .intro-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .intro-grid aside {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 720px) {
+  .page-width {
+    width: min(100% - 32px, 1180px);
+  }
+
+  .site-header {
+    position: sticky;
+    z-index: 50;
+    top: 0;
+  }
+
+  .home-hero {
+    min-height: 520px;
+  }
+
+  body .home-hero::before {
+    background: linear-gradient(90deg, rgba(5, 27, 56, .9), rgba(5, 27, 56, .58));
+  }
+
+  .home-hero .hero-copy {
+    padding-block: 56px;
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(35px, 10vw, 48px);
+  }
+
+  .hero-copy p br {
+    display: none;
+  }
+
+  .hero-copy .button {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    margin: 10px 0 0;
+  }
+
+  .intro-grid {
+    grid-template-columns: 1fr;
+    padding: 42px 0 64px;
+  }
+
+  .intro-grid aside {
+    grid-column: auto;
+  }
+
+  .intro-grid img {
+    min-height: 280px;
+  }
+
+  .section-title {
+    padding: 52px 0 30px;
+  }
+
+  .about-page .section-title {
+    width: min(100% - 32px, 1180px);
+    padding: 42px 0 24px;
+  }
+
+  .about-page .about-visual .wide-image {
+    height: 340px;
+  }
+
+  .about-image-caption {
+    right: 14px;
+    bottom: 14px;
+    left: 14px;
+    min-width: 0;
+  }
+
+  .about-page .values {
+    margin-top: 32px;
+  }
+
+  .about-page .values article:first-child {
+    padding: 30px 24px;
+  }
+
+  .about-page .history-milestones {
+    padding: 28px 24px;
+  }
+
+  .about-page .history-milestones div {
+    grid-template-columns: 1fr;
+  }
+
+  .schedule-page .section-title {
+    width: min(100% - 32px, 1180px);
+    padding: 42px 0 24px;
+  }
+
+  .schedule-page .schedule-layout {
+    grid-template-columns: 1fr;
+    padding-top: 4px;
+  }
+
+  .schedule-visual {
+    position: static;
+  }
+
+  .schedule-page .schedule-visual .tall-image {
+    height: 420px;
+  }
+
+  .sacrament-page .section-title {
+    width: min(100% - 32px, 1180px);
+    padding: 42px 0 24px;
+  }
+
+  .sacrament-page .sacrament-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .sacrament-page .sacrament-layout article {
+    padding: 30px 24px;
+  }
+
+  .sacrament-page .sacrament-layout img {
+    min-height: 360px;
+    max-height: 440px;
+  }
+
+  .novena-landing-hero {
+    height: 390px;
+    min-height: 390px;
+  }
+
+  .novena-landing-hero > .site-container {
+    padding-bottom: 65px;
+  }
+
+  .novena-feature-section .feature-card {
+    grid-template-columns: 1fr;
+    gap: 26px;
+    margin-top: -38px;
+    padding: 20px;
+  }
+
+  .novena-feature-section .feature-card .novena-official-image {
+    height: 390px;
+  }
+
+  .novena-feature-copy {
+    padding: 0 4px 8px;
+  }
+
+  .novena-feature-copy .mini-features {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .tabs {
+    display: flex;
+    overflow-x: auto;
+    padding: 4px 16px 18px;
+    scroll-snap-type: x mandatory;
+  }
+
+  .tabs button,
+  .tabs button:last-child {
+    min-width: 145px;
+    grid-column: auto;
+    scroll-snap-align: start;
+  }
+
+  .sacrament-layout {
+    gap: 30px;
+    padding-top: 32px;
+  }
+
+  .feature-card {
+    gap: 28px;
+    padding: 22px;
+  }
+
+  .feature-card img {
+    height: 330px;
+  }
+}

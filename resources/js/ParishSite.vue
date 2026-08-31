@@ -1,10 +1,10 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue'
-import SiteNavbar from './components/SiteNavbar.vue'
-import SiteFooter from './components/SiteFooter.vue'
 import AuthPortal from './components/AuthPortal.vue'
-import SectionTitle from './components/SectionTitle.vue'
 import NovenaSlider from './components/NovenaSlider.vue'
+import SiteLayout from './components/SiteUI/Layout/SiteLayout.vue'
+import PageHero from './components/SiteUI/UI/PageHero.vue'
+import SectionTitle from './components/SiteUI/UI/SectionHeader.vue'
 
 const route = ref('home')
 const syncRoute = () => { route.value = location.hash.replace(/^#\//, '').split('/')[0] || 'home'; scrollTo(0, 0) }
@@ -59,31 +59,31 @@ const splitScheduleLine = (line) => {
 
 const sacramentOptions = [
   {
-    name: 'Baptism', icon: '💧', imageAlt: 'Baptism',
+    name: 'Baptism', icon: 'baptism', imageAlt: 'Baptism',
     description: 'The sacrament of Baptism is the gateway to Christian life and discipleship.',
     requirements: ['Birth Certificate (PSA)', 'Photocopy of ID of Parents or Guardians', 'Godparents (2, at least 16 years old)', 'Baptism Seminar Certificate'],
     process: ['Submit the requirements to the parish office', 'Attend the Baptism seminar', 'Confirm the Baptism schedule', 'Celebration of the sacrament'],
   },
   {
-    name: 'Wedding', icon: '♡', imageAlt: 'Catholic wedding',
+    name: 'Wedding', icon: 'wedding', imageAlt: 'Catholic wedding',
     description: 'Holy Matrimony unites a man and woman in a lifelong covenant of faithful love before God.',
     requirements: ['Recent Baptismal and Confirmation Certificates', 'Marriage License', 'Canonical Interview', 'Pre-Cana Seminar Certificate', 'Marriage Banns'],
     process: ['Visit the parish office for an initial interview', 'Submit the required documents', 'Attend the Pre-Cana seminar', 'Complete the rehearsal and celebrate the sacrament'],
   },
   {
-    name: 'Confirmation', icon: '🕊️', imageAlt: 'Confirmation',
+    name: 'Confirmation', icon: 'confirmation', imageAlt: 'Confirmation',
     description: 'Confirmation strengthens the grace received at Baptism through the gift of the Holy Spirit.',
     requirements: ['Baptismal Certificate', 'First Communion Certificate', 'Confirmation Seminar Certificate', 'Qualified sponsor'],
     process: ['Submit the requirements', 'Attend the required formation and seminar', 'Participate in the rehearsal', 'Celebration of Confirmation'],
   },
   {
-    name: 'Anointing', icon: '✚', imageAlt: 'Anointing of the sick',
+    name: 'Anointing', icon: 'anointing', imageAlt: 'Anointing of the sick',
     description: 'The Anointing of the Sick offers spiritual strength, peace, and healing to those facing serious illness or frailty.',
     requirements: ['Name and condition of the person receiving the sacrament', 'Complete address or hospital details', 'Contact information of a family representative'],
     process: ['Contact the parish office', 'Provide the patient and location details', 'Coordinate the priest’s visit', 'Celebration of the sacrament'],
   },
   {
-    name: 'Funeral', icon: '✝', imageAlt: 'Catholic funeral rites',
+    name: 'Funeral', icon: 'funeral', imageAlt: 'Catholic funeral rites',
     description: 'Catholic funeral rites commend the departed to God and offer prayer, consolation, and hope to the bereaved family.',
     requirements: ['Death Certificate or certification from the proper authority', 'Name and details of the deceased', 'Preferred date and time', 'Contact information of the family representative'],
     process: ['Visit or contact the parish office', 'Submit the available documents', 'Coordinate the funeral Mass and burial schedule', 'Celebration of the funeral rites'],
@@ -94,7 +94,7 @@ const selectedSacrament = computed(() => sacramentOptions[selectedSacramentIndex
 </script>
 
 <template>
-  <SiteNavbar :active="active" />
+  <SiteLayout :active="active">
   <a
     v-if="livestream.is_live"
     class="livestream-alert"
@@ -120,10 +120,13 @@ const selectedSacrament = computed(() => sacramentOptions[selectedSacramentIndex
     </template>
 
     <template v-else-if="route === 'about'">
-      <section class="soft-page">
-        <SectionTitle eyebrow="Home  ›  About Us" title="About Our Parish"/>
+      <section class="soft-page about-page">
+        <SectionTitle title="About Our Parish"/>
         <div class="page-width">
-          <img class="wide-image" :src="altar" alt="Interior of church">
+          <div class="about-visual">
+            <img class="wide-image" :src="altar" alt="Interior of Our Lady of the Pillar Shrine">
+            <div class="about-image-caption"><span>Diocesan Shrine</span><strong>Our Lady of the Pillar</strong><small>Pilar, Sorsogon · Established 1862</small></div>
+          </div>
           <div class="values">
             <article>
               <div>
@@ -149,15 +152,37 @@ const selectedSacrament = computed(() => sacramentOptions[selectedSacramentIndex
     </template>
 
     <template v-else-if="route === 'schedule'">
-      <section class="soft-page"><SectionTitle eyebrow="Home  ›  Mass Schedule" title="Mass & Liturgical Schedule"/><div class="schedule-layout page-width"><div><article class="schedule-card" v-for="s in [['Daily Mass','Monday and Wednesday','5:00 PM — Holy Mass|Tuesday, Thursday and Friday — 6:00 AM — Holy Mass|Saturday — 6:00 AM — Holy Mass|Anticipated Mass (Saturday) — 5:00 PM'],['Sunday Mass','Sunday','5:00 AM — Holy Mass|7:30 AM — Holy Mass (FB Live) |5:00 PM — Holy Mass (FB Live)'],['Confession','Every First Thursday of the Month','5:00 PM'],['Monthly Devotion to Our Lady of the Pillar','Every 12th of the Month','5:00 PM — Mass|6:00 PM — Procession'],['Other Liturgical Activities','Special monthly observances','Every First Tuesday — Healing Mass — 6:00 AM|Every First Monday — Misa sa Campo Santo — 6:00 AM|First Saturday — Mass at Our Lady of Fatima Chapel (Banuyo) — 6:00 AM|Every First Friday — Holy Hour after Mass']]" :key="s[0]"><i>♢</i><div><h2>{{ s[0] }}</h2><b>{{ s[1] }}</b><p v-for="line in s[2].split('|')" :key="line"><template v-if="s[0] === 'Daily Mass' && dailyScheduleLabels.has(splitScheduleLine(line).label)"><span class="schedule-day">{{ splitScheduleLine(line).label }}</span> — {{ splitScheduleLine(line).details }}</template><template v-else>{{ line }}</template></p></div></article></div><img class="tall-image" :src="massScheduleImage" alt="Altar at Our Lady of the Pillar Shrine"></div></section>
+      <section class="soft-page schedule-page">
+        <SectionTitle title="Mass & Liturgical Schedule" subtitle="Join our parish community in prayer and worship."/>
+        <div class="schedule-layout page-width">
+          <div class="schedule-list">
+            <article class="schedule-card" v-for="s in [['Daily Mass','Monday and Wednesday','5:00 PM — Holy Mass|Tuesday, Thursday and Friday — 6:00 AM — Holy Mass|Saturday — 6:00 AM — Holy Mass|Anticipated Mass (Saturday) — 5:00 PM','◷'],['Sunday Mass','Sunday','5:00 AM — Holy Mass|7:30 AM — Holy Mass (FB Live) |5:00 PM — Holy Mass (FB Live)','✝'],['Confession','Every First Thursday of the Month','5:00 PM','✦'],['Monthly Devotion to Our Lady of the Pillar','Every 12th of the Month','5:00 PM — Mass|6:00 PM — Procession','♛'],['Other Liturgical Activities','Special monthly observances','Every First Tuesday — Healing Mass — 6:00 AM|Every First Monday — Misa sa Campo Santo — 6:00 AM|First Saturday — Mass at Our Lady of Fatima Chapel (Banuyo) — 6:00 AM|Every First Friday — Holy Hour after Mass','▦']]" :key="s[0]">
+              <i aria-hidden="true">{{ s[3] }}</i>
+              <div><h2>{{ s[0] }}</h2><b>{{ s[1] }}</b><p v-for="line in s[2].split('|')" :key="line"><template v-if="s[0] === 'Daily Mass' && dailyScheduleLabels.has(splitScheduleLine(line).label)"><span class="schedule-day">{{ splitScheduleLine(line).label }}</span> — {{ splitScheduleLine(line).details }}</template><template v-else>{{ line }}</template></p></div>
+            </article>
+          </div>
+          <figure class="schedule-visual">
+            <img class="tall-image" :src="massScheduleImage" alt="Altar at Our Lady of the Pillar Shrine">
+            <figcaption><span>Our place of worship</span><strong>Our Lady of the Pillar Shrine</strong><small>Mass schedules may change on holy days and special occasions.</small></figcaption>
+          </figure>
+        </div>
+      </section>
     </template>
 
     <template v-else-if="route === 'sacraments'">
-      <section class="soft-page">
-        <SectionTitle title="Sacraments"/>
+      <section class="soft-page sacrament-page">
+        <SectionTitle title="Sacraments" subtitle="Learn about the sacred celebrations and their parish requirements."/>
         <div class="tabs page-width" role="tablist" aria-label="Sacrament information">
           <button v-for="(option, index) in sacramentOptions" :key="option.name" type="button" role="tab" :class="{ active: selectedSacramentIndex === index }" :aria-selected="selectedSacramentIndex === index" @click="selectedSacramentIndex = index">
-            <span class="sacrament-icon" aria-hidden="true">{{ option.icon }}</span><b>{{ option.name }}</b>
+            <span class="sacrament-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path v-if="option.icon === 'baptism'" d="M12 2S6.5 8.4 6.5 13a5.5 5.5 0 0 0 11 0C17.5 8.4 12 2 12 2Z"/>
+                <g v-else-if="option.icon === 'wedding'"><circle cx="9" cy="12" r="5"/><circle cx="15" cy="12" r="5"/></g>
+                <path v-else-if="option.icon === 'confirmation'" d="M13 2c.7 4-3 5.2-3 9a3 3 0 0 0 6 0c2 2 3 4 3 6a7 7 0 0 1-14 0c0-3.5 2-6.6 5-9-.5 3 .5 4.6 2 5.5C9.5 8 13 6.3 13 2Z"/>
+                <g v-else-if="option.icon === 'anointing'"><path d="M8 3h8M10 3v5l-3 4v8h10v-8l-3-4V3"/><path d="M9 13h6"/></g>
+                <g v-else><path d="M12 3v18M7 8h10"/><path d="M5 21h14"/></g>
+              </svg>
+            </span><b>{{ option.name }}</b>
           </button>
         </div>
         <div class="sacrament-layout page-width" role="tabpanel" aria-live="polite">
@@ -169,22 +194,22 @@ const selectedSacrament = computed(() => sacramentOptions[selectedSacramentIndex
             <hr><h2>Process</h2>
             <ol><li v-for="step in selectedSacrament.process" :key="step">{{ step }}</li></ol>
           </article>
-          <img :src="prayer" :alt="selectedSacrament.imageAlt">
+          <img :src="altar" :alt="selectedSacrament.imageAlt">
         </div>
       </section>
     </template>
 
     <template v-else-if="route === 'news' || route === 'events'">
-      <section class="soft-page"><SectionTitle eyebrow="Home  ›  News & Announcements" title="News & Announcements"/><div class="headline-list page-width"><b>Blessed Mother Statue Procession</b> • May 10, 2025<br><b>Holy Week 2025 Schedule</b> • April 8, 2025<br><b>Parishioner Dinner Fellowship</b> • March 25, 2025</div><div class="card-grid page-width"><article class="news-card" v-for="n in news" :key="n.title"><img :src="n.image"><div><h2>{{ n.title }}</h2><p>▣ {{ n.date }} &nbsp; | &nbsp; ⌖ {{ n.place }}</p><p>Join our parish community for this faith-filled celebration and fellowship.</p><button class="button secondary">Read more</button></div></article></div></section>
+      <section class="soft-page"><SectionTitle title="News & Announcements"/><div class="headline-list page-width"><b>Blessed Mother Statue Procession</b> • May 10, 2025<br><b>Holy Week 2025 Schedule</b> • April 8, 2025<br><b>Parishioner Dinner Fellowship</b> • March 25, 2025</div><div class="card-grid page-width"><article class="news-card" v-for="n in news" :key="n.title"><img :src="n.image"><div><h2>{{ n.title }}</h2><p>▣ {{ n.date }} &nbsp; | &nbsp; ⌖ {{ n.place }}</p><p>Join our parish community for this faith-filled celebration and fellowship.</p><button class="button secondary">Read more</button></div></article></div></section>
     </template>
 
     <template v-else-if="route === 'novenas'">
-      <section class="devotion-hero" :style="{backgroundImage:`linear-gradient(90deg,#fff 10%,rgba(255,255,255,.7)),url(${altar})`}"><div class="page-width"><h1>Novenas &<br>Prayer Devotions</h1><div class="gold-rule left">✣</div><p>Deepen your faith through daily prayer<br>and Marian devotion.</p></div></section><section class="page-width novena-feature-section"><div class="feature-card"><img class="novena-official-image" :src="pillarOfficial" alt="Official image of Our Lady of the Pillar with the Child Jesus"><div><span>Featured novena</span><h1>Our Lady of the<br>Pillar Novena</h1><p>Join us in a nine-day journey of prayer and preparation for the Feast of Our Lady of the Pillar.</p><div class="mini-features"><b>▣ Novena Schedule<br><small>October 3–11</small></b><b>✦ Feast Day<br><small>October 12</small></b></div><a class="button" href="#/novena-details">View novena details</a></div></div></section>
+      <PageHero class="novena-landing-hero" eyebrow="Prayer & devotion" title="Novenas & Prayer Devotions" description="Deepen your faith through daily prayer and Marian devotion." :image="altar"/><section class="page-width novena-feature-section"><div class="feature-card"><img class="novena-official-image" :src="pillarOfficial" alt="Official image of Our Lady of the Pillar with the Child Jesus"><div class="novena-feature-copy"><span>Featured novena</span><h1>Our Lady of the<br>Pillar Novena</h1><p>Join us in a nine-day journey of prayer and preparation for the Feast of Our Lady of the Pillar.</p><div class="mini-features"><b><i aria-hidden="true">◷</i> Novena Schedule<br><small>October 3–11</small></b><b><i aria-hidden="true">✦</i> Feast Day<br><small>October 12</small></b></div><a class="button" href="#/novena-details">View novena details</a></div></div></section>
     </template>
 
     <template v-else-if="route === 'novena-details'">
       <section class="novena-page soft-page">
-        <SectionTitle eyebrow="Novenas  ›  Our Lady of the Pillar" title="Novena to Our Lady of the Pillar" subtitle="Nine days of prayer in preparation for the parish feast."/>
+        <SectionTitle title="Novena to Our Lady of the Pillar" subtitle="Nine days of prayer in preparation for the parish feast."/>
         <div class="page-width">
           <div class="novena-calendar">
             <div><span>Novena begins</span><strong>October 3</strong></div>
@@ -213,10 +238,12 @@ const selectedSacrament = computed(() => sacramentOptions[selectedSacramentIndex
     <AuthPortal v-else-if="route === 'login' || route === 'register'" :mode="route" />
     <template v-else><section class="soft-page"><SectionTitle :title="route.replace('-', ' ')" subtitle="This static page is ready for parish content."/></section></template>
   </main>
-  <SiteFooter />
+  </SiteLayout>
 </template>
 
+<style src="./components/SiteUI/Theme/designTokens.css"></style>
 <style src="./parish.css"></style>
+<style src="./modern.css"></style>
 
 <style>
 .values article:first-child {
@@ -317,6 +344,7 @@ const selectedSacrament = computed(() => sacramentOptions[selectedSacramentIndex
 }
 
 .tabs button:first-child {
+  border-color: var(--line);
   border-bottom-color: transparent;
 }
 
