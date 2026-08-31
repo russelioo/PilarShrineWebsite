@@ -12,7 +12,7 @@ const moreLinks = [
   ['sacraments', 'Sacraments'], ['ministries', 'Ministries'], ['news', 'News'],
   ['novenas', 'Novenas'], ['store', 'Store'], ['contact', 'Contact'],
 ]
-const moreIsActive = computed(() => moreLinks.some(([key]) => key === props.active))
+const moreIsActive = computed(() => moreLinks.some(([key]) => key === props.active) || props.active === 'novena-details')
 
 const closeNavigation = () => {
   open.value = false

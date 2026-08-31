@@ -4,6 +4,7 @@ import SiteNavbar from './components/SiteNavbar.vue'
 import SiteFooter from './components/SiteFooter.vue'
 import AuthPortal from './components/AuthPortal.vue'
 import SectionTitle from './components/SectionTitle.vue'
+import NovenaSlider from './components/NovenaSlider.vue'
 
 const route = ref('home')
 const syncRoute = () => { route.value = location.hash.replace(/^#\//, '').split('/')[0] || 'home'; scrollTo(0, 0) }
@@ -32,6 +33,7 @@ const church = '/images/church-interior.png'
 const parishAerial = '/images/pilar-shrine-aerial.png'
 const altar = '/images/pilar-shrine-sanctuary.jpg'
 const massScheduleImage = '/images/pilar-mass-schedule.jpg'
+const pillarOfficial = '/images/our-lady-of-the-pillar-official.jpg'
 const prayer = 'https://images.unsplash.com/photo-1507692049790-de58290a4334?auto=format&fit=crop&w=1400&q=85'
 const news = [
   { title:'May Crowning Celebration 2025', date:'May 10, 2025', place:'Church Grounds', image:'https://images.unsplash.com/photo-1473177104440-ffee2f376098?auto=format&fit=crop&w=900&q=80' },
@@ -77,9 +79,8 @@ const splitScheduleLine = (line) => {
         <video class="home-hero-video" autoplay muted loop playsinline preload="metadata" :poster="'/images/church-interior.png'" aria-hidden="true">
           <source :src="'/videos/pilar-shrine-hero.mp4'" type="video/mp4">
         </video>
-        <div class="page-width hero-copy"><em>Welcome to the</em><h1>Diocesan Shrine and Parish of<br>Our Lady of the Pillar </h1><div class="gold-rule left">✣</div><p>Home of the Episcopally Crowned Image of Our Lady of the Pillar<br>Patroness of the Town of Pilar, Province of Sorsogon</p><div><a class="button" href="#/schedule">▣ View mass schedule</a><a class="button secondary" href="#/sacraments">♙ Request sacrament</a></div></div>
+        <div class="page-width hero-copy"><em>Welcome to the</em><h1>Diocesan Shrine and Parish of<br>Our Lady of the Pillar </h1><div class="gold-rule left">✣</div><p>Home of the Episcopally Crowned Image of Our Lady of the Pillar<br>Patroness of the Town of Pilar, Province of Sorsogon</p><div><a class="button" href="#/schedule">▣ View mass schedule</a><a class="button secondary" href="#/sacraments">♙ Sacrament requirements</a></div></div>
       </section>
-      <section class="help-panel page-width"><h2>How can we help you?</h2><div class="quick-grid"><a v-for="item in ['Mass Schedule','Mass Intention','Baptism Request','Wedding Request','Sacraments Info','Donate Online','Events & Calendar','Contact Parish']" :key="item" href="#/schedule"><b>♢</b>{{ item }}</a></div></section>
       <section class="intro-grid page-width"><article><h3>About our parish</h3><p>Established in 1862, the Diocesan Shrine and Parish of Our Lady of the Pillar serves as the spiritual home and cultural anchor for the Catholic community in Pilar, Sorsogon. Under the patronage of Nuestra Señora del Pilar, holding the distinct privilege of enshrined distinction as the only crowned image in both the province and the Diocese of Sorsogon. Our parish stands as a testament to generations of faith, community life, and religious tradition in the municipality.</p><a class="button secondary" href="#/about">Read more</a></article><img :src="parishAerial" alt="Aerial view of Our Lady of the Pillar Shrine"><aside><h3>Mass Schedule</h3><h4 class="schedule-group">Daily Mass</h4><p><b>Monday & Wednesday</b> — 5:00 PM</p><p><b>Tuesday, Thursday & Friday</b> — 6:00 AM</p><p><b>Saturday</b> — 6:00 AM</p><p><b>Anticipated Mass (Saturday)</b> — 5:00 PM</p><h4 class="schedule-group">Sunday Mass</h4><p><b>5:00 AM</b> — Holy Mass</p><p><b>7:30 AM</b> — Holy Mass</p><p><b>5:00 PM</b> — Holy Mass</p></aside></section>
     </template>
 
@@ -125,7 +126,27 @@ const splitScheduleLine = (line) => {
     </template>
 
     <template v-else-if="route === 'novenas'">
-      <section class="devotion-hero" :style="{backgroundImage:`linear-gradient(90deg,#fff 10%,rgba(255,255,255,.7)),url(${altar})`}"><div class="page-width"><h1>Novenas &<br>Prayer Devotions</h1><div class="gold-rule left">✣</div><p>Deepen your faith through daily prayer<br>and Marian devotion.</p></div></section><section class="page-width"><div class="feature-card"><img :src="prayer"><div><span>Featured novena</span><h1>Our Lady of the<br>Pillar Novena</h1><p>Join us in a nine-day journey of prayer and preparation for the Feast of Our Lady of the Pillar.</p><div class="mini-features"><b>▣ Novena Schedule<br><small>May 3 – May 11, 2025</small></b><b>▤ Prayer Guide<br><small>Daily prayers & reflections</small></b></div><a class="button">View novena details</a></div></div><h2 class="center serif">Other Devotions & Novenas</h2><div class="devotion-grid"><article v-for="d in ['Holy Rosary','First Friday Devotion','Eucharistic Adoration','Divine Mercy Chaplet','Holy Hour','Marian Prayers']" :key="d"><img :src="prayer"><h3>{{ d }}</h3><p>A time of prayer, silence and reflection.</p><button>View details</button></article></div></section>
+      <section class="devotion-hero" :style="{backgroundImage:`linear-gradient(90deg,#fff 10%,rgba(255,255,255,.7)),url(${altar})`}"><div class="page-width"><h1>Novenas &<br>Prayer Devotions</h1><div class="gold-rule left">✣</div><p>Deepen your faith through daily prayer<br>and Marian devotion.</p></div></section><section class="page-width novena-feature-section"><div class="feature-card"><img class="novena-official-image" :src="pillarOfficial" alt="Official image of Our Lady of the Pillar with the Child Jesus"><div><span>Featured novena</span><h1>Our Lady of the<br>Pillar Novena</h1><p>Join us in a nine-day journey of prayer and preparation for the Feast of Our Lady of the Pillar.</p><div class="mini-features"><b>▣ Novena Schedule<br><small>October 3–11</small></b><b>✦ Feast Day<br><small>October 12</small></b></div><a class="button" href="#/novena-details">View novena details</a></div></div></section>
+    </template>
+
+    <template v-else-if="route === 'novena-details'">
+      <section class="novena-page soft-page">
+        <SectionTitle eyebrow="Novenas  ›  Our Lady of the Pillar" title="Novena to Our Lady of the Pillar" subtitle="Nine days of prayer in preparation for the parish feast."/>
+        <div class="page-width">
+          <div class="novena-calendar">
+            <div><span>Novena begins</span><strong>October 3</strong></div>
+            <div><span>Nine days of prayer</span><strong>October 3–11</strong></div>
+            <div class="feast-date"><span>Solemnity & feast day</span><strong>October 12</strong></div>
+          </div>
+          <NovenaSlider />
+          <aside class="feast-callout">
+            <span>After the nine-day novena</span>
+            <h2>Feast of Our Lady of the Pillar</h2>
+            <time>October 12</time>
+            <p>Join the parish community as we honor Nuestra Señora del Pilar, our patroness, in prayer and celebration.</p>
+          </aside>
+        </div>
+      </section>
     </template>
 
     <template v-else-if="route === 'store'">
@@ -227,7 +248,126 @@ const splitScheduleLine = (line) => {
   font-weight: 700;
 }
 
+.novena-feature-section {
+  padding-bottom: 70px;
+}
+
+.feature-card .novena-official-image {
+  object-fit: contain;
+  object-position: center;
+  background: #293535;
+}
+
+.novena-page .section-title {
+  padding-bottom: 25px;
+}
+
+.novena-calendar {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  overflow: hidden;
+  border: 1px solid #dce6ef;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: var(--shadow);
+}
+
+.novena-calendar div {
+  padding: 22px 28px;
+  border-right: 1px solid #dce6ef;
+}
+
+.novena-calendar div:last-child {
+  border-right: 0;
+}
+
+.novena-calendar span,
+.feast-callout > span {
+  display: block;
+  margin-bottom: 7px;
+  color: #65778b;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.novena-calendar strong {
+  color: var(--blue);
+  font: 700 19px 'Libre Baskerville', serif;
+}
+
+.novena-calendar .feast-date {
+  background: var(--blue);
+}
+
+.novena-calendar .feast-date span,
+.novena-calendar .feast-date strong {
+  color: #fff;
+}
+
+.feast-callout {
+  position: relative;
+  margin-top: 42px;
+  padding: 38px 200px 38px 42px;
+  overflow: hidden;
+  border-radius: 14px;
+  background: linear-gradient(120deg, #062f78, #0758b8);
+  color: #fff;
+  box-shadow: 0 14px 30px rgba(6, 47, 120, .2);
+}
+
+.feast-callout::after {
+  position: absolute;
+  right: 45px;
+  top: 50%;
+  content: '12';
+  color: rgba(255, 255, 255, .13);
+  font: 700 130px/1 'Libre Baskerville', serif;
+  transform: translateY(-50%);
+}
+
+.feast-callout > span {
+  color: #e8c96e;
+}
+
+.feast-callout h2 {
+  margin: 8px 0;
+  color: #fff;
+  font: 700 27px 'Libre Baskerville', serif;
+}
+
+.feast-callout time {
+  color: #f2d77f;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.feast-callout p {
+  max-width: 650px;
+  margin-bottom: 0;
+  line-height: 1.7;
+}
+
 @media (max-width: 720px) {
+  .novena-calendar {
+    grid-template-columns: 1fr;
+  }
+
+  .novena-calendar div {
+    border-right: 0;
+    border-bottom: 1px solid #dce6ef;
+  }
+
+  .feast-callout {
+    padding: 30px 26px;
+  }
+
+  .feast-callout::after {
+    right: 10px;
+    opacity: .5;
+  }
+
   .history-milestones {
     padding: 22px;
   }
