@@ -11,6 +11,23 @@ onMounted(() => { syncRoute(); addEventListener('hashchange', syncRoute) })
 onUnmounted(() => removeEventListener('hashchange', syncRoute))
 
 const active = computed(() => route.value)
+const livestream = ref({ is_live: false, title: null, url: 'https://www.facebook.com/PilarShrineSorsogon' })
+let livestreamTimer
+
+const refreshLivestream = async () => {
+  try {
+    const response = await fetch('/api/livestream-status', { headers: { Accept: 'application/json' } })
+    if (response.ok) livestream.value = await response.json()
+  } catch {
+    // Keep the last known state when the status endpoint is temporarily unavailable.
+  }
+}
+
+onMounted(() => {
+  refreshLivestream()
+  livestreamTimer = setInterval(refreshLivestream, 15000)
+})
+onUnmounted(() => clearInterval(livestreamTimer))
 const church = '/images/church-interior.png'
 const parishAerial = '/images/pilar-shrine-aerial.png'
 const altar = '/images/pilar-shrine-sanctuary.jpg'
@@ -41,6 +58,19 @@ const splitScheduleLine = (line) => {
 
 <template>
   <SiteNavbar :active="active" />
+  <a
+    v-if="livestream.is_live"
+    class="livestream-alert"
+    :href="livestream.url"
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-live="polite"
+  >
+    <span class="livestream-dot" aria-hidden="true"></span>
+    <strong>LIVE NOW</strong>
+    <span>{{ livestream.title || 'Watch Pilar Shrine on Facebook' }}</span>
+    <b aria-hidden="true">Watch now &rarr;</b>
+  </a>
   <main>
     <template v-if="route === 'home'">
       <section class="home-hero">
@@ -109,7 +139,6 @@ const splitScheduleLine = (line) => {
     <AuthPortal v-else-if="route === 'login' || route === 'register'" :mode="route" />
     <template v-else><section class="soft-page"><SectionTitle :title="route.replace('-', ' ')" subtitle="This static page is ready for parish content."/></section></template>
   </main>
-  <a v-if="route !== 'login' && route !== 'register'" class="account-launcher" href="#/login" aria-label="Open parish account login">♙ <span>Parish account</span></a>
   <SiteFooter />
 </template>
 
@@ -241,6 +270,60 @@ const splitScheduleLine = (line) => {
 @media (prefers-reduced-motion: reduce) {
   .home-hero-video {
     display: none;
+  }
+
+  .livestream-dot {
+    animation: none;
+  }
+}
+
+.livestream-alert {
+  position: sticky;
+  z-index: 25;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 46px;
+  padding: 9px 20px;
+  background: #b4232c;
+  color: #fff;
+  text-align: center;
+  box-shadow: 0 5px 14px rgba(80, 0, 5, .2);
+}
+
+.livestream-alert:hover,
+.livestream-alert:focus-visible {
+  background: #941b23;
+  color: #fff;
+}
+
+.livestream-dot {
+  width: 11px;
+  height: 11px;
+  flex: 0 0 11px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 0 rgba(255, 255, 255, .75);
+  animation: live-pulse 1.5s ease-out infinite;
+}
+
+@keyframes live-pulse {
+  70% { box-shadow: 0 0 0 9px rgba(255, 255, 255, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+}
+
+@media (max-width: 720px) {
+  .livestream-alert {
+    flex-wrap: wrap;
+    gap: 5px 8px;
+    font-size: 13px;
+  }
+
+  .livestream-alert b {
+    width: 100%;
+    font-size: 11px;
   }
 }
 </style>

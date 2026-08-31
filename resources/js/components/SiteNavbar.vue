@@ -43,6 +43,10 @@ const closeNavigation = () => {
             <a v-for="[key, label] in moreLinks" :key="key" :href="'#/' + key" role="menuitem" :aria-current="props.active === key ? 'page' : undefined" @click="closeNavigation">{{ label }}</a>
           </div>
         </div>
+        <div class="auth-actions" aria-label="Parish account">
+          <a class="sign-in" href="#/login" :aria-current="props.active === 'login' ? 'page' : undefined" @click="closeNavigation">Sign in</a>
+          <a class="sign-up" href="#/register" :aria-current="props.active === 'register' ? 'page' : undefined" @click="closeNavigation">Sign up</a>
+        </div>
       </div>
     </nav>
   </header>
@@ -78,6 +82,55 @@ const closeNavigation = () => {
 
 .more-nav {
   position: relative;
+}
+
+.auth-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 4px;
+}
+
+.auth-actions a {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 15px;
+  border: 1px solid var(--blue);
+  border-radius: 6px;
+  color: var(--blue);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: background .2s, color .2s, box-shadow .2s, transform .2s;
+}
+
+.auth-actions .sign-up {
+  background: var(--blue);
+  color: #fff;
+  box-shadow: 0 5px 14px rgba(6, 47, 120, .18);
+}
+
+.auth-actions a:hover,
+.auth-actions a:focus-visible,
+.auth-actions a[aria-current='page'] {
+  background: #edf4fb;
+  color: var(--blue);
+  transform: translateY(-1px);
+}
+
+.auth-actions .sign-up:hover,
+.auth-actions .sign-up:focus-visible,
+.auth-actions .sign-up[aria-current='page'] {
+  background: #0758b8;
+  color: #fff;
+}
+
+.auth-actions a:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
 }
 
 .nav-more {
@@ -167,6 +220,15 @@ const closeNavigation = () => {
     width: 100%;
     margin: 4px 0 8px;
     box-shadow: none;
+  }
+
+  .auth-actions {
+    width: 100%;
+    margin: 4px 0 0;
+  }
+
+  .auth-actions a {
+    flex: 1;
   }
 }
 </style>

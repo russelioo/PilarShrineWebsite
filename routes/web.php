@@ -4,15 +4,24 @@ use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MassScheduleController;
 use App\Http\Controllers\Parishioner\MassIntentionController;
+use App\Services\FacebookLiveService;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('parish');
 });
 
+Route::get('/api/livestream-status', function (FacebookLiveService $facebookLive) {
+    return response()->json($facebookLive->status());
+})->middleware('throttle:60,1')->name('livestream.status');
+
+Route::get('/login', function () {
+    return redirect('/#/login');
+})->middleware('guest')->name('login');
+
 Route::post('/login', [LoginController::class, 'store'])
     ->middleware('guest')
-    ->name('login');
+    ->name('login.store');
 
 Route::prefix('parishioner')->name('parishioner.')->middleware('auth')->group(function () {
     Route::view('/dashboard', 'parishioner.dashboard')->name('dashboard');
@@ -90,3 +99,7 @@ Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])
 
 Route::post('/admin/logout', [AdminDashboardController::class, 'logout'])
     ->name('admin.logout');
+
+Route::post('/admin/livestream', [AdminDashboardController::class, 'updateLivestream'])
+    ->middleware('auth')
+    ->name('admin.livestream.update');
