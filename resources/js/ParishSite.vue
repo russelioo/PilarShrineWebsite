@@ -56,6 +56,41 @@ const splitScheduleLine = (line) => {
     ? { label: line, details: '' }
     : { label: line.slice(0, position), details: line.slice(position + separator.length) }
 }
+
+const sacramentOptions = [
+  {
+    name: 'Baptism', icon: '💧', imageAlt: 'Baptism',
+    description: 'The sacrament of Baptism is the gateway to Christian life and discipleship.',
+    requirements: ['Birth Certificate (PSA)', 'Photocopy of ID of Parents or Guardians', 'Godparents (2, at least 16 years old)', 'Baptism Seminar Certificate'],
+    process: ['Submit the requirements to the parish office', 'Attend the Baptism seminar', 'Confirm the Baptism schedule', 'Celebration of the sacrament'],
+  },
+  {
+    name: 'Wedding', icon: '♡', imageAlt: 'Catholic wedding',
+    description: 'Holy Matrimony unites a man and woman in a lifelong covenant of faithful love before God.',
+    requirements: ['Recent Baptismal and Confirmation Certificates', 'Marriage License', 'Canonical Interview', 'Pre-Cana Seminar Certificate', 'Marriage Banns'],
+    process: ['Visit the parish office for an initial interview', 'Submit the required documents', 'Attend the Pre-Cana seminar', 'Complete the rehearsal and celebrate the sacrament'],
+  },
+  {
+    name: 'Confirmation', icon: '🕊️', imageAlt: 'Confirmation',
+    description: 'Confirmation strengthens the grace received at Baptism through the gift of the Holy Spirit.',
+    requirements: ['Baptismal Certificate', 'First Communion Certificate', 'Confirmation Seminar Certificate', 'Qualified sponsor'],
+    process: ['Submit the requirements', 'Attend the required formation and seminar', 'Participate in the rehearsal', 'Celebration of Confirmation'],
+  },
+  {
+    name: 'Anointing', icon: '✚', imageAlt: 'Anointing of the sick',
+    description: 'The Anointing of the Sick offers spiritual strength, peace, and healing to those facing serious illness or frailty.',
+    requirements: ['Name and condition of the person receiving the sacrament', 'Complete address or hospital details', 'Contact information of a family representative'],
+    process: ['Contact the parish office', 'Provide the patient and location details', 'Coordinate the priest’s visit', 'Celebration of the sacrament'],
+  },
+  {
+    name: 'Funeral', icon: '✝', imageAlt: 'Catholic funeral rites',
+    description: 'Catholic funeral rites commend the departed to God and offer prayer, consolation, and hope to the bereaved family.',
+    requirements: ['Death Certificate or certification from the proper authority', 'Name and details of the deceased', 'Preferred date and time', 'Contact information of the family representative'],
+    process: ['Visit or contact the parish office', 'Submit the available documents', 'Coordinate the funeral Mass and burial schedule', 'Celebration of the funeral rites'],
+  },
+]
+const selectedSacramentIndex = ref(0)
+const selectedSacrament = computed(() => sacramentOptions[selectedSacramentIndex.value])
 </script>
 
 <template>
@@ -118,7 +153,25 @@ const splitScheduleLine = (line) => {
     </template>
 
     <template v-else-if="route === 'sacraments'">
-      <section class="soft-page"><SectionTitle title="Sacraments"/><div class="tabs page-width"><button v-for="x in ['Baptism','Wedding','Confirmation','Anointing','Funeral']" :key="x">♢<b>{{ x }}</b></button></div><div class="sacrament-layout page-width"><article><h1>Baptism</h1><p class="lead">The sacrament of Baptism is the gateway to Christian life and discipleship.</p><hr><h2>Requirements</h2><ul><li>Birth Certificate (PSA)</li><li>Photocopy of ID of Parents/Guardians</li><li>Godparents (2, at least 16 years old)</li><li>Baptism Seminar Certificate</li></ul><hr><h2>Process</h2><ol><li>Submit requirements</li><li>Attend Baptism Seminar</li><li>Schedule the Baptism</li><li>Celebration of the Sacrament</li></ol><a class="button" href="#/forms">Request Baptism</a></article><img :src="prayer" alt="Baptism"></div></section>
+      <section class="soft-page">
+        <SectionTitle title="Sacraments"/>
+        <div class="tabs page-width" role="tablist" aria-label="Sacrament information">
+          <button v-for="(option, index) in sacramentOptions" :key="option.name" type="button" role="tab" :class="{ active: selectedSacramentIndex === index }" :aria-selected="selectedSacramentIndex === index" @click="selectedSacramentIndex = index">
+            <span class="sacrament-icon" aria-hidden="true">{{ option.icon }}</span><b>{{ option.name }}</b>
+          </button>
+        </div>
+        <div class="sacrament-layout page-width" role="tabpanel" aria-live="polite">
+          <article>
+            <h1>{{ selectedSacrament.name }}</h1>
+            <p class="lead">{{ selectedSacrament.description }}</p>
+            <hr><h2>Requirements</h2>
+            <ul><li v-for="requirement in selectedSacrament.requirements" :key="requirement">{{ requirement }}</li></ul>
+            <hr><h2>Process</h2>
+            <ol><li v-for="step in selectedSacrament.process" :key="step">{{ step }}</li></ol>
+          </article>
+          <img :src="prayer" :alt="selectedSacrament.imageAlt">
+        </div>
+      </section>
     </template>
 
     <template v-else-if="route === 'news' || route === 'events'">
@@ -256,6 +309,47 @@ const splitScheduleLine = (line) => {
   object-fit: contain;
   object-position: center;
   background: #293535;
+}
+
+.tabs button {
+  cursor: pointer;
+  transition: border-color .2s, background .2s, transform .2s, box-shadow .2s;
+}
+
+.tabs button:first-child {
+  border-bottom-color: transparent;
+}
+
+.tabs button.active,
+.tabs button:hover,
+.tabs button:focus-visible {
+  border-bottom-color: var(--bright);
+  background: #f8fbfe;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 27px rgba(14, 50, 95, .14);
+}
+
+.tabs button:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+.tabs .sacrament-icon {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  margin: 0 auto;
+  place-items: center;
+  border-radius: 50%;
+  background: #edf4fb;
+  color: var(--blue);
+  font-size: 24px;
+  line-height: 1;
+}
+
+.tabs button.active .sacrament-icon {
+  background: var(--blue);
+  color: #fff;
 }
 
 .novena-page .section-title {
