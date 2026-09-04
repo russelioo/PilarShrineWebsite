@@ -36,10 +36,60 @@ const massScheduleImage = '/images/pilar-mass-schedule.jpg'
 const pillarOfficial = '/images/our-lady-of-the-pillar-official.jpg'
 const prayer = 'https://images.unsplash.com/photo-1507692049790-de58290a4334?auto=format&fit=crop&w=1400&q=85'
 const news = [
-  { title:'May Crowning Celebration 2025', date:'May 10, 2025', place:'Church Grounds', image:'https://images.unsplash.com/photo-1473177104440-ffee2f376098?auto=format&fit=crop&w=900&q=80' },
-  { title:'Parish Fiesta Schedule', date:'May 1, 2025', place:'Parish Grounds', image:'https://images.unsplash.com/photo-1515169067868-5387ec356754?auto=format&fit=crop&w=900&q=80' },
-  { title:'Youth Camp 2025', date:'April 20, 2025', place:'Retreat House', image:'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=900&q=80' },
+  {
+    title: 'May Crowning Celebration 2025',
+    category: 'Parish Life',
+    date: 'May 10, 2025',
+    place: 'Church Grounds',
+    image: 'https://images.unsplash.com/photo-1473177104440-ffee2f376098?auto=format&fit=crop&w=900&q=80',
+    description: 'Join our parish community for this sacred and joyful celebration in honor of the Blessed Virgin Mary, featuring floral offerings, Marian hymns, and community fellowship.',
+    fullText: 'Join our parish community for this sacred and joyful celebration in honor of the Blessed Virgin Mary. The May Crowning is a venerable Marian tradition uniting devotees and families of our shrine in offering flowers, prayers, and hymns to Our Lady of the Pillar. Families and children are encouraged to participate in the floral offering and the community fellowship following the Holy Mass.',
+  },
+  {
+    title: 'Parish Fiesta Schedule',
+    category: 'Liturgical Feast',
+    date: 'May 1, 2025',
+    place: 'Parish Grounds',
+    image: 'https://images.unsplash.com/photo-1515169067868-5387ec356754?auto=format&fit=crop&w=900&q=80',
+    description: 'Celebrate the vibrant patronal spirit of our shrine with solemn Masses, novena prayers, cultural exhibits, and thanksgiving celebrations for the whole community.',
+    fullText: 'Celebrate the vibrant patronal spirit of our shrine with solemn Masses, novena prayers, cultural exhibits, and thanksgiving celebrations. The festivities bring together parishioners, pilgrims, and visitors in expressing gratitude for the continuous maternal protection of Our Lady of the Pillar over our municipality.',
+  },
+  {
+    title: 'Youth Camp 2025',
+    category: 'Youth Ministry',
+    date: 'April 20, 2025',
+    place: 'Retreat House',
+    image: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=900&q=80',
+    description: 'An inspiring spiritual formation weekend for young parishioners focused on faith leadership, communal worship, and active ministry involvement.',
+    fullText: 'An inspiring spiritual formation weekend for young parishioners focused on faith leadership, communal worship, and active ministry involvement. The Youth Camp provides young Catholics an opportunity to deepen their relationship with Christ, cultivate Christian fellowship, and develop active roles in shrine ministries.',
+  },
 ]
+
+const announcements = [
+  {
+    title: 'Blessed Mother Statue Procession',
+    date: 'May 10, 2025',
+    place: 'Church Grounds & Town Proper',
+    badge: 'Upcoming',
+    description: 'Annual Marian floral offering and solemn candlelight procession honoring Nuestra Señora del Pillar.',
+  },
+  {
+    title: 'Holy Week 2025 Schedule',
+    date: 'April 8, 2025',
+    place: 'Parish Shrine & Chapels',
+    badge: 'Liturgical Notice',
+    description: 'Complete schedules for Palm Sunday, Chrism Mass, Visita Iglesia, Seven Last Words, and the Solemn Easter Vigil.',
+  },
+  {
+    title: 'Parishioner Dinner Fellowship',
+    date: 'March 25, 2025',
+    place: 'Parish Pastoral Center',
+    badge: 'Community',
+    description: 'An evening of fraternal fellowship and thanksgiving for parish volunteers, pastoral councils, and ministry leaders.',
+  },
+]
+
+const activeNewsModal = ref(null)
 const products = ['Pillar Statue','Pillar Rosary','Marian Prayer Book','Novena Booklet','Pillar Medal','Parish Shirt','Devotional Candle','Souvenir Keychain']
 const productImages = [prayer,'https://images.unsplash.com/photo-1602173574767-37ac01994b2a?auto=format&fit=crop&w=600&q=80','https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=600&q=80','https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=600&q=80','https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=600&q=80','https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=600&q=80','https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=600&q=80','https://images.unsplash.com/photo-1603561596112-db1d3d140b8c?auto=format&fit=crop&w=600&q=80']
 const dailyScheduleLabels = new Set([
@@ -59,34 +109,118 @@ const splitScheduleLine = (line) => {
 
 const sacramentOptions = [
   {
-    name: 'Baptism', icon: 'baptism', imageAlt: 'Baptism',
-    description: 'The sacrament of Baptism is the gateway to Christian life and discipleship.',
-    requirements: ['Birth Certificate (PSA)', 'Photocopy of ID of Parents or Guardians', 'Godparents (2, at least 16 years old)', 'Baptism Seminar Certificate'],
-    process: ['Submit the requirements to the parish office', 'Attend the Baptism seminar', 'Confirm the Baptism schedule', 'Celebration of the sacrament'],
+    name: 'Baptism',
+    title: 'The Sacrament of Holy Baptism',
+    icon: 'baptism',
+    imageAlt: 'Baptism celebration at Pilar Shrine',
+    category: 'Sacrament of Christian Initiation',
+    categoryShort: 'Initiation',
+    description: 'The sacrament of Baptism is the gateway to Christian life and discipleship. Through water and the Holy Spirit, the baptized are cleansed of sin, reborn as children of God, and incorporated into Christ and His Church.',
+    advisory: 'Baptismal seminars are conducted regularly. Parents and godparents must attend the catechetical seminar prior to the scheduled date of Baptism. Please register at the parish office at least two weeks in advance.',
+    requirements: [
+      'PSA Birth Certificate of the child (original & photocopy)',
+      'Photocopy of Valid Government ID of Parents or Legal Guardians',
+      'Godparents (at least 2 Catholic sponsors, minimum 16 years old, who have received Confirmation)',
+      'Certificate of Attendance in Pre-Baptismal Seminar (Parents & Godparents)',
+    ],
+    process: [
+      'Submit documentary requirements at the Parish Office',
+      'Attend the mandatory Pre-Baptismal Catechetical Seminar',
+      'Confirm the Baptism schedule with the parish staff',
+      'Celebration of the Holy Sacrament of Baptism in the Shrine',
+    ],
   },
   {
-    name: 'Wedding', icon: 'wedding', imageAlt: 'Catholic wedding',
-    description: 'Holy Matrimony unites a man and woman in a lifelong covenant of faithful love before God.',
-    requirements: ['Recent Baptismal and Confirmation Certificates', 'Marriage License', 'Canonical Interview', 'Pre-Cana Seminar Certificate', 'Marriage Banns'],
-    process: ['Visit the parish office for an initial interview', 'Submit the required documents', 'Attend the Pre-Cana seminar', 'Complete the rehearsal and celebrate the sacrament'],
+    name: 'Wedding',
+    title: 'The Sacrament of Holy Matrimony',
+    icon: 'wedding',
+    imageAlt: 'Catholic wedding ceremony at Pilar Shrine',
+    category: 'Sacrament of Service & Communion',
+    categoryShort: 'Matrimony',
+    description: 'Holy Matrimony unites a man and woman in a lifelong covenant of faithful love and partnership before God, blessed with the grace to assist each other in mutual holiness and family life.',
+    advisory: 'Couples must make preliminary reservations at the Parish Office at least 3 to 6 months prior to their prospective wedding date to allow adequate time for canonical interviews, marriage banns publication, and Pre-Cana formation.',
+    requirements: [
+      'Recent Baptismal & Confirmation Certificates with annotation "For Marriage Purposes" (issued within 6 months)',
+      'Valid Marriage License from Local Civil Registrar (or PSA Marriage Certificate if civilly married)',
+      'Canonical Interview with the Parish Priest or Assigned Clergy',
+      'Certificate of Attendance in Pre-Cana Marriage Preparation Seminar',
+      'Publication of Marriage Banns in respective home parishes for three consecutive Sundays',
+      'Photocopies of Valid IDs of the Bride, Groom, and Principal Sponsors',
+    ],
+    process: [
+      'Visit the Parish Office to reserve date and initiate canonical inquiry',
+      'Submit all required legal and ecclesiastical certificates',
+      'Attend the Canonical Interview and the Pre-Cana Seminar',
+      'Complete the liturgical wedding rehearsal with parish ministers',
+      'Solemn Celebration of the Sacrament of Holy Matrimony',
+    ],
   },
   {
-    name: 'Confirmation', icon: 'confirmation', imageAlt: 'Confirmation',
-    description: 'Confirmation strengthens the grace received at Baptism through the gift of the Holy Spirit.',
-    requirements: ['Baptismal Certificate', 'First Communion Certificate', 'Confirmation Seminar Certificate', 'Qualified sponsor'],
-    process: ['Submit the requirements', 'Attend the required formation and seminar', 'Participate in the rehearsal', 'Celebration of Confirmation'],
+    name: 'Confirmation',
+    title: 'The Sacrament of Confirmation',
+    icon: 'confirmation',
+    imageAlt: 'Confirmation celebration at Pilar Shrine',
+    category: 'Sacrament of Christian Initiation',
+    categoryShort: 'Initiation',
+    description: 'Confirmation deepens baptismal grace and seals the candidate with the sevenfold gifts of the Holy Spirit, empowering them to bear authentic witness to the Gospel in word, deed, and courageous Christian service.',
+    advisory: 'Candidates must have received the Sacraments of Baptism and First Holy Communion and be properly disposed through catechetical instruction and the Sacrament of Reconciliation.',
+    requirements: [
+      'Baptismal Certificate with Church seal (original & photocopy)',
+      'First Holy Communion Certificate',
+      'Certificate of Completion in Confirmation Catechetical Formation',
+      'Qualified Catholic Confirmation Sponsor (Godparent)',
+      'Recent 2x2 ID photo and completed parish registration form',
+    ],
+    process: [
+      'Submit registration form and sacramental documents to Parish Office',
+      'Complete catechetical classes and spiritual formation sessions',
+      'Participate in the spiritual recollection and Sacrament of Reconciliation',
+      'Solemn Conferral of the Sacrament of Confirmation by the Bishop or Delegate',
+    ],
   },
   {
-    name: 'Anointing', icon: 'anointing', imageAlt: 'Anointing of the sick',
-    description: 'The Anointing of the Sick offers spiritual strength, peace, and healing to those facing serious illness or frailty.',
-    requirements: ['Name and condition of the person receiving the sacrament', 'Complete address or hospital details', 'Contact information of a family representative'],
-    process: ['Contact the parish office', 'Provide the patient and location details', 'Coordinate the priest’s visit', 'Celebration of the sacrament'],
+    name: 'Anointing',
+    title: 'Anointing of the Sick & Viaticum',
+    icon: 'anointing',
+    imageAlt: 'Anointing of the sick ministry',
+    category: 'Sacrament of Healing',
+    categoryShort: 'Healing',
+    description: 'The Sacrament of the Anointing of the Sick offers divine grace, spiritual fortitude, peace, and healing to the faithful experiencing critical illness, advanced age, or preparing for major surgery.',
+    advisory: 'This sacrament may be administered at home, in hospitals, or in the church. In emergencies or imminent danger of death, please contact the Parish Office or emergency parish line immediately at any hour.',
+    requirements: [
+      'Full Name, age, and medical condition of the person receiving the sacrament',
+      'Complete residence address or hospital room details',
+      'Contact information and mobile number of immediate family member or caregiver',
+      'Indication if the patient is conscious and able to receive Holy Communion (Viaticum)',
+    ],
+    process: [
+      'Contact the Parish Office or pastoral emergency line',
+      'Provide patient details, complete address, and current medical status',
+      'Coordinate the priest’s pastoral visit and prepare prayerful surroundings',
+      'Liturgical celebration of the Anointing of the Sick and prayer of faith',
+    ],
   },
   {
-    name: 'Funeral', icon: 'funeral', imageAlt: 'Catholic funeral rites',
-    description: 'Catholic funeral rites commend the departed to God and offer prayer, consolation, and hope to the bereaved family.',
-    requirements: ['Death Certificate or certification from the proper authority', 'Name and details of the deceased', 'Preferred date and time', 'Contact information of the family representative'],
-    process: ['Visit or contact the parish office', 'Submit the available documents', 'Coordinate the funeral Mass and burial schedule', 'Celebration of the funeral rites'],
+    name: 'Funeral',
+    title: 'Catholic Funeral Rites & Commendation',
+    icon: 'funeral',
+    imageAlt: 'Catholic funeral rites at Pilar Shrine',
+    category: 'Sacrament of Christian Burial',
+    categoryShort: 'Burial Rites',
+    description: 'Catholic Funeral Rites commend the departed Christian to the boundless mercy and love of God, offering spiritual comfort, biblical consolation, and the resurrection hope of eternal life to mourning families.',
+    advisory: 'Please coordinate with the Parish Office before finalizing burial and interment schedules to ensure priest availability for the Funeral Mass, blessings, and cemetery commendation.',
+    requirements: [
+      'Official PSA Death Certificate or Local Civil Registrar Certificate',
+      'Full name, birth date, and date of passing of the deceased',
+      'Preferred date, time, and burial ground location',
+      'Contact information of the family coordinator or authorized representative',
+    ],
+    process: [
+      'Visit or call the Parish Office to coordinate schedule and priest availability',
+      'Submit death documentation and family coordinator information',
+      'Confirm liturgical arrangements, readings, and choir support',
+      'Celebration of the Funeral Mass / Blessings and Rite of Committal at the cemetery',
+    ],
   },
 ]
 const selectedSacramentIndex = ref(0)
@@ -120,87 +254,779 @@ const selectedSacrament = computed(() => sacramentOptions[selectedSacramentIndex
     </template>
 
     <template v-else-if="route === 'about'">
-      <section class="soft-page about-page">
-        <SectionTitle title="About Our Parish"/>
-        <div class="page-width">
-          <div class="about-visual">
-            <img class="wide-image" :src="altar" alt="Interior of Our Lady of the Pillar Shrine">
-            <div class="about-image-caption"><span>Diocesan Shrine</span><strong>Our Lady of the Pillar</strong><small>Pilar, Sorsogon · Established 1862</small></div>
+      <div class="about-page">
+        <!-- About Hero Section (visual parity with Home hero) -->
+        <section class="about-hero" :style="{ backgroundImage: `url(${church})` }">
+          <div class="page-width hero-copy">
+            <em>Heritage &amp; History</em>
+            <h1>About Our Parish &amp; Shrine</h1>
+            <div class="gold-rule left">✣</div>
+            <p>Established in 1862, the Diocesan Shrine and Parish of Our Lady of the Pillar serves as the spiritual home and cultural anchor for the Catholic community in Pilar, Sorsogon.</p>
           </div>
-          <div class="values">
-            <article>
-              <div>
-                <h2>Our History</h2>
-                <p>The seed of Christianity was sowed in the Bicol Region in 1569 in the person of Captain Luis Enriquez de Guzman and Fray Alonzo Jimenez, an Augustinian friar This was probably during the Legazpi-Urdaneta expedition.</p>
-                <p>The cross and the sword, symbolized by Urdaneta and Legazpi respectively, went together hand and hand throughout the islands, the "cross soothing the wounds inflicted by the sword." In Sorsogon, known as the "Ibalon of the region of the Camarines," evangelization by missionary friars started around 1574 and this spread throughout the province.</p>
-                <p>The missionaries, besides preaching the gospel and baptizing the people, also taught the rudiments of house building and the art of civilized living among the natives. Around 1635, a missionary settlement, known as "Abucay-Catamlangan Mission" was organized by a certain Father Bartolome de Espritu Santo, OFM. Due to its proximity, this settlement was under the jurisdiction of Cagsawa, Albay. But on August 6, 1861, by virtue of a decree from the Superior Government of Manila, Pilar was formally organized as a town which included the barrios of Putiao, Sto. Niño, Sapa and Catamlangan of Cagsawa (now Daraga) Albay, and of Inang and Panlatuan of Albay.</p>
-                <p>In the sitio of Sto. Niño, previously Langatong and now Binanuahan, a wealthy businessman, Felix Milleza, touched by Christianity, donated a foot-high image of the Child Jesus holding the cross to the people. There was already a "capilla" constructed through the well-attested religiosity of the people. This image was first entrusted under the care of Capitan Luis Loriaga and was supposed to be handed down to the next hermano or hermana until changes of ecclesiastical officials. The custom was delegated only to the hermano mayor but was stopped when it reached the hands of a family in Binanuahan who claimed ownership of the image. The real owner is the Church, in other words, the people who comprise the Church. An ecclesiastical memorandum to Sto. Niño ordered the assignment of a Curate named Padre Presbetero Eduardo as the first parish priest of the newly organized pueblo.</p>
-                <p>The gobernadorcillo, Sabas Milleza, brother of Felix Milleza, also donated an image of "Our Lady of the Pillar" to the people, just like the image of the Sto. Niño. In 1861, the town, then called Sto. Niño, adopted the name Pilar, in honor of the then new-born infant princess, Pilar, daughter of the rulers of Spain, King Philip II and Queen Isabel I. The town became a full-fledged parish, with Our Lady of the Pillar as its titular. This was probably in 1862 because of "parroquia de Pillar 1862" as inscribed in the two bells in the parish. The Parish of Pilar is located east of Donsol and west of Castilla, 56 kilometers from the provincial capital.</p>
+        </section>
+
+        <!-- 1. About Introduction & Founding Overview -->
+        <section class="about-intro page-width">
+          <div class="about-intro-grid">
+            <article class="about-intro-content">
+              <span class="section-eyebrow">About Our Parish</span>
+              <h2>Spiritual Home &amp; Cultural Anchor of Pilar</h2>
+              <div class="editorial-gold-bar" aria-hidden="true"></div>
+              <p class="lead">
+                Established in 1862, the Diocesan Shrine and Parish of Our Lady of the Pillar serves as the spiritual home and cultural anchor for the Catholic community in Pilar, Sorsogon. Under the patronage of Nuestra Señora del Pilar, holding the distinct privilege of enshrined distinction as the only crowned image in both the province and the Diocese of Sorsogon.
+              </p>
+              <p>
+                Our parish stands as a testament to generations of faith, community life, and religious tradition in the municipality. From its early missionary settlements to its solemn elevation as a diocesan shrine, it remains a sanctuary of prayer, peace, and spiritual comfort for all devotees.
+              </p>
+
+              <!-- Quick Facts Grid -->
+              <div class="about-quick-facts">
+                <div class="fact-card">
+                  <span class="fact-icon">✣</span>
+                  <div>
+                    <strong>Established 1862</strong>
+                    <small>Over 160 years of Catholic tradition</small>
+                  </div>
+                </div>
+                <div class="fact-card">
+                  <span class="fact-icon">♛</span>
+                  <div>
+                    <strong>Diocesan Shrine</strong>
+                    <small>Only crowned image in Sorsogon</small>
+                  </div>
+                </div>
+                <div class="fact-card">
+                  <span class="fact-icon">⌖</span>
+                  <div>
+                    <strong>Pilar, Sorsogon</strong>
+                    <small>Diocese of Sorsogon, Philippines</small>
+                  </div>
+                </div>
               </div>
             </article>
-          </div>
-          <section class="history-milestones" aria-labelledby="milestones-title">
-            <span>Parish milestone</span>
-            <h2 id="milestones-title">Important Historical Dates / Milestones</h2>
-            <div>
-              <time datetime="2018-10-12">October 12, 2018</time>
-              <p>Solemn Dedication of the Church, Declaration as Diocesan Shrine and Episcopal Coronation of the Image of Our Lady of the Pillar</p>
+
+            <div class="about-intro-visual">
+              <div class="visual-frame">
+                <img :src="parishAerial" alt="Aerial view of Our Lady of the Pillar Shrine">
+                <div class="visual-caption">
+                  <span>Diocesan Shrine</span>
+                  <strong>Our Lady of the Pillar</strong>
+                  <small>Binanuahan, Pilar, Sorsogon · Established 1862</small>
+                </div>
+              </div>
             </div>
-          </section>
-        </div>
-      </section>
+          </div>
+        </section>
+
+        <!-- 2. Parish History Section -->
+        <section id="history" class="about-history page-width">
+          <div class="section-header-block">
+            <span class="section-eyebrow">Our Heritage</span>
+            <h2>The History of Our Parish</h2>
+            <div class="gold-rule" aria-hidden="true">✣</div>
+            <p class="section-subtitle">Traced through centuries of faith, missionary devotion, and the foundation of our community.</p>
+          </div>
+
+          <!-- History Chapter 1 -->
+          <article class="history-chapter">
+            <div class="chapter-badge">
+              <span>1569 – 1574</span>
+              <b>Early Evangelization</b>
+            </div>
+            <div class="chapter-content">
+              <h3>The Seeds of Christianity in Ibalon</h3>
+              <p class="drop-cap-paragraph">
+                The seed of Christianity was sowed in the Bicol Region in 1569 in the person of Captain Luis Enriquez de Guzman and Fray Alonzo Jimenez, an Augustinian friar This was probably during the Legazpi-Urdaneta expedition.
+              </p>
+              <p>
+                The cross and the sword, symbolized by Urdaneta and Legazpi respectively, went together hand and hand throughout the islands, the "cross soothing the wounds inflicted by the sword." In Sorsogon, known as the "Ibalon of the region of the Camarines," evangelization by missionary friars started around 1574 and this spread throughout the province.
+              </p>
+            </div>
+          </article>
+
+          <!-- History Chapter 2 -->
+          <article class="history-chapter">
+            <div class="chapter-badge">
+              <span>1635 – 1861</span>
+              <b>Mission &amp; Civil Decree</b>
+            </div>
+            <div class="chapter-content">
+              <h3>The Abucay-Catamlangan Mission &amp; Civil Organization</h3>
+              <p>
+                The missionaries, besides preaching the gospel and baptizing the people, also taught the rudiments of house building and the art of civilized living among the natives. Around 1635, a missionary settlement, known as "Abucay-Catamlangan Mission" was organized by a certain Father Bartolome de Espritu Santo, OFM. Due to its proximity, this settlement was under the jurisdiction of Cagsawa, Albay. But on August 6, 1861, by virtue of a decree from the Superior Government of Manila, Pilar was formally organized as a town which included the barrios of Putiao, Sto. Niño, Sapa and Catamlangan of Cagsawa (now Daraga) Albay, and of Inang and Panlatuan of Albay.
+              </p>
+            </div>
+          </article>
+
+          <!-- History Chapter 3 (Two-column layout with sidebar) -->
+          <article class="history-chapter history-two-col">
+            <div class="chapter-col-main">
+              <div class="chapter-badge">
+                <span>1861 – 1862</span>
+                <b>Titular Patroness &amp; Parroquia</b>
+              </div>
+              <div class="chapter-content">
+                <h3>The Sacred Images &amp; Foundation of the Parish</h3>
+                <p>
+                  In the sitio of Sto. Niño, previously Langatong and now Binanuahan, a wealthy businessman, Felix Milleza, touched by Christianity, donated a foot-high image of the Child Jesus holding the cross to the people. There was already a "capilla" constructed through the well-attested religiosity of the people. This image was first entrusted under the care of Capitan Luis Loriaga and was supposed to be handed down to the next hermano or hermana until changes of ecclesiastical officials. The custom was delegated only to the hermano mayor but was stopped when it reached the hands of a family in Binanuahan who claimed ownership of the image. The real owner is the Church, in other words, the people who comprise the Church. An ecclesiastical memorandum to Sto. Niño ordered the assignment of a Curate named Padre Presbetero Eduardo as the first parish priest of the newly organized pueblo.
+                </p>
+                <p>
+                  The gobernadorcillo, Sabas Milleza, brother of Felix Milleza, also donated an image of "Our Lady of the Pillar" to the people, just like the image of the Sto. Niño. In 1861, the town, then called Sto. Niño, adopted the name Pilar, in honor of the then new-born infant princess, Pilar, daughter of the rulers of Spain, King Philip II and Queen Isabel I. The town became a full-fledged parish, with Our Lady of the Pillar as its titular. This was probably in 1862 because of "parroquia de Pillar 1862" as inscribed in the two bells in the parish. The Parish of Pilar is located east of Donsol and west of Castilla, 56 kilometers from the provincial capital.
+                </p>
+              </div>
+            </div>
+
+            <!-- Supporting Sidebar / Visual Card -->
+            <aside class="history-sidebar">
+              <div class="sidebar-visual">
+                <img :src="altar" alt="Sanctuary and altar of Our Lady of the Pillar Shrine">
+              </div>
+              <div class="sidebar-info">
+                <div class="quote-badge">
+                  <span class="quote-symbol">❝</span>
+                  <strong>parroquia de Pillar 1862</strong>
+                  <p>Inscribed upon the two historic parish bells, marking the canonical founding of our parish community.</p>
+                </div>
+                <div class="sidebar-meta">
+                  <div>
+                    <b>Jurisdiction</b>
+                    <span>East of Donsol &amp; West of Castilla</span>
+                  </div>
+                  <div>
+                    <b>Distance</b>
+                    <span>56 km from provincial capital</span>
+                  </div>
+                </div>
+              </div>
+            </aside>
+          </article>
+        </section>
+
+        <!-- 3. Historic Milestone Card (October 12, 2018) -->
+        <section id="milestones" class="about-milestone page-width">
+          <div class="milestone-card">
+            <div class="milestone-watermark" aria-hidden="true">2018</div>
+            <div class="milestone-header">
+              <span class="milestone-eyebrow">✦ Important Historical Date &amp; Parish Milestone</span>
+              <time class="milestone-date" datetime="2018-10-12">October 12, 2018</time>
+              <h2 class="milestone-title">Solemn Dedication, Declaration as Diocesan Shrine &amp; Episcopal Coronation</h2>
+            </div>
+            <p class="milestone-lead">
+              Solemn Dedication of the Church, Declaration as Diocesan Shrine and Episcopal Coronation of the Image of Our Lady of the Pillar
+            </p>
+            <div class="milestone-badges">
+              <div class="milestone-badge-item">
+                <span class="badge-icon">✣</span>
+                <div>
+                  <strong>Solemn Dedication</strong>
+                  <small>Solemn Dedication of the Church</small>
+                </div>
+              </div>
+              <div class="milestone-badge-item">
+                <span class="badge-icon">♛</span>
+                <div>
+                  <strong>Diocesan Shrine</strong>
+                  <small>Declaration as Diocesan Shrine</small>
+                </div>
+              </div>
+              <div class="milestone-badge-item">
+                <span class="badge-icon">👑</span>
+                <div>
+                  <strong>Episcopal Coronation</strong>
+                  <small>Episcopal Coronation of the Image of Our Lady of the Pillar</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. Sacred Titular: Our Lady of the Pillar Section -->
+        <section class="about-titular page-width">
+          <div class="about-titular-grid">
+            <div class="titular-content">
+              <span class="section-eyebrow">Our Patroness &amp; Titular</span>
+              <h2>Nuestra Señora del Pilar</h2>
+              <h3 class="titular-subtitle">The Episcopally Crowned Mother &amp; Patroness of Pilar</h3>
+              <div class="editorial-gold-bar" aria-hidden="true"></div>
+              <p>
+                Under the loving patronage of Our Lady of the Pillar, the faithful of Pilar have found comfort, protection, and spiritual renewal across generations. The enshrined image holds the distinct privilege of being the only crowned image in both the province and the Diocese of Sorsogon.
+              </p>
+
+              <!-- Devotional Highlights -->
+              <div class="titular-devotions">
+                <div class="devotion-item">
+                  <i class="devotion-icon" aria-hidden="true">◷</i>
+                  <div>
+                    <strong>Monthly Devotion to Our Lady of the Pillar</strong>
+                    <span>Every 12th of the Month · 5:00 PM Holy Mass &amp; 6:00 PM Procession</span>
+                  </div>
+                </div>
+                <div class="devotion-item">
+                  <i class="devotion-icon" aria-hidden="true">✦</i>
+                  <div>
+                    <strong>Annual Solemnity &amp; Parish Fiesta</strong>
+                    <span>October 12 · Preceded by the Solemn Novena from October 3–11</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="titular-actions">
+                <a class="button" href="#/novenas">View Marian Novena</a>
+                <a class="button secondary" href="#/schedule">Mass Schedule</a>
+              </div>
+            </div>
+
+            <div class="titular-visual">
+              <div class="titular-image-card">
+                <img :src="pillarOfficial" alt="Episcopally Crowned Image of Our Lady of the Pillar">
+                <div class="titular-badge">
+                  <span>Enshrined Titular</span>
+                  <strong>Nuestra Señora del Pilar</strong>
+                  <small>Patroness of the Town of Pilar, Province of Sorsogon</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 5. Pilgrimage & Shrine Welcome Banner -->
+        <section class="about-pilgrimage page-width">
+          <div class="pilgrimage-banner">
+            <div class="pilgrimage-copy">
+              <span>Pilgrimage &amp; Worship</span>
+              <h2>Visit the Diocesan Shrine &amp; Parish</h2>
+              <p>Experience the sacred peace and Marian grace of Our Lady of the Pillar in Binanuahan, Pilar, Sorsogon. All pilgrims and faithful are warmly welcomed.</p>
+            </div>
+            <div class="pilgrimage-actions">
+              <a class="button" href="#/schedule">Liturgical Schedule</a>
+              <a class="button secondary" href="#/sacraments">Sacraments</a>
+              <a class="button secondary" href="#/contact">Contact Us</a>
+            </div>
+          </div>
+        </section>
+      </div>
     </template>
 
     <template v-else-if="route === 'schedule'">
-      <section class="soft-page schedule-page">
-        <SectionTitle title="Mass & Liturgical Schedule" subtitle="Join our parish community in prayer and worship."/>
-        <div class="schedule-layout page-width">
-          <div class="schedule-list">
-            <article class="schedule-card" v-for="s in [['Daily Mass','Monday and Wednesday','5:00 PM — Holy Mass|Tuesday, Thursday and Friday — 6:00 AM — Holy Mass|Saturday — 6:00 AM — Holy Mass|Anticipated Mass (Saturday) — 5:00 PM','◷'],['Sunday Mass','Sunday','5:00 AM — Holy Mass|7:30 AM — Holy Mass (FB Live) |5:00 PM — Holy Mass (FB Live)','✝'],['Confession','Every First Thursday of the Month','5:00 PM','✦'],['Monthly Devotion to Our Lady of the Pillar','Every 12th of the Month','5:00 PM — Mass|6:00 PM — Procession','♛'],['Other Liturgical Activities','Special monthly observances','Every First Tuesday — Healing Mass — 6:00 AM|Every First Monday — Misa sa Campo Santo — 6:00 AM|First Saturday — Mass at Our Lady of Fatima Chapel (Banuyo) — 6:00 AM|Every First Friday — Holy Hour after Mass','▦']]" :key="s[0]">
-              <i aria-hidden="true">{{ s[3] }}</i>
-              <div><h2>{{ s[0] }}</h2><b>{{ s[1] }}</b><p v-for="line in s[2].split('|')" :key="line"><template v-if="s[0] === 'Daily Mass' && dailyScheduleLabels.has(splitScheduleLine(line).label)"><span class="schedule-day">{{ splitScheduleLine(line).label }}</span> — {{ splitScheduleLine(line).details }}</template><template v-else>{{ line }}</template></p></div>
-            </article>
+      <div class="schedule-page">
+        <!-- Mass Schedule Hero Section (Home visual parity) -->
+        <section class="schedule-hero" :style="{ backgroundImage: `url(${massScheduleImage})` }">
+          <div class="page-width hero-copy">
+            <em>Liturgical Services</em>
+            <h1>Mass &amp; Liturgical Schedule</h1>
+            <div class="gold-rule left">✣</div>
+            <p>Join our parish community in sacred prayer and worship. Mass schedules may adjust during parish feasts and solemnities.</p>
           </div>
-          <figure class="schedule-visual">
-            <img class="tall-image" :src="massScheduleImage" alt="Altar at Our Lady of the Pillar Shrine">
-            <figcaption><span>Our place of worship</span><strong>Our Lady of the Pillar Shrine</strong><small>Mass schedules may change on holy days and special occasions.</small></figcaption>
-          </figure>
+        </section>
+
+        <div class="page-width schedule-content-wrap">
+          <!-- Notice / Important Information Banner -->
+          <div class="schedule-notice-banner" role="note">
+            <span class="notice-icon" aria-hidden="true">ℹ</span>
+            <div class="notice-text">
+              <strong>Liturgical Observance &amp; Livestream Notice</strong>
+              <p>Mass schedules may change on holy days of obligation, solemnities, and special parish occasions. Sunday Holy Masses at <b>7:30 AM</b> and <b>5:00 PM</b> are broadcast live on our official Facebook page.</p>
+            </div>
+          </div>
+
+          <!-- Two-Column Schedule Layout -->
+          <div class="schedule-layout">
+            <!-- Left Column: Schedule Cards -->
+            <div class="schedule-list">
+              <!-- Daily Mass -->
+              <article class="schedule-card">
+                <div class="card-header-row">
+                  <span class="card-icon" aria-hidden="true">◷</span>
+                  <div>
+                    <h2>Daily Mass</h2>
+                    <span class="card-tag">Monday to Saturday</span>
+                  </div>
+                </div>
+                <div class="schedule-details-list">
+                  <div class="schedule-item">
+                    <span class="item-day">Monday &amp; Wednesday</span>
+                    <span class="item-time">5:00 PM — Holy Mass</span>
+                  </div>
+                  <div class="schedule-item">
+                    <span class="item-day">Tuesday, Thursday &amp; Friday</span>
+                    <span class="item-time">6:00 AM — Holy Mass</span>
+                  </div>
+                  <div class="schedule-item">
+                    <span class="item-day">Saturday</span>
+                    <span class="item-time">6:00 AM — Holy Mass</span>
+                  </div>
+                  <div class="schedule-item highlighted">
+                    <span class="item-day">Anticipated Mass (Saturday)</span>
+                    <span class="item-time">5:00 PM — Anticipated Sunday Mass</span>
+                  </div>
+                </div>
+              </article>
+
+              <!-- Sunday Mass -->
+              <article class="schedule-card">
+                <div class="card-header-row">
+                  <span class="card-icon" aria-hidden="true">✝</span>
+                  <div>
+                    <h2>Sunday Mass</h2>
+                    <span class="card-tag">Lord's Day Celebrations</span>
+                  </div>
+                </div>
+                <div class="schedule-details-list">
+                  <div class="schedule-item">
+                    <span class="item-day">Early Morning</span>
+                    <span class="item-time">5:00 AM — Holy Mass</span>
+                  </div>
+                  <div class="schedule-item">
+                    <span class="item-day">Morning (Live)</span>
+                    <span class="item-time">7:30 AM — Holy Mass <span class="live-badge">FB Live</span></span>
+                  </div>
+                  <div class="schedule-item">
+                    <span class="item-day">Afternoon (Live)</span>
+                    <span class="item-time">5:00 PM — Holy Mass <span class="live-badge">FB Live</span></span>
+                  </div>
+                </div>
+              </article>
+
+              <!-- Sacrament of Reconciliation (Confession) -->
+              <article class="schedule-card">
+                <div class="card-header-row">
+                  <span class="card-icon" aria-hidden="true">✦</span>
+                  <div>
+                    <h2>Sacrament of Reconciliation</h2>
+                    <span class="card-tag">Confession &amp; Spiritual Healing</span>
+                  </div>
+                </div>
+                <div class="schedule-details-list">
+                  <div class="schedule-item">
+                    <span class="item-day">Every First Thursday of the Month</span>
+                    <span class="item-time">5:00 PM — Confession</span>
+                  </div>
+                </div>
+              </article>
+
+              <!-- Monthly Devotion to Our Lady of the Pillar -->
+              <article class="schedule-card">
+                <div class="card-header-row">
+                  <span class="card-icon" aria-hidden="true">♛</span>
+                  <div>
+                    <h2>Monthly Devotion to Our Lady of the Pillar</h2>
+                    <span class="card-tag">Patronal Devotional Day</span>
+                  </div>
+                </div>
+                <div class="schedule-details-list">
+                  <div class="schedule-item">
+                    <span class="item-day">Every 12th of the Month</span>
+                    <span class="item-time">5:00 PM — Holy Mass</span>
+                  </div>
+                  <div class="schedule-item">
+                    <span class="item-day">Procession</span>
+                    <span class="item-time">6:00 PM — Marian Procession</span>
+                  </div>
+                </div>
+              </article>
+
+              <!-- Special Liturgical Activities -->
+              <article class="schedule-card">
+                <div class="card-header-row">
+                  <span class="card-icon" aria-hidden="true">▦</span>
+                  <div>
+                    <h2>Special Liturgical Activities</h2>
+                    <span class="card-tag">Monthly Observances &amp; Chapels</span>
+                  </div>
+                </div>
+                <div class="schedule-details-list">
+                  <div class="schedule-item">
+                    <span class="item-day">Every First Tuesday</span>
+                    <span class="item-time">6:00 AM — Healing Mass</span>
+                  </div>
+                  <div class="schedule-item">
+                    <span class="item-day">Every First Monday</span>
+                    <span class="item-time">6:00 AM — Misa sa Campo Santo</span>
+                  </div>
+                  <div class="schedule-item">
+                    <span class="item-day">First Saturday</span>
+                    <span class="item-time">6:00 AM — Mass at Our Lady of Fatima Chapel (Banuyo)</span>
+                  </div>
+                  <div class="schedule-item">
+                    <span class="item-day">Every First Friday</span>
+                    <span class="item-time">Holy Hour after Holy Mass</span>
+                  </div>
+                </div>
+              </article>
+            </div>
+
+            <!-- Right Column: Supporting Shrine Visual & Parish Office Panel -->
+            <aside class="schedule-sidebar">
+              <!-- Shrine Visual Card -->
+              <div class="sidebar-visual-card">
+                <img :src="altar" alt="Sanctuary and Altar of Our Lady of the Pillar Shrine">
+                <div class="sidebar-visual-caption">
+                  <span>Our Place of Worship</span>
+                  <strong>Our Lady of the Pillar Shrine</strong>
+                  <small>Diocesan Shrine &amp; Parish · Pilar, Sorsogon</small>
+                </div>
+              </div>
+
+              <!-- Parish Office Supporting Panel -->
+              <div class="parish-office-card">
+                <div class="office-header">
+                  <span class="section-eyebrow">Parish Information</span>
+                  <h3>Parish Office &amp; Services</h3>
+                </div>
+                <p class="office-desc">For Mass intentions, certificate requests, or sacrament inquiries, please visit or contact our parish office.</p>
+                
+                <div class="office-meta-list">
+                  <div class="office-meta-item">
+                    <span class="meta-icon" aria-hidden="true">⌖</span>
+                    <div>
+                      <b>Location</b>
+                      <span>Binanuahan, Pilar, Sorsogon</span>
+                    </div>
+                  </div>
+                  <div class="office-meta-item">
+                    <span class="meta-icon" aria-hidden="true">☏</span>
+                    <div>
+                      <b>Contact Number</b>
+                      <span>0946-869-1254</span>
+                    </div>
+                  </div>
+                  <div class="office-meta-item">
+                    <span class="meta-icon" aria-hidden="true">✉</span>
+                    <div>
+                      <b>Email Address</b>
+                      <span>olppspilarsorsogon@gmail.com</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="office-actions">
+                  <a class="button" href="#/forms">Request Mass Intention</a>
+                  <a class="button secondary" href="#/sacraments">Sacrament Requirements</a>
+                </div>
+              </div>
+            </aside>
+          </div>
         </div>
-      </section>
+      </div>
     </template>
 
     <template v-else-if="route === 'sacraments'">
-      <section class="soft-page sacrament-page">
-        <SectionTitle title="Sacraments" subtitle="Learn about the sacred celebrations and their parish requirements."/>
-        <div class="tabs page-width" role="tablist" aria-label="Sacrament information">
-          <button v-for="(option, index) in sacramentOptions" :key="option.name" type="button" role="tab" :class="{ active: selectedSacramentIndex === index }" :aria-selected="selectedSacramentIndex === index" @click="selectedSacramentIndex = index">
-            <span class="sacrament-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <path v-if="option.icon === 'baptism'" d="M12 2S6.5 8.4 6.5 13a5.5 5.5 0 0 0 11 0C17.5 8.4 12 2 12 2Z"/>
-                <g v-else-if="option.icon === 'wedding'"><circle cx="9" cy="12" r="5"/><circle cx="15" cy="12" r="5"/></g>
-                <path v-else-if="option.icon === 'confirmation'" d="M13 2c.7 4-3 5.2-3 9a3 3 0 0 0 6 0c2 2 3 4 3 6a7 7 0 0 1-14 0c0-3.5 2-6.6 5-9-.5 3 .5 4.6 2 5.5C9.5 8 13 6.3 13 2Z"/>
-                <g v-else-if="option.icon === 'anointing'"><path d="M8 3h8M10 3v5l-3 4v8h10v-8l-3-4V3"/><path d="M9 13h6"/></g>
-                <g v-else><path d="M12 3v18M7 8h10"/><path d="M5 21h14"/></g>
-              </svg>
-            </span><b>{{ option.name }}</b>
-          </button>
+      <div class="sacraments-page">
+        <!-- Sacraments Hero Section (Full Home visual parity) -->
+        <section class="sacraments-hero" :style="{ backgroundImage: `url(${church})` }">
+          <div class="page-width hero-copy">
+            <em>Sacred Mysteries &amp; Celebrations</em>
+            <h1>Parish Sacraments &amp; Guidelines</h1>
+            <div class="gold-rule left">✣</div>
+            <p>
+              The Sacraments of the Church are visible signs of God’s grace instituted by Christ.
+              Discover sacramental preparations, canonical guidelines, and pastoral requirements at the Diocesan Shrine of Our Lady of the Pillar.
+            </p>
+          </div>
+        </section>
+
+        <div class="page-width sacraments-content-wrap">
+          <!-- Pastoral Guidance & Scheduling Banner -->
+          <div class="sacraments-notice-banner" role="note">
+            <span class="notice-icon" aria-hidden="true">ℹ</span>
+            <div class="notice-text">
+              <strong>Pastoral Guidance &amp; Advance Scheduling</strong>
+              <p>
+                Sacraments are sacred encounters with God and the Christian community. Parishioners and couples are encouraged to coordinate with the Parish Office early to fulfill document verification, canonical interviews, and sacramental seminars.
+              </p>
+            </div>
+          </div>
+
+          <!-- Sacrament Selector (Modern, refined interactive tabs) -->
+          <div class="sacraments-selector-wrap">
+            <div class="sacraments-tabs" role="tablist" aria-label="Select sacrament to view guidelines">
+              <button
+                v-for="(option, index) in sacramentOptions"
+                :key="option.name"
+                type="button"
+                role="tab"
+                :class="['sacrament-tab-btn', { active: selectedSacramentIndex === index }]"
+                :aria-selected="selectedSacramentIndex === index"
+                :aria-controls="`sacrament-panel-${index}`"
+                :id="`sacrament-tab-${index}`"
+                @click="selectedSacramentIndex = index"
+              >
+                <span class="tab-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                    <path v-if="option.icon === 'baptism'" d="M12 2S6.5 8.4 6.5 13a5.5 5.5 0 0 0 11 0C17.5 8.4 12 2 12 2Z"/>
+                    <g v-else-if="option.icon === 'wedding'"><circle cx="9" cy="12" r="5"/><circle cx="15" cy="12" r="5"/></g>
+                    <path v-else-if="option.icon === 'confirmation'" d="M13 2c.7 4-3 5.2-3 9a3 3 0 0 0 6 0c2 2 3 4 3 6a7 7 0 0 1-14 0c0-3.5 2-6.6 5-9-.5 3 .5 4.6 2 5.5C9.5 8 13 6.3 13 2Z"/>
+                    <g v-else-if="option.icon === 'anointing'"><path d="M8 3h8M10 3v5l-3 4v8h10v-8l-3-4V3"/><path d="M9 13h6"/></g>
+                    <g v-else><path d="M12 3v18M7 8h10"/><path d="M5 21h14"/></g>
+                  </svg>
+                </span>
+                <span class="tab-label-group">
+                  <span class="tab-name">{{ option.name }}</span>
+                  <span class="tab-sub">{{ option.categoryShort }}</span>
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Two-Column Sacramental Detail Showcase -->
+          <div
+            class="sacraments-detail-layout"
+            role="tabpanel"
+            :id="`sacrament-panel-${selectedSacramentIndex}`"
+            :aria-labelledby="`sacrament-tab-${selectedSacramentIndex}`"
+            aria-live="polite"
+          >
+            <!-- Left Column: Sacramental Information & Guidelines -->
+            <article class="sacrament-main-card">
+              <header class="sacrament-card-header">
+                <div class="sacrament-title-badge-row">
+                  <span class="sacrament-category-tag">{{ selectedSacrament.category }}</span>
+                  <span class="sacrament-badge-pill">Parish Guidelines</span>
+                </div>
+                <h2>{{ selectedSacrament.title }}</h2>
+                <div class="gold-rule left small">✣</div>
+                <p class="sacrament-lead-desc">{{ selectedSacrament.description }}</p>
+              </header>
+
+              <!-- Requirements Section -->
+              <section class="sacrament-sub-section">
+                <div class="sub-section-header">
+                  <span class="sub-section-icon" aria-hidden="true">✓</span>
+                  <div>
+                    <h3>Required Documents &amp; Prerequisites</h3>
+                    <span class="sub-section-hint">Please prepare original and clear photocopies for submission</span>
+                  </div>
+                </div>
+                <ul class="requirements-checklist">
+                  <li v-for="(req, rIdx) in selectedSacrament.requirements" :key="rIdx">
+                    <span class="check-bullet" aria-hidden="true">✔</span>
+                    <span>{{ req }}</span>
+                  </li>
+                </ul>
+              </section>
+
+              <!-- Process & Procedure Section -->
+              <section class="sacrament-sub-section">
+                <div class="sub-section-header">
+                  <span class="sub-section-icon" aria-hidden="true">➔</span>
+                  <div>
+                    <h3>Step-by-Step Pastoral Procedure</h3>
+                    <span class="sub-section-hint">Order of preparation, registration, and celebration</span>
+                  </div>
+                </div>
+                <ol class="procedure-steps-list">
+                  <li v-for="(step, sIdx) in selectedSacrament.process" :key="sIdx">
+                    <span class="step-num" aria-hidden="true">{{ sIdx + 1 }}</span>
+                    <div class="step-content">
+                      <strong>{{ step }}</strong>
+                    </div>
+                  </li>
+                </ol>
+              </section>
+
+              <!-- Pastoral Advisory Callout inside Left Column -->
+              <div class="sacrament-advisory-callout">
+                <span class="callout-icon" aria-hidden="true">✦</span>
+                <div class="callout-content">
+                  <strong>Pastoral Advisory for {{ selectedSacrament.name }}</strong>
+                  <p>{{ selectedSacrament.advisory }}</p>
+                </div>
+              </div>
+            </article>
+
+            <!-- Right Column: Shrine Sanctuary Visual & Parish Office Panel -->
+            <aside class="sacrament-sidebar">
+              <!-- Framed Altar Visual Card -->
+              <div class="sidebar-visual-card">
+                <img :src="altar" alt="Altar and Sanctuary of Our Lady of the Pillar Diocesan Shrine">
+                <div class="sidebar-visual-caption">
+                  <span>Sanctuary of Grace</span>
+                  <strong>Diocesan Shrine Sanctuary</strong>
+                  <small>Our Lady of the Pillar Parish · Binanuahan, Pilar</small>
+                </div>
+              </div>
+
+              <!-- Parish Office Supporting Panel (Brand parity with Mass Schedule) -->
+              <div class="parish-office-card">
+                <div class="office-header">
+                  <span class="section-eyebrow">Parish Information</span>
+                  <h3>Parish Office &amp; Services</h3>
+                </div>
+                <p class="office-desc">
+                  To register for sacraments, request canonical certificates, or schedule counseling and seminars, please visit or contact our parish office.
+                </p>
+
+                <div class="office-meta-list">
+                  <div class="office-meta-item">
+                    <span class="meta-icon" aria-hidden="true">⌖</span>
+                    <div>
+                      <b>Location</b>
+                      <span>Binanuahan, Pilar, Sorsogon</span>
+                    </div>
+                  </div>
+                  <div class="office-meta-item">
+                    <span class="meta-icon" aria-hidden="true">☏</span>
+                    <div>
+                      <b>Contact Number</b>
+                      <span>0946-869-1254</span>
+                    </div>
+                  </div>
+                  <div class="office-meta-item">
+                    <span class="meta-icon" aria-hidden="true">✉</span>
+                    <div>
+                      <b>Email Address</b>
+                      <span>olppspilarsorsogon@gmail.com</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="office-actions">
+                  <a class="button" href="#/forms">Request Form / Certificate</a>
+                  <a class="button secondary" href="#/contact">Contact Parish Office</a>
+                </div>
+              </div>
+            </aside>
+          </div>
         </div>
-        <div class="sacrament-layout page-width" role="tabpanel" aria-live="polite">
-          <article>
-            <h1>{{ selectedSacrament.name }}</h1>
-            <p class="lead">{{ selectedSacrament.description }}</p>
-            <hr><h2>Requirements</h2>
-            <ul><li v-for="requirement in selectedSacrament.requirements" :key="requirement">{{ requirement }}</li></ul>
-            <hr><h2>Process</h2>
-            <ol><li v-for="step in selectedSacrament.process" :key="step">{{ step }}</li></ol>
-          </article>
-          <img :src="altar" :alt="selectedSacrament.imageAlt">
-        </div>
-      </section>
+      </div>
     </template>
 
     <template v-else-if="route === 'news' || route === 'events'">
-      <section class="soft-page"><SectionTitle title="News & Announcements"/><div class="headline-list page-width"><b>Blessed Mother Statue Procession</b> • May 10, 2025<br><b>Holy Week 2025 Schedule</b> • April 8, 2025<br><b>Parishioner Dinner Fellowship</b> • March 25, 2025</div><div class="card-grid page-width"><article class="news-card" v-for="n in news" :key="n.title"><img :src="n.image"><div><h2>{{ n.title }}</h2><p>▣ {{ n.date }} &nbsp; | &nbsp; ⌖ {{ n.place }}</p><p>Join our parish community for this faith-filled celebration and fellowship.</p><button class="button secondary">Read more</button></div></article></div></section>
+      <div class="news-page">
+        <!-- News Hero Section (Full Home visual parity) -->
+        <section class="news-hero" :style="{ backgroundImage: `url(${parishAerial})` }">
+          <div class="page-width hero-copy">
+            <em>Parish Life &amp; Announcements</em>
+            <h1>News &amp; Announcements</h1>
+            <div class="gold-rule left">✣</div>
+            <p>
+              Stay informed with parish news, upcoming events, liturgical celebrations, announcements, and community activities.
+            </p>
+          </div>
+        </section>
+
+        <div class="page-width news-content-wrap">
+          <!-- Important Announcements Section -->
+          <section class="news-announcements-section" aria-labelledby="announcements-heading">
+            <div class="news-section-header">
+              <span class="news-section-eyebrow">Latest Advisories</span>
+              <h2 id="announcements-heading">Parish Announcements</h2>
+            </div>
+
+            <div class="news-announcements-grid">
+              <article v-for="a in announcements" :key="a.title" class="news-announcement-card">
+                <div class="announcement-header">
+                  <span class="announcement-badge">{{ a.badge }}</span>
+                  <time class="announcement-date">◷ {{ a.date }}</time>
+                </div>
+                <h3>{{ a.title }}</h3>
+                <p class="announcement-desc">{{ a.description }}</p>
+                <div class="announcement-meta">
+                  <span class="announcement-place">⌖ {{ a.place }}</span>
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <!-- Featured News Article Section -->
+          <section class="news-featured-section" aria-labelledby="featured-heading">
+            <div class="news-section-header">
+              <span class="news-section-eyebrow">Featured Story</span>
+              <h2 id="featured-heading">Latest from Our Community</h2>
+            </div>
+
+            <article class="news-featured-card">
+              <div class="featured-media">
+                <img :src="news[0].image" :alt="news[0].title">
+                <span class="featured-tag">{{ news[0].category }}</span>
+              </div>
+              <div class="featured-content">
+                <div class="featured-meta">
+                  <time class="featured-date">◷ {{ news[0].date }}</time>
+                  <span class="featured-dot">•</span>
+                  <span class="featured-place">⌖ {{ news[0].place }}</span>
+                </div>
+                <h3>{{ news[0].title }}</h3>
+                <div class="gold-rule left small">✣</div>
+                <p class="featured-desc">{{ news[0].description }}</p>
+                <div class="featured-actions">
+                  <button class="button" type="button" @click="activeNewsModal = news[0]">
+                    Read Full Story
+                  </button>
+                  <a class="button secondary" href="#/events">View All Events</a>
+                </div>
+              </div>
+            </article>
+          </section>
+
+          <!-- News & Events Grid Section -->
+          <section class="news-grid-section" aria-labelledby="recent-news-heading">
+            <div class="news-section-header">
+              <span class="news-section-eyebrow">Parish Updates &amp; Events</span>
+              <h2 id="recent-news-heading">Recent News &amp; Events</h2>
+            </div>
+
+            <div class="news-cards-grid">
+              <article v-for="n in news" :key="n.title" class="modern-news-card">
+                <div class="card-media">
+                  <img :src="n.image" :alt="n.title">
+                  <span class="card-category-badge">{{ n.category }}</span>
+                </div>
+                <div class="card-body">
+                  <div class="card-meta">
+                    <time class="meta-date">◷ {{ n.date }}</time>
+                    <span class="meta-place">⌖ {{ n.place }}</span>
+                  </div>
+                  <h3>{{ n.title }}</h3>
+                  <p class="card-summary">{{ n.description }}</p>
+                  <div class="card-footer">
+                    <button class="button secondary card-cta" type="button" @click="activeNewsModal = n">
+                      Read more &rarr;
+                    </button>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <!-- Inquiries / Pastoral Notice Footer Banner -->
+          <div class="news-inquiry-banner" role="note">
+            <div class="inquiry-icon" aria-hidden="true">✉</div>
+            <div class="inquiry-content">
+              <strong>Have Parish News or an Announcement to Share?</strong>
+              <p>
+                Parish ministries, chapels, and apostolates can submit liturgical notices and event write-ups to the Parish Office for inclusion in Sunday announcements and online updates.
+              </p>
+            </div>
+            <a class="button" href="#/contact">Contact Parish Office</a>
+          </div>
+        </div>
+
+        <!-- Article Detail Modal Dialog -->
+        <div v-if="activeNewsModal" class="news-modal-backdrop" @click.self="activeNewsModal = null" role="dialog" aria-modal="true" :aria-label="activeNewsModal.title">
+          <div class="news-modal-card">
+            <button class="modal-close-btn" type="button" @click="activeNewsModal = null" aria-label="Close article">✕</button>
+            <div class="modal-image-wrap">
+              <img :src="activeNewsModal.image" :alt="activeNewsModal.title">
+              <span class="modal-badge">{{ activeNewsModal.category }}</span>
+            </div>
+            <div class="modal-body">
+              <div class="modal-meta">
+                <time>◷ {{ activeNewsModal.date }}</time>
+                <span>•</span>
+                <span>⌖ {{ activeNewsModal.place }}</span>
+              </div>
+              <h2>{{ activeNewsModal.title }}</h2>
+              <div class="gold-rule left small">✣</div>
+              <p class="modal-lead">{{ activeNewsModal.description }}</p>
+              <p class="modal-fulltext">{{ activeNewsModal.fullText }}</p>
+              <div class="modal-actions">
+                <button class="button secondary" type="button" @click="activeNewsModal = null">Close Article</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </template>
 
     <template v-else-if="route === 'novenas'">
@@ -246,70 +1072,6 @@ const selectedSacrament = computed(() => sacramentOptions[selectedSacramentIndex
 <style src="./modern.css"></style>
 
 <style>
-.values article:first-child {
-  display: block;
-  border: 0;
-  padding: 0;
-}
-
-.values article:first-child > i {
-  display: none;
-}
-
-.values article:first-child h2 {
-  margin: 0 0 20px;
-  font-size: 27px;
-}
-
-.values article:first-child p {
-  color: #34445a;
-  font-size: 15px;
-  line-height: 1.85;
-  white-space: pre-line;
-}
-
-.values article:not(:first-child) {
-  display: none;
-}
-
-.history-milestones {
-  max-width: 750px;
-  margin: 0 auto 70px;
-  padding: 28px 30px;
-  border-left: 4px solid var(--gold);
-  background: #fff;
-  box-shadow: 0 10px 25px rgba(14, 50, 95, .08);
-}
-
-.history-milestones > span {
-  color: #9b7628;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-.history-milestones h2 {
-  margin: 8px 0 20px;
-  font-size: 22px;
-}
-
-.history-milestones div {
-  display: grid;
-  grid-template-columns: 145px 1fr;
-  gap: 18px;
-  align-items: start;
-}
-
-.history-milestones time {
-  color: var(--blue);
-  font-weight: 700;
-}
-
-.history-milestones p {
-  margin: 0;
-  color: #34445a;
-  line-height: 1.65;
-}
 
 .schedule-group {
   margin: 20px 0 5px;
@@ -490,14 +1252,6 @@ const selectedSacrament = computed(() => sacramentOptions[selectedSacramentIndex
     opacity: .5;
   }
 
-  .history-milestones {
-    padding: 22px;
-  }
-
-  .history-milestones div {
-    grid-template-columns: 1fr;
-    gap: 7px;
-  }
 }
 
 .home-hero {

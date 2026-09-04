@@ -243,358 +243,1933 @@ body .home-hero::before {
   line-height: 1.7;
 }
 
-/* About page */
-.about-page .section-title {
-  width: min(1180px, calc(100% - 56px));
-  margin-inline: auto;
-  padding: 54px 0 32px;
-  text-align: left;
-}
-
-.about-page .section-title > span {
-  font-size: 10px;
-}
-
-.about-page .section-title h1 {
-  margin: 10px 0 0;
-  font-size: clamp(38px, 4vw, 54px);
-}
-
-.about-page .section-title .gold-rule {
-  display: none;
-}
-
-.about-visual {
+/* Modern About Page (Full parity with Home visual system) */
+.about-hero {
+  min-height: 510px;
+  display: flex;
+  align-items: center;
   position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background-color: #18324a;
+  background-size: cover;
+  background-position: center;
 }
 
-.about-page .about-visual .wide-image {
-  height: 440px;
-  object-position: center 42%;
-  border-radius: 24px;
-}
-
-.about-image-caption {
+body .about-hero::before {
   position: absolute;
-  bottom: 24px;
-  left: 24px;
-  display: grid;
-  min-width: 290px;
-  padding: 18px 22px;
-  border: 1px solid rgba(255, 255, 255, .35);
-  border-radius: 14px;
-  background: rgba(5, 35, 74, .82);
-  color: #fff;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, .16);
-  backdrop-filter: blur(12px);
+  inset: 0;
+  z-index: 1;
+  content: '';
+  background:
+    linear-gradient(90deg, rgba(6, 28, 58, .92) 0%, rgba(7, 35, 70, .76) 48%, rgba(7, 28, 52, .24) 82%),
+    linear-gradient(0deg, rgba(5, 23, 44, .32), transparent 45%);
 }
 
-.about-image-caption span {
-  color: #f0cc70;
-  font-size: 9px;
+.about-hero .hero-copy {
+  position: relative;
+  z-index: 2;
+  padding-block: 64px;
+}
+
+.about-hero .hero-copy p {
+  margin-bottom: 0;
+}
+
+.section-eyebrow {
+  display: inline-block;
+  color: var(--gold);
+  font-family: Montserrat, Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.editorial-gold-bar {
+  width: 52px;
+  height: 3px;
+  background: var(--gold);
+  border-radius: 2px;
+  margin: 0 0 24px;
+}
+
+/* 1. About Intro Section */
+.about-intro {
+  padding: 76px 0 54px;
+}
+
+.about-intro-grid {
+  display: grid;
+  grid-template-columns: 1.18fr 0.82fr;
+  gap: 52px;
+  align-items: center;
+}
+
+.about-intro-content h2 {
+  color: var(--blue);
+  font: 700 clamp(28px, 2.7vw, 40px) 'Libre Baskerville', Georgia, serif;
+  line-height: 1.22;
+  margin: 0 0 16px;
+}
+
+.about-intro-content .lead {
+  font-size: 16px;
+  line-height: 1.85;
+  color: #28394e;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
+.about-intro-content p {
+  font-size: 14.5px;
+  line-height: 1.85;
+  color: #4c5e73;
+  margin-bottom: 24px;
+}
+
+.about-quick-facts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 28px;
+}
+
+.fact-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 6px 20px rgba(17, 44, 78, .05);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.fact-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(17, 44, 78, .09);
+}
+
+.fact-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: #edf4fb;
+  color: var(--blue);
+  display: grid;
+  place-items: center;
+  font-size: 17px;
+  flex-shrink: 0;
+}
+
+.fact-card strong {
+  display: block;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.fact-card small {
+  display: block;
+  color: var(--muted);
+  font-size: 10.5px;
+  margin-top: 3px;
+}
+
+.about-intro-visual .visual-frame {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--line);
+}
+
+.about-intro-visual .visual-frame img {
+  width: 100%;
+  height: 460px;
+  object-fit: cover;
+  display: block;
+}
+
+.visual-caption {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  padding: 16px 20px;
+  border-radius: 14px;
+  background: rgba(6, 35, 74, .85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, .3);
+  color: #fff;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .2);
+}
+
+.visual-caption span {
+  display: block;
+  color: #f2cd72;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.visual-caption strong {
+  display: block;
+  margin: 4px 0;
+  font-family: 'Libre Baskerville', Georgia, serif;
+  font-size: 18px;
+  color: #fff;
+}
+
+.visual-caption small {
+  display: block;
+  color: rgba(255, 255, 255, .78);
+  font-size: 11px;
+}
+
+/* 2. About History Section */
+.about-history {
+  padding: 70px 0 65px;
+  border-top: 1px solid #e5edf5;
+}
+
+.section-header-block {
+  text-align: center;
+  max-width: 780px;
+  margin: 0 auto 52px;
+}
+
+.section-header-block h2 {
+  color: var(--blue);
+  font: 700 clamp(28px, 2.8vw, 42px) 'Libre Baskerville', Georgia, serif;
+  margin: 10px 0 0;
+}
+
+.section-subtitle {
+  color: var(--muted);
+  font-size: 15px;
+  margin-top: 12px;
+  line-height: 1.65;
+}
+
+.history-chapter {
+  display: grid;
+  grid-template-columns: 210px 1fr;
+  gap: 40px;
+  padding: 36px 0;
+  border-bottom: 1px solid #e9eff6;
+  align-items: start;
+}
+
+.chapter-badge {
+  padding: 16px 20px;
+  background: #eef5fc;
+  border-left: 4px solid var(--blue);
+  border-radius: 0 12px 12px 0;
+}
+
+.chapter-badge span {
+  display: block;
+  color: var(--blue);
+  font-family: 'Libre Baskerville', Georgia, serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.chapter-badge b {
+  display: block;
+  color: #5f7289;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-top: 5px;
+}
+
+.chapter-content h3 {
+  color: var(--blue);
+  font: 700 23px 'Libre Baskerville', Georgia, serif;
+  line-height: 1.3;
+  margin: 0 0 16px;
+}
+
+.chapter-content p {
+  color: #4b5d72;
+  font-size: 15px;
+  line-height: 1.88;
+  margin-bottom: 16px;
+}
+
+.drop-cap-paragraph::first-letter {
+  float: left;
+  color: var(--blue);
+  font: 700 52px/42px 'Libre Baskerville', Georgia, serif;
+  margin: 6px 12px 0 0;
+}
+
+.history-two-col {
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 44px;
+}
+
+.chapter-col-main .chapter-badge {
+  margin-bottom: 22px;
+  display: inline-block;
+}
+
+.history-sidebar {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  position: sticky;
+  top: 100px;
+}
+
+.sidebar-visual img {
+  width: 100%;
+  height: 230px;
+  object-fit: cover;
+  display: block;
+}
+
+.sidebar-info {
+  padding: 24px;
+}
+
+.quote-badge {
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #edf2f7;
+}
+
+.quote-symbol {
+  display: block;
+  color: var(--gold);
+  font-size: 32px;
+  line-height: 1;
+  font-family: Georgia, serif;
+}
+
+.quote-badge strong {
+  display: block;
+  color: var(--blue);
+  font: 700 20px 'Libre Baskerville', Georgia, serif;
+  font-style: italic;
+  margin: 6px 0 10px;
+}
+
+.quote-badge p {
+  color: #5b6e85;
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.sidebar-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.sidebar-meta b {
+  display: block;
+  color: var(--muted);
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.sidebar-meta span {
+  display: block;
+  color: var(--ink);
+  font-size: 12.5px;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+/* 3. Milestone Card */
+.about-milestone {
+  padding: 20px 0 70px;
+}
+
+.milestone-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 22px;
+  background: linear-gradient(130deg, #062b66 0%, #0a3c84 55%, #072e6b 100%);
+  color: #fff;
+  padding: 52px 58px;
+  border-left: 6px solid var(--gold);
+  box-shadow: 0 20px 54px rgba(6, 43, 102, .26);
+}
+
+.milestone-watermark {
+  position: absolute;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: 'Libre Baskerville', Georgia, serif;
+  font-size: 170px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, .05);
+  pointer-events: none;
+  line-height: 1;
+  user-select: none;
+}
+
+.milestone-eyebrow {
+  display: inline-block;
+  color: #f2cd72;
+  font-family: Montserrat, Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.milestone-date {
+  display: block;
+  font-family: 'Libre Baskerville', Georgia, serif;
+  font-size: clamp(26px, 2.6vw, 34px);
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.milestone-title {
+  font: 700 clamp(20px, 2vw, 26px) 'Libre Baskerville', Georgia, serif;
+  color: #eaf3fe;
+  margin: 0 0 16px;
+}
+
+.milestone-lead {
+  max-width: 820px;
+  font-size: 16px;
+  line-height: 1.78;
+  color: rgba(255, 255, 255, .9);
+  margin: 0 0 36px;
+}
+
+.milestone-badges {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  position: relative;
+  z-index: 2;
+}
+
+.milestone-badge-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  padding: 18px 22px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .08);
+  border: 1px solid rgba(255, 255, 255, .16);
+  backdrop-filter: blur(8px);
+}
+
+.badge-icon {
+  font-size: 24px;
+  color: #f2cd72;
+  line-height: 1;
+}
+
+.milestone-badge-item strong {
+  display: block;
+  color: #fff;
+  font-size: 13.5px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.milestone-badge-item small {
+  display: block;
+  color: rgba(255, 255, 255, .76);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+/* 4. Sacred Titular Section */
+.about-titular {
+  padding: 20px 0 70px;
+}
+
+.about-titular-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 54px;
+  align-items: center;
+}
+
+.about-titular h2 {
+  color: var(--blue);
+  font: 700 clamp(28px, 2.7vw, 40px) 'Libre Baskerville', Georgia, serif;
+  margin: 0 0 8px;
+}
+
+.titular-subtitle {
+  color: #4a6688;
+  font-size: 17px;
+  font-weight: 600;
+  margin: 0 0 16px;
+}
+
+.about-titular p {
+  color: #4b5d72;
+  font-size: 15px;
+  line-height: 1.85;
+  margin-bottom: 24px;
+}
+
+.titular-devotions {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 30px;
+}
+
+.devotion-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 6px 18px rgba(17, 44, 78, .04);
+}
+
+.devotion-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: #edf4fb;
+  color: var(--blue);
+  display: grid;
+  place-items: center;
+  font-size: 19px;
+  font-style: normal;
+  flex-shrink: 0;
+}
+
+.devotion-item strong {
+  display: block;
+  color: var(--blue);
+  font-size: 13.5px;
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+
+.devotion-item span {
+  display: block;
+  color: #5f7289;
+  font-size: 11.5px;
+}
+
+.titular-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.titular-image-card {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #162436;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--line);
+}
+
+.titular-image-card img {
+  width: 100%;
+  height: 500px;
+  object-fit: contain;
+  object-position: center;
+  background: radial-gradient(circle at center, #26384f, #111e2e);
+  display: block;
+}
+
+.titular-badge {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  padding: 16px 20px;
+  border-radius: 14px;
+  background: rgba(5, 30, 64, .88);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, .28);
+  color: #fff;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .24);
+}
+
+.titular-badge span {
+  display: block;
+  color: #f2cd72;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.titular-badge strong {
+  display: block;
+  margin: 4px 0;
+  font-family: 'Libre Baskerville', Georgia, serif;
+  font-size: 19px;
+  color: #fff;
+}
+
+.titular-badge small {
+  display: block;
+  color: rgba(255, 255, 255, .78);
+  font-size: 11px;
+}
+
+/* 5. Pilgrimage CTA Banner */
+.about-pilgrimage {
+  padding: 10px 0 90px;
+}
+
+.pilgrimage-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 36px;
+  padding: 44px 52px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: linear-gradient(135deg, #f7fbfe 0%, #fff 100%);
+  box-shadow: var(--shadow);
+}
+
+.pilgrimage-copy span {
+  display: block;
+  color: var(--gold);
+  font-family: Montserrat, Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.pilgrimage-copy h2 {
+  color: var(--blue);
+  font: 700 26px 'Libre Baskerville', Georgia, serif;
+  margin: 0 0 10px;
+}
+
+.pilgrimage-copy p {
+  max-width: 620px;
+  color: #586b81;
+  font-size: 14.5px;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.pilgrimage-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+/* Modern Mass Schedule Page (Full parity with Home visual system) */
+.schedule-hero {
+  min-height: 480px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background-color: #18324a;
+  background-size: cover;
+  background-position: center;
+}
+
+body .schedule-hero::before {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  content: '';
+  background:
+    linear-gradient(90deg, rgba(6, 28, 58, .92) 0%, rgba(7, 35, 70, .76) 48%, rgba(7, 28, 52, .24) 82%),
+    linear-gradient(0deg, rgba(5, 23, 44, .32), transparent 45%);
+}
+
+.schedule-hero .hero-copy {
+  position: relative;
+  z-index: 2;
+  padding-block: 64px;
+}
+
+.schedule-hero .hero-copy p {
+  margin-bottom: 0;
+}
+
+.schedule-content-wrap {
+  padding: 48px 0 85px;
+}
+
+/* Schedule Notice Banner */
+.schedule-notice-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 18px 22px;
+  margin-bottom: 34px;
+  border: 1px solid #c9dcf0;
+  border-left: 4px solid var(--blue);
+  border-radius: 14px;
+  background: linear-gradient(135deg, #f0f6fc 0%, #f7fbff 100%);
+  box-shadow: 0 4px 18px rgba(10, 55, 127, .06);
+}
+
+.notice-icon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #e1effc;
+  color: var(--blue);
+  font-size: 16px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.notice-text strong {
+  display: block;
+  color: var(--blue);
+  font-size: 13.5px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.notice-text p {
+  margin: 0;
+  color: #4b6077;
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
+/* Schedule Layout */
+.schedule-page .schedule-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(350px, .85fr);
+  gap: 36px;
+  align-items: start;
+  padding: 0;
+}
+
+.schedule-list {
+  display: grid;
+  gap: 18px;
+}
+
+/* Schedule Cards */
+.schedule-page .schedule-card {
+  display: block;
+  padding: 24px 28px;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--gold);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(22, 48, 88, .07);
+  transition: transform .2s ease, box-shadow .2s ease;
+  overflow: hidden;
+  margin: 0;
+}
+
+.schedule-page .schedule-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 34px rgba(22, 48, 88, .12);
+}
+
+.card-header-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #edf2f7;
+}
+
+.card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 11px;
+  background: #eef5fb;
+  color: var(--blue);
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.schedule-page .schedule-card h2 {
+  color: var(--blue);
+  font: 700 19px 'Libre Baskerville', Georgia, serif;
+  margin: 0 0 3px;
+  letter-spacing: -.01em;
+}
+
+.card-tag {
+  display: inline-block;
+  color: var(--gold);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.schedule-details-list {
+  display: grid;
+  gap: 10px;
+}
+
+.schedule-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #f9fbfe;
+  font-size: 13.5px;
+}
+
+.schedule-item.highlighted {
+  background: #eff6fd;
+  border: 1px solid #d4e5f7;
+}
+
+.item-day {
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.item-time {
+  color: #4b6077;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.live-badge {
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: #1877f2;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+}
+
+/* Schedule Sidebar */
+.schedule-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  position: sticky;
+  top: 96px;
+}
+
+.sidebar-visual-card {
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #082e63;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+.sidebar-visual-card img {
+  width: 100%;
+  height: 290px;
+  object-fit: cover;
+  display: block;
+}
+
+.sidebar-visual-caption {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  right: 16px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  background: rgba(6, 35, 74, .85);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, .25);
+  color: #fff;
+}
+
+.sidebar-visual-caption span {
+  display: block;
+  color: #f2cd72;
+  font-size: 9.5px;
   font-weight: 700;
   letter-spacing: .12em;
   text-transform: uppercase;
 }
 
-.about-image-caption strong {
-  margin: 5px 0 4px;
+.sidebar-visual-caption strong {
+  display: block;
+  margin: 3px 0;
   font-family: 'Libre Baskerville', Georgia, serif;
-  font-size: 18px;
+  font-size: 16px;
+  color: #fff;
 }
 
-.about-image-caption small {
-  color: rgba(255, 255, 255, .72);
-  font-size: 10px;
+.sidebar-visual-caption small {
+  display: block;
+  color: rgba(255, 255, 255, .78);
+  font-size: 10.5px;
 }
 
-.about-page .values {
-  max-width: 920px;
-  margin: 58px auto 34px;
-}
-
-.about-page .values article:first-child {
-  padding: 46px 52px;
+.parish-office-card {
+  padding: 28px 26px;
   border: 1px solid var(--line);
-  border-radius: var(--radius);
+  border-radius: 18px;
   background: #fff;
   box-shadow: var(--shadow);
 }
 
-.about-page .values article:first-child h2 {
-  margin-bottom: 24px;
+.office-header h3 {
   color: var(--blue);
-  font: 700 30px 'Libre Baskerville', Georgia, serif;
-  letter-spacing: -.02em;
+  font: 700 21px 'Libre Baskerville', Georgia, serif;
+  margin: 4px 0 10px;
 }
 
-.about-page .values article:first-child p {
-  color: #4b5d72;
-  font-size: 14px;
-  line-height: 1.9;
+.office-desc {
+  color: #556980;
+  font-size: 13.5px;
+  line-height: 1.6;
+  margin: 0 0 18px;
 }
 
-.about-page .values article:first-child p:first-of-type::first-letter {
-  float: left;
-  margin: 8px 8px 0 0;
-  color: var(--blue);
-  font: 700 48px/38px 'Libre Baskerville', Georgia, serif;
-}
-
-.about-page .history-milestones {
-  max-width: 920px;
-  margin-bottom: 90px;
-  padding: 36px 42px;
-  border: 1px solid #e4d5aa;
-  border-left: 5px solid var(--gold);
-  border-radius: var(--radius);
-  background: linear-gradient(135deg, #fffdf7, #fff);
-  box-shadow: var(--shadow);
-}
-
-.about-page .history-milestones h2 {
-  margin-bottom: 24px;
-}
-
-.about-page .history-milestones div {
-  grid-template-columns: 170px 1fr;
-  align-items: center;
-  padding-top: 20px;
-  border-top: 1px solid #eadfbf;
-}
-
-.about-page .history-milestones time {
-  font-family: 'Libre Baskerville', Georgia, serif;
-  font-size: 16px;
-}
-
-/* Mass schedule page */
-.schedule-page .section-title {
-  width: min(1180px, calc(100% - 56px));
-  margin-inline: auto;
-  padding: 54px 0 32px;
-  text-align: left;
-}
-
-.schedule-page .section-title h1 {
-  margin: 10px 0 0;
-  font-size: clamp(38px, 4vw, 54px);
-}
-
-.schedule-page .section-title .gold-rule {
-  display: none;
-}
-
-.schedule-page .section-title p {
-  margin: 12px 0 0;
-}
-
-.schedule-page .schedule-layout {
-  grid-template-columns: minmax(0, 1.05fr) minmax(360px, .95fr);
-  gap: 36px;
-  align-items: start;
-  padding: 12px 0 90px;
-}
-
-.schedule-list {
+.office-meta-list {
   display: grid;
-  gap: 14px;
+  gap: 12px;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #edf2f7;
 }
 
-.schedule-page .schedule-card {
-  grid-template-columns: 52px minmax(0, 1fr);
-  gap: 18px;
-  margin: 0;
-  padding: 22px 24px;
-  border-left: 0;
-  border-radius: 15px;
-  overflow: visible;
-}
-
-.schedule-page .schedule-card::before {
-  top: 18px;
-  bottom: 18px;
-  left: 0;
-  width: 3px;
-  border-radius: 0 3px 3px 0;
-  background: var(--gold);
-}
-
-.schedule-page .schedule-card:nth-child(n)::before {
-  background: var(--gold);
-}
-
-.schedule-page .schedule-card i {
-  width: 52px;
-  height: 52px;
-  border-radius: 13px;
-  background: #eef4fa;
-  font-size: 20px;
-}
-
-.schedule-page .schedule-card h2 {
-  font-size: 14px;
-  letter-spacing: .06em;
-}
-
-.schedule-page .schedule-card b {
-  color: #64758a;
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: .04em;
-}
-
-.schedule-page .schedule-card p {
-  padding-top: 9px;
-  color: #465970;
-}
-
-.schedule-visual {
-  position: sticky;
-  top: 24px;
-  margin: 0;
-  overflow: hidden;
-  border-radius: 20px;
-  background: #082f6d;
-  box-shadow: var(--shadow);
-}
-
-.schedule-page .schedule-visual .tall-image {
-  position: static;
-  display: block;
-  height: 650px;
-  min-height: 0;
-  border-radius: 0;
-  box-shadow: none;
-}
-
-.schedule-visual figcaption {
-  display: grid;
-  padding: 24px 26px;
-  color: #fff;
-}
-
-.schedule-visual figcaption span {
-  color: #f0cc70;
-  font-size: 9px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .1em;
-}
-
-.schedule-visual figcaption strong {
-  margin: 5px 0;
-  font-family: 'Libre Baskerville', Georgia, serif;
-  font-size: 17px;
-}
-
-.schedule-visual figcaption small {
-  color: rgba(255, 255, 255, .7);
-  line-height: 1.5;
-}
-
-/* Sacraments page */
-.sacrament-page .section-title {
-  width: min(1180px, calc(100% - 56px));
-  margin-inline: auto;
-  padding: 54px 0 32px;
-  text-align: left;
-}
-
-.sacrament-page .section-title h1 {
-  margin: 0;
-  font-size: clamp(38px, 4vw, 54px);
-}
-
-.sacrament-page .section-title .gold-rule {
-  display: none;
-}
-
-.sacrament-page .section-title p {
-  margin: 12px 0 0;
-}
-
-.sacrament-page .tabs {
+.office-meta-item {
+  display: flex;
+  align-items: flex-start;
   gap: 12px;
 }
 
-.sacrament-page .tabs button {
-  min-height: 112px;
-  padding: 18px 12px;
-  border-radius: 15px;
+.meta-icon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #edf4fb;
+  color: var(--blue);
+  font-size: 14px;
+  flex-shrink: 0;
 }
 
-.sacrament-page .tabs button:hover,
-.sacrament-page .tabs button:focus-visible {
-  transform: translateY(-3px);
+.office-meta-item b {
+  display: block;
+  color: var(--muted);
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
 }
 
-.sacrament-page .tabs button.active {
-  border-color: #b9d0e6;
-  border-bottom-color: var(--bright);
-  background: #f3f8fd;
+.office-meta-item span {
+  display: block;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 2px;
 }
 
-.sacrament-page .tabs .sacrament-icon {
-  width: 44px;
-  height: 44px;
-  margin-bottom: 10px;
-  background: #edf4fa;
+.office-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.sacrament-page .sacrament-icon svg {
+.office-actions .button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 44px;
+  padding: 12px 18px;
+  font-size: 11px;
+  margin: 0;
+}
+
+/* ==========================================================================
+   Modern Sacraments Page (Full Home Visual Parity)
+   ========================================================================== */
+.sacraments-page {
+  background: var(--bg);
+  min-height: 100vh;
+}
+
+.sacraments-hero {
+  min-height: 480px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background-color: #18324a;
+  background-size: cover;
+  background-position: center;
+}
+
+body .sacraments-hero::before {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  content: '';
+  background:
+    linear-gradient(90deg, rgba(6, 28, 58, .92) 0%, rgba(7, 35, 70, .76) 48%, rgba(7, 28, 52, .24) 82%),
+    linear-gradient(0deg, rgba(5, 23, 44, .32), transparent 45%);
+}
+
+.sacraments-hero .hero-copy {
+  position: relative;
+  z-index: 2;
+  padding-block: 64px;
+}
+
+.sacraments-hero .hero-copy p {
+  margin-bottom: 0;
+  max-width: 680px;
+}
+
+.sacraments-content-wrap {
+  padding: 44px 0 85px;
+}
+
+/* Sacraments Notice Banner */
+.sacraments-notice-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 18px 22px;
+  margin-bottom: 32px;
+  border: 1px solid #c9dcf0;
+  border-left: 4px solid var(--blue);
+  border-radius: 14px;
+  background: linear-gradient(135deg, #f0f6fc 0%, #f7fbff 100%);
+  box-shadow: 0 4px 18px rgba(10, 55, 127, .06);
+}
+
+.sacraments-notice-banner .notice-icon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #e1effc;
+  color: var(--blue);
+  font-size: 16px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.sacraments-notice-banner .notice-text strong {
+  display: block;
+  color: var(--blue);
+  font-size: 13.5px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.sacraments-notice-banner .notice-text p {
+  margin: 0;
+  color: #4b6077;
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
+/* Sacraments Tab Selector */
+.sacraments-selector-wrap {
+  margin-bottom: 34px;
+}
+
+.sacraments-tabs {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.sacrament-tab-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 20px 14px 18px;
+  border-radius: 16px;
+  border: 1px solid #dbe6f2;
+  background: #fff;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(16, 44, 80, .05);
+  transition: all .22s cubic-bezier(.4, 0, .2, 1);
+  font-family: inherit;
+}
+
+.sacrament-tab-btn:hover {
+  transform: translateY(-2px);
+  border-color: #b3cde7;
+  box-shadow: 0 10px 24px rgba(16, 44, 80, .1);
+  background: #fbfdff;
+}
+
+.sacrament-tab-btn.active {
+  background: linear-gradient(180deg, #f0f7ff 0%, #e5f1fc 100%);
+  border-color: #92bce2;
+  border-bottom: 3px solid var(--blue);
+  box-shadow: 0 8px 24px rgba(11, 59, 130, .14);
+  transform: translateY(-2px);
+}
+
+.sacrament-tab-btn .tab-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: #eef5fb;
+  color: var(--blue);
+  display: grid;
+  place-items: center;
+  margin-bottom: 12px;
+  transition: all .2s ease;
+}
+
+.sacrament-tab-btn:hover .tab-icon {
+  background: #e1effc;
+}
+
+.sacrament-tab-btn.active .tab-icon {
+  background: var(--blue);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(11, 59, 130, .32);
+}
+
+.sacrament-tab-btn .tab-icon svg {
   width: 23px;
   height: 23px;
 }
 
-.sacrament-page .tabs button.active .sacrament-icon {
-  background: var(--blue);
+.sacrament-tab-btn .tab-name {
+  display: block;
+  color: var(--ink);
+  font-size: 14.5px;
+  font-weight: 700;
+  line-height: 1.25;
 }
 
-.sacrament-page .tabs b {
-  margin: 0;
-  font-size: 13px;
+.sacrament-tab-btn.active .tab-name {
+  color: var(--blue);
 }
 
-.sacrament-page .sacrament-layout {
-  grid-template-columns: minmax(0, 1.05fr) minmax(360px, .95fr);
-  gap: 30px;
-  max-width: 1180px;
-  align-items: stretch;
-  padding: 34px 0 90px;
+.sacrament-tab-btn .tab-sub {
+  display: block;
+  margin-top: 4px;
+  color: #6d8299;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
 }
 
-.sacrament-page .sacrament-layout article {
+.sacrament-tab-btn.active .tab-sub {
+  color: #b88628;
+}
+
+/* Two-Column Detail Layout */
+.sacraments-detail-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.22fr) minmax(340px, .78fr);
+  gap: 34px;
+  align-items: start;
+}
+
+/* Left Column: Sacrament Main Card */
+.sacrament-main-card {
   padding: 38px 42px;
   border: 1px solid var(--line);
-  border-radius: var(--radius);
+  border-radius: 18px;
   background: #fff;
-  box-shadow: var(--shadow);
+  box-shadow: 0 8px 26px rgba(22, 48, 88, .07);
 }
 
-.sacrament-page .sacrament-layout h1 {
-  margin: 0 0 14px;
-  font-size: 34px;
+.sacrament-title-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
 }
 
-.sacrament-page .sacrament-layout h2 {
+.sacrament-category-tag {
+  color: var(--gold);
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.sacrament-badge-pill {
+  padding: 2px 9px;
+  border-radius: 20px;
+  background: #eef5fb;
+  color: var(--blue);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+}
+
+.sacrament-card-header h2 {
+  color: var(--blue);
+  font: 700 clamp(24px, 2.5vw, 32px) 'Libre Baskerville', Georgia, serif;
+  margin: 0 0 6px;
+  letter-spacing: -.01em;
+  line-height: 1.25;
+}
+
+.sacrament-main-card .gold-rule.small {
+  margin: 8px 0 16px;
+  font-size: 12px;
+}
+
+.sacrament-lead-desc {
+  color: #445970;
   font-size: 15px;
+  line-height: 1.75;
+  margin: 0 0 28px;
+}
+
+/* Sub-sections (Requirements & Procedure) */
+.sacrament-sub-section {
+  padding-top: 24px;
+  margin-top: 24px;
+  border-top: 1px solid #edf2f7;
+}
+
+.sub-section-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.sub-section-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: #edf4fc;
+  color: var(--blue);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.sub-section-header h3 {
+  color: var(--blue);
+  font: 700 17px 'Libre Baskerville', Georgia, serif;
+  margin: 0 0 2px;
+}
+
+.sub-section-hint {
+  display: block;
+  color: #6a8097;
+  font-size: 11.5px;
+  font-weight: 500;
+}
+
+/* Requirements Checklist */
+.requirements-checklist {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.requirements-checklist li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: #f9fbfe;
+  border: 1px solid #e7f0fa;
+  font-size: 13.5px;
+  color: var(--ink);
+  line-height: 1.5;
+}
+
+.check-bullet {
+  color: #0b7a42;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* Procedure Steps List */
+.procedure-steps-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.procedure-steps-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 13px 16px;
+  border-radius: 12px;
+  background: #fdfefe;
+  border: 1px solid #e3edf7;
+  transition: background .2s ease;
+}
+
+.procedure-steps-list li:hover {
+  background: #f7fbff;
+}
+
+.step-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--blue);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.step-content strong {
+  display: block;
+  color: var(--ink);
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+/* Pastoral Advisory Callout */
+.sacrament-advisory-callout {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-top: 28px;
+  padding: 16px 18px;
+  border-radius: 12px;
+  background: #fffbf2;
+  border: 1px solid #fae6c3;
+  border-left: 4px solid var(--gold);
+}
+
+.sacrament-advisory-callout .callout-icon {
+  color: var(--gold);
+  font-size: 18px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.sacrament-advisory-callout .callout-content strong {
+  display: block;
+  color: #8c6010;
+  font-size: 12.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin-bottom: 4px;
+}
+
+.sacrament-advisory-callout .callout-content p {
+  margin: 0;
+  color: #5d4617;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* Sacrament Sidebar */
+.sacrament-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  position: sticky;
+  top: 96px;
+}
+
+/* ==========================================================================
+   Modern News & Announcements Page (Full Home Visual Parity)
+   ========================================================================== */
+.news-page {
+  background: var(--bg);
+  min-height: 100vh;
+}
+
+.news-hero {
+  min-height: 480px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background-color: #18324a;
+  background-size: cover;
+  background-position: center;
+}
+
+body .news-hero::before {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  content: '';
+  background:
+    linear-gradient(90deg, rgba(6, 28, 58, .92) 0%, rgba(7, 35, 70, .76) 48%, rgba(7, 28, 52, .24) 82%),
+    linear-gradient(0deg, rgba(5, 23, 44, .32), transparent 45%);
+}
+
+.news-hero .hero-copy {
+  position: relative;
+  z-index: 2;
+  padding-block: 64px;
+}
+
+.news-hero .hero-copy p {
+  margin-bottom: 0;
+  max-width: 680px;
+}
+
+.news-content-wrap {
+  padding: 48px 0 85px;
+}
+
+.news-section-header {
+  margin-bottom: 24px;
+}
+
+.news-section-eyebrow {
+  display: block;
+  color: var(--gold);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.news-section-header h2 {
+  color: var(--blue);
+  font: 700 clamp(24px, 2.8vw, 32px) 'Libre Baskerville', Georgia, serif;
+  margin: 0;
+  letter-spacing: -.01em;
+}
+
+/* Announcements Section */
+.news-announcements-section {
+  margin-bottom: 56px;
+}
+
+.news-announcements-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.news-announcement-card {
+  padding: 24px 26px;
+  border-radius: 16px;
+  background: #f0f6fc;
+  border: 1px solid #d4e5f7;
+  border-left: 4px solid var(--blue);
+  box-shadow: 0 4px 18px rgba(10, 55, 127, .05);
+  display: flex;
+  flex-direction: column;
+  transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+}
+
+.news-announcement-card:hover {
+  transform: translateY(-2px);
+  background: #ebf3fb;
+  box-shadow: 0 8px 26px rgba(10, 55, 127, .1);
+}
+
+.announcement-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.announcement-badge {
+  padding: 3px 9px;
+  border-radius: 20px;
+  background: #fff;
+  border: 1px solid #c9dcf0;
+  color: var(--blue);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+}
+
+.announcement-date {
+  color: #556980;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.news-announcement-card h3 {
+  color: var(--ink);
+  font: 700 17px 'Libre Baskerville', Georgia, serif;
+  margin: 0 0 8px;
+  line-height: 1.35;
+}
+
+.announcement-desc {
+  color: #4b6077;
+  font-size: 13.5px;
+  line-height: 1.6;
+  margin: 0 0 16px;
+  flex-grow: 1;
+}
+
+.announcement-meta {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid rgba(185, 208, 230, .6);
+}
+
+.announcement-place {
+  color: #6a8097;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Featured News Section */
+.news-featured-section {
+  margin-bottom: 56px;
+}
+
+.news-featured-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: #fff;
+  box-shadow: 0 10px 30px rgba(22, 48, 88, .08);
+  overflow: hidden;
+  transition: transform .22s ease, box-shadow .22s ease;
+}
+
+.news-featured-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 40px rgba(22, 48, 88, .12);
+}
+
+.featured-media {
+  position: relative;
+  min-height: 380px;
+  overflow: hidden;
+  background: #082e63;
+}
+
+.featured-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform .4s ease;
+}
+
+.news-featured-card:hover .featured-media img {
+  transform: scale(1.03);
+}
+
+.featured-tag {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  background: var(--blue);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  box-shadow: 0 4px 12px rgba(8, 46, 99, .3);
+}
+
+.featured-content {
+  padding: 40px 44px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.featured-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #6a8097;
+  font-size: 12.5px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.featured-dot {
+  color: #b9d0e6;
+}
+
+.featured-content h3 {
+  color: var(--blue);
+  font: 700 clamp(22px, 2.3vw, 30px) 'Libre Baskerville', Georgia, serif;
+  margin: 0 0 8px;
+  line-height: 1.3;
+}
+
+.featured-desc {
+  color: #4b6077;
+  font-size: 14.5px;
+  line-height: 1.7;
+  margin: 0 0 24px;
+}
+
+.featured-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.featured-actions .button {
+  margin: 0;
+  cursor: pointer;
+}
+
+/* News & Events Cards Grid */
+.news-grid-section {
+  margin-bottom: 56px;
+}
+
+.news-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 26px;
+}
+
+.modern-news-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(22, 48, 88, .07);
+  overflow: hidden;
+  transition: transform .22s ease, box-shadow .22s ease;
+}
+
+.modern-news-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 36px rgba(22, 48, 88, .12);
+}
+
+.card-media {
+  position: relative;
+  height: 220px;
+  overflow: hidden;
+  background: #082e63;
+}
+
+.card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform .35s ease;
+}
+
+.modern-news-card:hover .card-media img {
+  transform: scale(1.04);
+}
+
+.card-category-badge {
+  position: absolute;
+  bottom: 14px;
+  left: 14px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: rgba(8, 46, 99, .88);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  border: 1px solid rgba(255, 255, 255, .25);
+}
+
+.modern-news-card .card-body {
+  padding: 24px 26px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  color: #6a8097;
+  font-size: 11.5px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.modern-news-card h3 {
+  color: var(--blue);
+  font: 700 18px 'Libre Baskerville', Georgia, serif;
+  margin: 0 0 10px;
+  line-height: 1.35;
+}
+
+.card-summary {
+  color: #4b6077;
+  font-size: 13.5px;
+  line-height: 1.6;
+  margin: 0 0 18px;
+  flex-grow: 1;
+}
+
+.card-footer {
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid #edf2f7;
+}
+
+.card-cta {
+  width: 100%;
+  min-height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 11.5px;
+  cursor: pointer;
+  margin: 0;
+}
+
+/* Inquiry / Submission Banner */
+.news-inquiry-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 24px 28px;
+  border-radius: 16px;
+  border: 1px solid #c9dcf0;
+  background: linear-gradient(135deg, #f0f6fc 0%, #f7fbff 100%);
+  box-shadow: 0 4px 18px rgba(10, 55, 127, .06);
+}
+
+.inquiry-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #e1effc;
+  color: var(--blue);
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.inquiry-content {
+  flex-grow: 1;
+}
+
+.inquiry-content strong {
+  display: block;
+  color: var(--blue);
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.inquiry-content p {
+  margin: 0;
+  color: #4b6077;
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+
+.news-inquiry-banner .button {
+  flex-shrink: 0;
+  margin: 0;
+}
+
+/* Article Detail Modal */
+.news-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(5, 23, 44, .72);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  overflow-y: auto;
+}
+
+.news-modal-card {
+  position: relative;
+  width: 100%;
+  max-width: 680px;
+  background: #fff;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(5, 23, 44, .35);
+  animation: modalEnter .22s cubic-bezier(.34, 1.56, .64, 1);
+  margin: auto;
+}
+
+@keyframes modalEnter {
+  from { opacity: 0; transform: scale(.94) translateY(12px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 10;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .92);
+  backdrop-filter: blur(4px);
+  border: 1px solid #dce4ec;
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: all .2s ease;
+}
+
+.modal-close-btn:hover {
+  background: #fff;
+  color: var(--blue);
+  transform: scale(1.06);
+}
+
+.modal-image-wrap {
+  position: relative;
+  height: 280px;
+  background: #082e63;
+}
+
+.modal-image-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.modal-badge {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: var(--blue);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 700;
   letter-spacing: .04em;
   text-transform: uppercase;
 }
 
-.sacrament-page .sacrament-layout .lead {
-  color: #53657a;
-  font-size: 15px;
-  line-height: 1.75;
+.modal-body {
+  padding: 32px 36px 36px;
 }
 
-.sacrament-page .sacrament-layout img {
-  height: 100%;
-  min-height: 540px;
-  max-height: 680px;
-  object-fit: cover;
-  border-radius: var(--radius);
+.modal-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #6a8097;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.modal-body h2 {
+  color: var(--blue);
+  font: 700 24px 'Libre Baskerville', Georgia, serif;
+  margin: 0 0 6px;
+  line-height: 1.3;
+}
+
+.modal-lead {
+  color: #3b4e64;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.7;
+  margin: 0 0 16px;
+}
+
+.modal-fulltext {
+  color: #4b6077;
+  font-size: 14px;
+  line-height: 1.75;
+  margin: 0 0 24px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 16px;
+  border-top: 1px solid #edf2f7;
+}
+
+.modal-actions .button {
+  margin: 0;
+  cursor: pointer;
 }
 
 /* Novenas landing page */
@@ -866,6 +2441,88 @@ body .home-hero::before {
   .intro-grid aside {
     grid-column: 1 / -1;
   }
+
+  .about-hero {
+    min-height: 480px;
+  }
+
+  .about-intro-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .about-intro-visual .visual-frame img {
+    height: 380px;
+  }
+
+  .history-chapter {
+    grid-template-columns: 180px 1fr;
+    gap: 30px;
+  }
+
+  .history-two-col {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+
+  .about-titular-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .titular-image-card img {
+    height: 440px;
+  }
+
+  .pilgrimage-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 36px;
+  }
+
+  .schedule-page .schedule-layout {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+
+  .schedule-sidebar {
+    position: static;
+  }
+
+  .sacraments-tabs {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .sacraments-detail-layout {
+    grid-template-columns: 1fr;
+    gap: 34px;
+  }
+
+  .sacrament-sidebar {
+    position: static;
+  }
+
+  .news-announcements-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .news-featured-card {
+    grid-template-columns: 1fr;
+  }
+
+  .featured-media {
+    min-height: 300px;
+  }
+
+  .featured-content {
+    padding: 30px 28px;
+  }
+
+  .news-cards-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
 }
 
 @media (max-width: 720px) {
@@ -924,72 +2581,254 @@ body .home-hero::before {
     padding: 52px 0 30px;
   }
 
-  .about-page .section-title {
-    width: min(100% - 32px, 1180px);
-    padding: 42px 0 24px;
+  .about-hero {
+    min-height: 460px;
   }
 
-  .about-page .about-visual .wide-image {
-    height: 340px;
+  .about-hero .hero-copy {
+    padding-block: 52px;
   }
 
-  .about-image-caption {
+
+  .about-intro {
+    padding: 48px 0 36px;
+  }
+
+  .about-quick-facts {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .about-intro-visual .visual-frame img {
+    height: 300px;
+  }
+
+  .visual-caption {
+    left: 14px;
     right: 14px;
     bottom: 14px;
-    left: 14px;
-    min-width: 0;
+    padding: 14px 16px;
   }
 
-  .about-page .values {
-    margin-top: 32px;
+  .about-history {
+    padding: 48px 0 42px;
   }
 
-  .about-page .values article:first-child {
-    padding: 30px 24px;
+  .section-header-block {
+    margin-bottom: 34px;
   }
 
-  .about-page .history-milestones {
-    padding: 28px 24px;
-  }
-
-  .about-page .history-milestones div {
+  .history-chapter {
     grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 28px 0;
   }
 
-  .schedule-page .section-title {
-    width: min(100% - 32px, 1180px);
-    padding: 42px 0 24px;
+  .chapter-badge {
+    border-radius: 8px;
+    padding: 12px 16px;
+    display: inline-block;
   }
 
-  .schedule-page .schedule-layout {
-    grid-template-columns: 1fr;
-    padding-top: 4px;
-  }
-
-  .schedule-visual {
+  .history-sidebar {
     position: static;
   }
 
-  .schedule-page .schedule-visual .tall-image {
-    height: 420px;
+  .sidebar-visual img {
+    height: 200px;
   }
 
-  .sacrament-page .section-title {
-    width: min(100% - 32px, 1180px);
-    padding: 42px 0 24px;
+  .about-milestone {
+    padding: 15px 0 45px;
   }
 
-  .sacrament-page .sacrament-layout {
+  .milestone-card {
+    padding: 34px 24px;
+    border-radius: 16px;
+  }
+
+  .milestone-watermark {
+    display: none;
+  }
+
+  .milestone-badges {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .milestone-badge-item {
+    padding: 14px 16px;
+  }
+
+  .about-titular {
+    padding: 15px 0 45px;
+  }
+
+  .titular-image-card img {
+    height: 360px;
+  }
+
+  .titular-badge {
+    left: 14px;
+    right: 14px;
+    bottom: 14px;
+    padding: 14px 16px;
+  }
+
+  .titular-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .titular-actions .button {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+  }
+
+  .about-pilgrimage {
+    padding: 10px 0 65px;
+  }
+
+  .pilgrimage-banner {
+    padding: 28px 22px;
+    border-radius: 16px;
+  }
+
+  .pilgrimage-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .pilgrimage-actions .button {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+  }
+
+  .schedule-hero {
+    min-height: 440px;
+  }
+
+  .schedule-hero .hero-copy {
+    padding-block: 52px;
+  }
+
+  .schedule-content-wrap {
+    padding: 34px 0 65px;
+  }
+
+  .schedule-notice-banner {
+    padding: 16px 18px;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .schedule-page .schedule-card {
+    padding: 20px;
+  }
+
+  .schedule-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    padding: 10px 12px;
+  }
+
+  .parish-office-card {
+    padding: 22px 20px;
+  }
+
+  .sacraments-hero {
+    min-height: 440px;
+  }
+
+  .sacraments-hero .hero-copy {
+    padding-block: 52px;
+  }
+
+  .sacraments-content-wrap {
+    padding: 34px 0 65px;
+  }
+
+  .sacraments-notice-banner {
+    padding: 16px 18px;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .sacraments-tabs {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .sacrament-tab-btn {
+    padding: 15px 10px 13px;
+  }
+
+  .sacrament-main-card {
+    padding: 26px 22px;
+  }
+
+  .requirements-checklist li {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  .procedure-steps-list li {
+    padding: 11px 13px;
+    font-size: 13px;
+  }
+
+  .news-hero {
+    min-height: 440px;
+  }
+
+  .news-hero .hero-copy {
+    padding-block: 52px;
+  }
+
+  .news-content-wrap {
+    padding: 34px 0 65px;
+  }
+
+  .news-announcements-section,
+  .news-featured-section,
+  .news-grid-section {
+    margin-bottom: 42px;
+  }
+
+  .news-cards-grid {
     grid-template-columns: 1fr;
   }
 
-  .sacrament-page .sacrament-layout article {
-    padding: 30px 24px;
+  .news-inquiry-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 20px;
   }
 
-  .sacrament-page .sacrament-layout img {
-    min-height: 360px;
-    max-height: 440px;
+  .news-inquiry-banner .button {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  .modal-body {
+    padding: 22px 20px 26px;
+  }
+
+  .modal-image-wrap {
+    height: 210px;
+  }
+
+  .modal-body h2 {
+    font-size: 20px;
   }
 
   .novena-landing-hero {
@@ -1035,11 +2874,6 @@ body .home-hero::before {
     scroll-snap-align: start;
   }
 
-  .sacrament-layout {
-    gap: 30px;
-    padding-top: 32px;
-  }
-
   .feature-card {
     gap: 28px;
     padding: 22px;
@@ -1049,3 +2883,63 @@ body .home-hero::before {
     height: 330px;
   }
 }
+
+@media (max-width: 480px) {
+  .sacraments-tabs {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .sacrament-tab-btn {
+    flex-direction: row;
+    align-items: center;
+    text-align: left;
+    gap: 14px;
+    padding: 12px 14px;
+  }
+
+  .sacrament-tab-btn .tab-icon {
+    margin-bottom: 0;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+  }
+
+  .sacrament-tab-btn .tab-name {
+    font-size: 14px;
+  }
+
+  .sacrament-main-card {
+    padding: 20px 16px;
+  }
+
+  .sacrament-card-header h2 {
+    font-size: 21px;
+  }
+
+  .sacrament-advisory-callout {
+    flex-direction: column;
+    gap: 8px;
+    padding: 14px;
+  }
+
+  .news-announcement-card {
+    padding: 20px 18px;
+  }
+
+  .featured-content {
+    padding: 22px 18px;
+  }
+
+  .featured-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .featured-actions .button {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+}
+
