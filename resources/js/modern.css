@@ -2943,3 +2943,130 @@ body .news-hero::before {
   }
 }
 
+/* ==========================================================================
+   Canonical Master Hero & Shell Architecture
+   ========================================================================== */
+
+.master-hero {
+  position: relative;
+  min-height: 510px;
+  display: flex;
+  align-items: center;
+  background-color: #18324a;
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+}
+
+.master-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(90deg, rgba(6, 28, 58, .9) 0%, rgba(7, 35, 70, .72) 44%, rgba(7, 28, 52, .25) 78%),
+    linear-gradient(0deg, rgba(5, 23, 44, .32), transparent 45%);
+  pointer-events: none;
+}
+
+.master-hero-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  filter: saturate(.9) contrast(1.03);
+}
+
+.master-hero-copy {
+  position: relative;
+  z-index: 2;
+  padding-block: 64px;
+}
+
+.master-hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  color: #f2cd72;
+  font-family: Montserrat, Arial, sans-serif;
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: .17em;
+  text-transform: uppercase;
+}
+
+.master-hero-title {
+  max-width: 1120px;
+  margin: 18px 0 20px;
+  color: #fff;
+  font-size: clamp(34px, 3.25vw, 56px);
+  line-height: 1.15;
+  letter-spacing: -.025em;
+  text-shadow: 0 3px 22px rgba(0, 0, 0, .2);
+  font-family: var(--font-serif, "Cinzel", "Playfair Display", Georgia, serif);
+  font-weight: 700;
+}
+
+.master-hero-copy .gold-rule {
+  display: none;
+}
+
+.master-hero-desc {
+  max-width: 760px;
+  margin: 0 0 34px;
+  color: rgba(255, 255, 255, .88);
+  font-size: 16px;
+  line-height: 1.75;
+}
+
+.master-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.master-hero-actions .button.secondary {
+  border-color: rgba(255, 255, 255, .65);
+  background: rgba(255, 255, 255, .1);
+  color: #fff;
+  box-shadow: none;
+  backdrop-filter: blur(10px);
+}
+
+.master-hero-actions .button.secondary:hover {
+  background: #fff;
+  color: var(--blue);
+}
+
+.master-page-body {
+  position: relative;
+  min-height: 50vh;
+}
+
+@media (max-width: 720px) {
+  .master-hero {
+    min-height: 440px;
+  }
+
+  .master-hero-copy {
+    padding-block: 44px;
+  }
+
+  .master-hero-title {
+    font-size: clamp(26px, 6vw, 34px);
+  }
+
+  .master-hero-desc {
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+
+  .master-hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+
