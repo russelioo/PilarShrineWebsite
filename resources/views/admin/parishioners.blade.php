@@ -94,6 +94,6 @@
         .action-icons a{color:var(--muted);text-decoration:none;font-size:14px}
         .action-icons a:hover{color:var(--navy)}
         @media(max-width:620px){.toolbar input{min-width:100%}}
-    </style>
         .empty-cell{text-align:center;padding:28px;color:var(--muted)}
+    </style>
 @endpush

@@ -3,7 +3,9 @@
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MassScheduleController;
+use App\Http\Controllers\MassIntentionManagementController;
 use App\Http\Controllers\Parishioner\MassIntentionController;
+use App\Http\Controllers\Parishioner\SacramentRequestController;
 use App\Http\Controllers\UserManagementController;
 use App\Services\FacebookLiveService;
 use Illuminate\Support\Facades\Route;
@@ -27,11 +29,12 @@ Route::post('/login', [LoginController::class, 'store'])
 Route::prefix('parishioner')->name('parishioner.')->middleware('auth')->group(function () {
     Route::view('/dashboard', 'parishioner.dashboard')->name('dashboard');
     Route::get('/mass-intentions', [MassIntentionController::class, 'index'])->name('mass-intentions');
-    Route::view('/sacrament-requests', 'parishioner.sacrament-requests')->name('sacrament-requests');
+    Route::get('/sacrament-requests', [SacramentRequestController::class, 'index'])->name('sacrament-requests');
     Route::view('/inquiries', 'parishioner.inquiries')->name('inquiries');
     Route::get('/request-mass-intention', [MassIntentionController::class, 'create'])->name('request-mass-intention');
     Route::post('/mass-intentions', [MassIntentionController::class, 'store'])->name('mass-intentions.store');
-    Route::view('/request-sacrament', 'parishioner.request-sacrament')->name('request-sacrament');
+    Route::get('/request-sacrament', [SacramentRequestController::class, 'create'])->name('request-sacrament');
+    Route::post('/sacrament-requests', [SacramentRequestController::class, 'store'])->name('sacrament-requests.store');
     Route::view('/other-requests', 'parishioner.other-requests')->name('other-requests');
     Route::view('/events-schedule', 'parishioner.events-schedule')->name('events-schedule');
     Route::view('/announcements', 'parishioner.announcements')->name('announcements');
@@ -45,13 +48,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware('auth')->group(function () {
         Route::get('/parishioners', [UserManagementController::class, 'parishioners'])->name('parishioners');
         Route::get('/staff', [UserManagementController::class, 'staff'])->name('staff');
+        Route::get('/mass-intentions', [MassIntentionManagementController::class, 'index'])->name('mass-intentions');
+        Route::patch('/mass-intentions/{massIntention}/status', [MassIntentionManagementController::class, 'updateStatus'])->name('mass-intentions.status');
         Route::get('/mass-schedules', [MassScheduleController::class, 'index'])->name('mass-schedules');
         Route::post('/mass-schedules', [MassScheduleController::class, 'store'])->name('mass-schedules.store');
         Route::put('/mass-schedules/{massSchedule}', [MassScheduleController::class, 'update'])->name('mass-schedules.update');
         Route::delete('/mass-schedules/{massSchedule}', [MassScheduleController::class, 'destroy'])->name('mass-schedules.destroy');
     });
     Route::view('/time-slots', 'admin.time-slots')->name('time-slots');
-    Route::view('/mass-intentions', 'admin.mass-intentions')->name('mass-intentions');
     Route::view('/appointments', 'admin.appointments')->name('appointments');
     Route::view('/sacramental-records', 'admin.sacramental-records')->name('sacramental-records');
     Route::view('/events', 'admin.events')->name('events');
