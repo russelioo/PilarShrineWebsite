@@ -76,13 +76,25 @@ const handleSubmit = () => {
             <div class="contact-card">
               <div class="card-icon" aria-hidden="true">🌐</div>
               <div class="card-content">
-                <h3>Official Facebook Page</h3>
-                <p>
-                  <a href="https://www.facebook.com/PilarShrineSorsogon" target="_blank" rel="noopener noreferrer">
-                    Diocesan Shrine and Parish of Our Lady of the Pillar
-                  </a>
-                </p>
-                <span class="sub-text">Livestreams, novena broadcasts & shrine announcements</span>
+                <h3>Official Social Media</h3>
+                <div class="contact-social-channels">
+                  <p>
+                    <a href="https://www.facebook.com/PilarShrineSorsogon" target="_blank" rel="noopener noreferrer">
+                      Facebook: @PilarShrineSorsogon
+                    </a>
+                  </p>
+                  <p>
+                    <a href="https://www.youtube.com/@PilarShrineSorsogon" target="_blank" rel="noopener noreferrer">
+                      YouTube: @PilarShrineSorsogon
+                    </a>
+                  </p>
+                  <p>
+                    <a href="https://www.tiktok.com/@PilarShrineSorsogon" target="_blank" rel="noopener noreferrer">
+                      TikTok: @PilarShrineSorsogon
+                    </a>
+                  </p>
+                </div>
+                <span class="sub-text">Livestreams, novena broadcasts, video reflections & announcements</span>
               </div>
             </div>
           </div>

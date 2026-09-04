@@ -2,6 +2,7 @@
 const parishAerial = '/images/pilar-shrine-aerial.png'
 const altar = '/images/pilar-shrine-sanctuary.jpg'
 const pillarOfficial = '/images/our-lady-of-the-pillar-official.jpg'
+const coronationCrowns = '/images/pilar-coronation-crowns.png'
 </script>
 
 <template>
@@ -146,7 +147,9 @@ const pillarOfficial = '/images/our-lady-of-the-pillar-official.jpg'
     <!-- 3. Historic Milestone Card (October 12, 2018) -->
     <section id="milestones" class="about-milestone page-width">
       <div class="milestone-card">
-        <div class="milestone-watermark" aria-hidden="true">2018</div>
+        <div class="milestone-crown-bg" aria-hidden="true">
+          <img :src="coronationCrowns" alt="Episcopal Coronation Crowns of Our Lady of the Pillar and the Child Jesus" class="milestone-crown-img">
+        </div>
         <div class="milestone-header">
           <span class="milestone-eyebrow">✦ Important Historical Date &amp; Parish Milestone</span>
           <time class="milestone-date" datetime="2018-10-12">October 12, 2018</time>
