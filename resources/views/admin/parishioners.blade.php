@@ -3,17 +3,6 @@
 @section('title', 'Parishioners')
 
 @section('content')
-    @php
-        // Static data initialization
-        $parishioners = [
-            ['name' => 'Juan Dela Cruz', 'email' => 'juan@email.com', 'phone' => '0917 123 4567', 'status' => 'Active', 'last_login' => '2026-08-28 10:30'],
-            ['name' => 'Maria Santos', 'email' => 'maria@email.com', 'phone' => '0928 123 4567', 'status' => 'Active', 'last_login' => '2026-08-27 15:20'],
-            ['name' => 'Pedro Reyes', 'email' => 'pedro@email.com', 'phone' => '0918 123 4567', 'status' => 'Pending', 'last_login' => 'Never'],
-            ['name' => 'Ana Flores', 'email' => 'ana@email.com', 'phone' => '0936 123 4567', 'status' => 'Active', 'last_login' => '2026-08-26 09:15'],
-            ['name' => 'Jose Garcia', 'email' => 'jose@email.com', 'phone' => '0915 123 4567', 'status' => 'Inactive', 'last_login' => '2026-08-25 18:45'],
-            ['name' => 'Rosa Dimagiba', 'email' => 'rosa@email.com', 'phone' => '0922 123 4567', 'status' => 'Active', 'last_login' => '2026-08-24 11:00'],
-        ];
-    @endphp
 
     <div class="page-header">
         <h2>All Parishioners</h2>
@@ -23,21 +12,22 @@
         </div>
     </div>
 
-    <div class="toolbar">
-        <input type="text" placeholder="Search by name, email, or phone...">
-        <select>
+    <form class="toolbar" method="GET" action="{{ route('admin.parishioners') }}">
+        <input type="search" name="search" value="{{ request('search') }}" placeholder="Search by name, email, or phone...">
+        <select name="status">
             <option value="">All Status</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-            <option value="pending">Pending</option>
+            <option value="active" @selected(request('status') === 'active')>Active</option>
+            <option value="pending" @selected(request('status') === 'pending')>Pending</option>
         </select>
-        <select>
+        <select name="sort">
             <option value="">Sort by</option>
-            <option value="name">Name</option>
-            <option value="newest">Newest</option>
-            <option value="oldest">Oldest</option>
+            <option value="name" @selected(request('sort') === 'name')>Name</option>
+            <option value="newest" @selected(request('sort') === 'newest')>Newest</option>
+            <option value="oldest" @selected(request('sort') === 'oldest')>Oldest</option>
         </select>
-    </div>
+        <button class="btn btn-primary" type="submit">Apply</button>
+        @if(request()->hasAny(['search', 'status', 'sort']))<a class="btn btn-outline" href="{{ route('admin.parishioners') }}">Clear</a>@endif
+    </form>
 
     <div class="table-wrap">
         <table>
@@ -53,40 +43,35 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($parishioners as $index => $p)
+                @forelse($parishioners as $index => $p)
+                @php($status = $p->is_verified ? 'Active' : 'Pending')
                 <tr>
-                    <td>{{ $index + 1 }}</td>
-                    <td><strong>{{ $p['name'] }}</strong></td>
-                    <td>{{ $p['email'] }}</td>
-                    <td>{{ $p['phone'] }}</td>
+                    <td>{{ $parishioners->firstItem() + $index }}</td>
+                    <td><strong>{{ $p->name }}</strong></td>
+                    <td>{{ $p->email }}</td>
+                    <td>{{ $p->phone ?: '—' }}</td>
                     <td>
-                        <span class="status-badge status-{{ strtolower($p['status']) }}">
-                            {{ $p['status'] }}
+                        <span class="status-badge status-{{ strtolower($status) }}">
+                            {{ $status }}
                         </span>
                     </td>
-                    <td>{{ $p['last_login'] ?? 'Never' }}</td>
+                    <td>{{ $p->last_login?->format('M d, Y h:i A') ?? 'Never' }}</td>
                     <td class="action-icons">
                         <a href="#" title="View">👁</a>
                         <a href="#" title="Edit">✎</a>
                         <a href="#" title="Delete" style="color:#c0392b">✕</a>
                     </td>
                 </tr>
-                @endforeach
+                @empty
+                <tr><td colspan="7" class="empty-cell">No parishioners found.</td></tr>
+                @endforelse
             </tbody>
         </table>
     </div>
 
     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;font-size:11px;color:var(--muted)">
-        <span>Showing 1-6 of 234 parishioners</span>
-        <div style="display:flex;gap:4px">
-            <button style="padding:6px 12px;border:1px solid var(--line);border-radius:5px;background:#fff;cursor:pointer">‹</button>
-            <button style="padding:6px 12px;border:1px solid var(--navy);border-radius:5px;background:var(--navy);color:#fff;cursor:pointer">1</button>
-            <button style="padding:6px 12px;border:1px solid var(--line);border-radius:5px;background:#fff;cursor:pointer">2</button>
-            <button style="padding:6px 12px;border:1px solid var(--line);border-radius:5px;background:#fff;cursor:pointer">3</button>
-            <button style="padding:6px 12px;border:1px solid var(--line);border-radius:5px;background:#fff;cursor:pointer">…</button>
-            <button style="padding:6px 12px;border:1px solid var(--line);border-radius:5px;background:#fff;cursor:pointer">20</button>
-            <button style="padding:6px 12px;border:1px solid var(--line);border-radius:5px;background:#fff;cursor:pointer">›</button>
-        </div>
+        <span>Showing {{ $parishioners->firstItem() ?? 0 }}-{{ $parishioners->lastItem() ?? 0 }} of {{ $parishioners->total() }} parishioners</span>
+        {{ $parishioners->onEachSide(1)->links() }}
     </div>
 @endsection
 
@@ -110,4 +95,5 @@
         .action-icons a:hover{color:var(--navy)}
         @media(max-width:620px){.toolbar input{min-width:100%}}
     </style>
+        .empty-cell{text-align:center;padding:28px;color:var(--muted)}
 @endpush

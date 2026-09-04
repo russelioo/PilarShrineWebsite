@@ -3,17 +3,6 @@
 @section('title', 'Staff Management')
 
 @section('content')
-    @php
-        // Static data for staff
-        $staff = [
-            ['name' => 'Fr. John Reyes', 'email' => 'fr.john@pilarshrine.com', 'phone' => '0917 123 4567', 'role' => 'Admin', 'status' => 'Active', 'last_login' => '2026-08-28 10:30 AM'],
-            ['name' => 'Maria Santos', 'email' => 'maria@pilarshrine.com', 'phone' => '0928 123 4567', 'role' => 'Staff', 'status' => 'Active', 'last_login' => '2026-08-27 03:15 PM'],
-            ['name' => 'Pedro Cruz', 'email' => 'pedro@pilarshrine.com', 'phone' => '0918 123 4567', 'role' => 'Staff', 'status' => 'Pending', 'last_login' => 'Never'],
-            ['name' => 'Ana Flores', 'email' => 'ana@pilarshrine.com', 'phone' => '0936 123 4567', 'role' => 'Staff', 'status' => 'Active', 'last_login' => '2026-08-26 09:00 AM'],
-            ['name' => 'Ramon Rivera', 'email' => 'ramon@pilarshrine.com', 'phone' => '0922 123 4567', 'role' => 'Admin', 'status' => 'Active', 'last_login' => '2026-08-25 06:45 PM'],
-            ['name' => 'Luzviminda Tan', 'email' => 'luz@pilarshrine.com', 'phone' => '0915 123 4567', 'role' => 'Staff', 'status' => 'Inactive', 'last_login' => '2026-08-20 11:00 AM'],
-        ];
-    @endphp
 
     <div class="page-header">
         <h2>Staff Management</h2>
@@ -23,26 +12,27 @@
         </div>
     </div>
 
-    <div class="toolbar">
-        <input type="text" placeholder="Search by name, email, or phone...">
-        <select>
+    <form class="toolbar" method="GET" action="{{ route('admin.staff') }}">
+        <input type="search" name="search" value="{{ request('search') }}" placeholder="Search by name, email, or phone...">
+        <select name="role">
             <option value="">All Roles</option>
-            <option value="admin">Admin</option>
-            <option value="staff">Staff</option>
+            <option value="admin" @selected(request('role') === 'admin')>Admin</option>
+            <option value="staff" @selected(request('role') === 'staff')>Staff</option>
         </select>
-        <select>
+        <select name="status">
             <option value="">All Status</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-            <option value="pending">Pending</option>
+            <option value="active" @selected(request('status') === 'active')>Active</option>
+            <option value="pending" @selected(request('status') === 'pending')>Pending</option>
         </select>
-        <select>
+        <select name="sort">
             <option value="">Sort by</option>
-            <option value="name">Name</option>
-            <option value="newest">Newest</option>
-            <option value="oldest">Oldest</option>
+            <option value="name" @selected(request('sort') === 'name')>Name</option>
+            <option value="newest" @selected(request('sort') === 'newest')>Newest</option>
+            <option value="oldest" @selected(request('sort') === 'oldest')>Oldest</option>
         </select>
-    </div>
+        <button class="btn btn-primary" type="submit">Apply</button>
+        @if(request()->hasAny(['search', 'role', 'status', 'sort']))<a class="btn btn-outline" href="{{ route('admin.staff') }}">Clear</a>@endif
+    </form>
 
     <div class="table-wrap">
         <table>
@@ -59,23 +49,24 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($staff as $index => $s)
+                @forelse($staff as $index => $s)
+                @php($status = $s->is_verified ? 'Active' : 'Pending')
                 <tr>
-                    <td>{{ $index + 1 }}</td>
-                    <td><strong>{{ $s['name'] }}</strong></td>
-                    <td>{{ $s['email'] }}</td>
-                    <td>{{ $s['phone'] }}</td>
+                    <td>{{ $staff->firstItem() + $index }}</td>
+                    <td><strong>{{ $s->name }}</strong></td>
+                    <td>{{ $s->email }}</td>
+                    <td>{{ $s->phone ?: '—' }}</td>
                     <td>
-                        <span class="role-badge role-{{ strtolower($s['role']) }}">
-                            {{ $s['role'] }}
+                        <span class="role-badge role-{{ $s->role }}">
+                            {{ ucfirst($s->role) }}
                         </span>
                     </td>
                     <td>
-                        <span class="status-badge status-{{ strtolower($s['status']) }}">
-                            {{ $s['status'] }}
+                        <span class="status-badge status-{{ strtolower($status) }}">
+                            {{ $status }}
                         </span>
                     </td>
-                    <td>{{ $s['last_login'] }}</td>
+                    <td>{{ $s->last_login?->format('M d, Y h:i A') ?? 'Never' }}</td>
                     <td class="action-icons">
                         <a href="#" title="View">👁</a>
                         <a href="#" title="Edit">✎</a>
@@ -83,19 +74,16 @@
                         <a href="#" title="Delete" style="color:#c0392b">✕</a>
                     </td>
                 </tr>
-                @endforeach
+                @empty
+                <tr><td colspan="8" class="empty-cell">No staff members found.</td></tr>
+                @endforelse
             </tbody>
         </table>
     </div>
 
     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;font-size:11px;color:var(--muted)">
-        <span>Showing 1-6 of 12 staff members</span>
-        <div style="display:flex;gap:4px">
-            <button style="padding:6px 12px;border:1px solid var(--line);border-radius:5px;background:#fff;cursor:pointer">‹</button>
-            <button style="padding:6px 12px;border:1px solid var(--navy);border-radius:5px;background:var(--navy);color:#fff;cursor:pointer">1</button>
-            <button style="padding:6px 12px;border:1px solid var(--line);border-radius:5px;background:#fff;cursor:pointer">2</button>
-            <button style="padding:6px 12px;border:1px solid var(--line);border-radius:5px;background:#fff;cursor:pointer">›</button>
-        </div>
+        <span>Showing {{ $staff->firstItem() ?? 0 }}-{{ $staff->lastItem() ?? 0 }} of {{ $staff->total() }} staff members</span>
+        {{ $staff->onEachSide(1)->links() }}
     </div>
 @endsection
 
@@ -121,5 +109,6 @@
         .action-icons a{color:var(--muted);text-decoration:none;font-size:14px}
         .action-icons a:hover{color:var(--navy)}
         @media(max-width:620px){.toolbar input{min-width:100%}}
+        .empty-cell{text-align:center;padding:28px;color:var(--muted)}
     </style>
 @endpush

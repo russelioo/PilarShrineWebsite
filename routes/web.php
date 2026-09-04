@@ -4,6 +4,7 @@ use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MassScheduleController;
 use App\Http\Controllers\Parishioner\MassIntentionController;
+use App\Http\Controllers\UserManagementController;
 use App\Services\FacebookLiveService;
 use Illuminate\Support\Facades\Route;
 
@@ -41,10 +42,9 @@ Route::prefix('parishioner')->name('parishioner.')->middleware('auth')->group(fu
     Route::post('/logout', [AdminDashboardController::class, 'logout'])->name('logout');
 });
 Route::prefix('admin')->name('admin.')->group(function () {
-    // Static pages; replace with controllers when CRUD is implemented.
-    Route::view('/parishioners', 'admin.parishioners')->name('parishioners');
-    Route::view('/staff', 'admin.staff')->name('staff');
     Route::middleware('auth')->group(function () {
+        Route::get('/parishioners', [UserManagementController::class, 'parishioners'])->name('parishioners');
+        Route::get('/staff', [UserManagementController::class, 'staff'])->name('staff');
         Route::get('/mass-schedules', [MassScheduleController::class, 'index'])->name('mass-schedules');
         Route::post('/mass-schedules', [MassScheduleController::class, 'store'])->name('mass-schedules.store');
         Route::put('/mass-schedules/{massSchedule}', [MassScheduleController::class, 'update'])->name('mass-schedules.update');
