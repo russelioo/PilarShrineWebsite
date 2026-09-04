@@ -7,6 +7,7 @@ use App\Models\Appointment;
 use App\Models\TimeSlot;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -27,6 +28,9 @@ class SacramentRequestController extends Controller
     {
         $slots = TimeSlot::query()
             ->with('massSchedule')
+            ->whereHas('massSchedule', fn ($query) => $query
+                ->where('day_of_week', 'Sunday')
+                ->where('is_active', true))
             ->where('is_available', true)
             ->whereColumn('current_bookings', '<', 'max_capacity')
             ->orderBy('slot_time')
@@ -43,6 +47,10 @@ class SacramentRequestController extends Controller
             'preferred_date' => ['required', 'date', 'after_or_equal:today'],
             'notes' => ['nullable', 'string', 'max:2000'],
         ]);
+        if (! Carbon::parse($validated['preferred_date'])->isSunday()) {
+            throw ValidationException::withMessages(['preferred_date' => 'Sacrament requests must use a Sunday date.']);
+        }
+
 
         DB::transaction(function () use ($request, $validated): void {
             $slot = TimeSlot::query()->lockForUpdate()->findOrFail($validated['slot_id']);

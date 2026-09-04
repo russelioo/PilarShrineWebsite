@@ -7,6 +7,7 @@ use App\Http\Controllers\MassIntentionManagementController;
 use App\Http\Controllers\Parishioner\MassIntentionController;
 use App\Http\Controllers\Parishioner\SacramentRequestController;
 use App\Http\Controllers\UserManagementController;
+use App\Http\Controllers\TimeSlotController;
 use App\Services\FacebookLiveService;
 use Illuminate\Support\Facades\Route;
 
@@ -51,11 +52,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/mass-intentions', [MassIntentionManagementController::class, 'index'])->name('mass-intentions');
         Route::patch('/mass-intentions/{massIntention}/status', [MassIntentionManagementController::class, 'updateStatus'])->name('mass-intentions.status');
         Route::get('/mass-schedules', [MassScheduleController::class, 'index'])->name('mass-schedules');
+        Route::get('/time-slots', [TimeSlotController::class, 'index'])->name('time-slots');
+        Route::post('/time-slots', [TimeSlotController::class, 'store'])->name('time-slots.store');
+        Route::put('/time-slots/{timeSlot}', [TimeSlotController::class, 'update'])->name('time-slots.update');
+        Route::delete('/time-slots/{timeSlot}', [TimeSlotController::class, 'destroy'])->name('time-slots.destroy');
         Route::post('/mass-schedules', [MassScheduleController::class, 'store'])->name('mass-schedules.store');
         Route::put('/mass-schedules/{massSchedule}', [MassScheduleController::class, 'update'])->name('mass-schedules.update');
         Route::delete('/mass-schedules/{massSchedule}', [MassScheduleController::class, 'destroy'])->name('mass-schedules.destroy');
     });
-    Route::view('/time-slots', 'admin.time-slots')->name('time-slots');
     Route::view('/appointments', 'admin.appointments')->name('appointments');
     Route::view('/sacramental-records', 'admin.sacramental-records')->name('sacramental-records');
     Route::view('/events', 'admin.events')->name('events');
