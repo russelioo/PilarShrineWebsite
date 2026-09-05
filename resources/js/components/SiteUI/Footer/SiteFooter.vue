@@ -156,12 +156,16 @@ const quickLinks = [
 
           <div class="hours-card">
             <div class="hours-item">
-              <span class="days-label">Wednesday – Monday</span>
-              <span class="time-label">8:00 AM – 5:00 PM</span>
+              <span class="days-label">Monday, Wednesday – Saturday</span>
+              <span class="time-label">8:00 AM – 11:30 AM | 1:00 PM – 5:00 PM</span>
             </div>
             <div class="hours-item">
               <span class="days-label">Sunday</span>
               <span class="time-label">8:30 AM – 12:00 NN</span>
+            </div>
+            <div class="hours-item">
+              <span class="days-label">Tuesday & Holidays</span>
+              <span class="time-label" style="color: #f0cd71;">Closed (Day Off)</span>
             </div>
           </div>
 

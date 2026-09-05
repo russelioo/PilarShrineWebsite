@@ -167,53 +167,760 @@ body .home-hero::before {
   color: var(--blue);
 }
 
-/* Homepage content */
-.intro-grid {
-  grid-template-columns: 1.12fr .9fr .82fr;
-  gap: 26px;
+/* ==========================================================================
+   HOMEPAGE MODERN REDESIGN
+   ========================================================================== */
+
+/* 1. Editorial 3-Column Section: About / Shrine Aerial / Mass Schedule */
+.home-editorial-section {
+  padding: 60px 0 70px;
+}
+
+.home-editorial-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr 1.1fr;
+  gap: 28px;
   align-items: stretch;
-  padding: 82px 0 90px;
 }
 
-.intro-grid article,
-.intro-grid aside {
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: #fff;
-  box-shadow: var(--shadow);
+.home-about-card,
+.home-schedule-card {
+  background: #ffffff;
+  border: 1px solid rgba(14, 50, 95, 0.09);
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(14, 50, 95, 0.05);
+  padding: 36px 32px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
-.intro-grid article {
-  padding: 36px;
+.home-about-card:hover,
+.home-schedule-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 36px rgba(14, 50, 95, 0.09);
+  border-color: rgba(197, 151, 44, 0.35);
 }
 
-.intro-grid h3,
-.schedule-card h2 {
-  margin-top: 0;
-  font-size: 14px;
-  letter-spacing: .08em;
+.home-card-eyebrow {
+  display: block;
+  font-family: Montserrat, Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #b08726;
+  margin-bottom: 8px;
 }
 
-.intro-grid p {
-  color: #506176;
-  font-size: 13px;
-  line-height: 1.85;
+.home-card-title {
+  font-family: 'Libre Baskerville', Georgia, serif;
+  font-size: clamp(20px, 1.8vw, 24px);
+  font-weight: 700;
+  color: #072a5a;
+  margin: 0 0 10px;
+  line-height: 1.25;
 }
 
-.intro-grid img {
+.editorial-gold-bar {
+  width: 36px;
+  height: 2.5px;
+  background: #c5972c;
+  border-radius: 2px;
+  margin-bottom: 18px;
+}
+
+.home-card-text {
+  font-size: 13.5px;
+  line-height: 1.8;
+  color: #4a5d73;
+  margin: 0 0 24px;
+  flex-grow: 1;
+}
+
+.home-card-action {
+  margin-top: auto;
+}
+
+/* Center Aerial Image Card */
+.home-aerial-card {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 14px 36px rgba(14, 50, 95, 0.12);
+  border: 1px solid rgba(14, 50, 95, 0.1);
+}
+
+.aerial-frame {
+  position: relative;
+  width: 100%;
   height: 100%;
-  min-height: 390px;
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
+  min-height: 440px;
+  display: flex;
+  overflow: hidden;
 }
 
-.intro-grid aside {
-  padding: 30px;
-  background: linear-gradient(155deg, #f4f8fc, #fff);
+.home-aerial-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 0.5s ease;
 }
 
-.intro-grid aside p {
-  padding: 12px 0;
+.home-aerial-card:hover .home-aerial-img {
+  transform: scale(1.03);
+}
+
+.aerial-gradient-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 40%, rgba(5, 29, 64, 0.82) 100%);
+  pointer-events: none;
+}
+
+.home-aerial-badge {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 18px;
+  z-index: 2;
+  color: #fff;
+  background: rgba(5, 29, 64, 0.76);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 14px 18px;
+  border-radius: 12px;
+}
+
+.badge-tag {
+  display: inline-block;
+  font-family: Montserrat, Arial, sans-serif;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #f2cd72;
+  margin-bottom: 2px;
+}
+
+.badge-title {
+  display: block;
+  font-family: 'Libre Baskerville', Georgia, serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.badge-sub {
+  display: block;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.85);
+  margin-top: 2px;
+}
+
+/* Mass Schedule Card specifics */
+.home-schedule-group {
+  margin-bottom: 16px;
+}
+
+.home-schedule-group.sunday-group {
+  margin-bottom: 20px;
+}
+
+.schedule-group-title {
+  display: block;
+  font-family: Montserrat, Arial, sans-serif;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #b08726;
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px dashed rgba(197, 151, 44, 0.25);
+}
+
+.schedule-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.schedule-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(14, 50, 95, 0.07);
+  font-size: 12.5px;
+}
+
+.schedule-list li:last-child {
+  border-bottom: none;
+}
+
+.schedule-list .schedule-day {
+  color: #0e325f;
+  font-weight: 600;
+}
+
+.schedule-list .schedule-time {
+  color: #506176;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.schedule-list .highlight-time {
+  color: #b08726;
+  font-weight: 700;
+}
+
+.home-schedule-action {
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid rgba(14, 50, 95, 0.08);
+}
+
+.schedule-full-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #0d468e;
+  text-decoration: none;
+  transition: color 0.15s ease, gap 0.15s ease;
+}
+
+.schedule-full-link:hover {
+  color: #b08726;
+  gap: 10px;
+}
+
+/* 2. Important Parish Information: 4 Pastoral Highlights */
+.home-highlights-section {
+  padding: 30px 0 70px;
+}
+
+.home-section-header {
+  text-align: center;
+  max-width: 680px;
+  margin: 0 auto 40px;
+}
+
+.home-section-eyebrow {
+  display: inline-block;
+  font-family: Montserrat, Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #b08726;
+  margin-bottom: 8px;
+}
+
+.home-section-title {
+  font-family: 'Libre Baskerville', Georgia, serif;
+  font-size: clamp(24px, 2.2vw, 32px);
+  font-weight: 700;
+  color: #072a5a;
+  margin: 0 0 10px;
+  line-height: 1.25;
+}
+
+.home-section-desc {
+  font-size: 14px;
+  color: #5a6e85;
+  line-height: 1.65;
+  margin: 12px 0 0;
+}
+
+.home-highlights-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 22px;
+}
+
+.home-highlight-card {
+  background: #ffffff;
+  border: 1px solid rgba(14, 50, 95, 0.08);
+  border-radius: 16px;
+  padding: 26px 22px;
+  box-shadow: 0 6px 20px rgba(14, 50, 95, 0.04);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.home-highlight-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 32px rgba(14, 50, 95, 0.09);
+  border-color: rgba(197, 151, 44, 0.4);
+}
+
+.highlight-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.highlight-icon {
+  font-size: 20px;
+  color: #b08726;
+}
+
+.highlight-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 20px;
+  background: rgba(14, 50, 95, 0.06);
+  color: #0e325f;
+}
+
+.highlight-title {
+  font-family: 'Libre Baskerville', Georgia, serif;
+  font-size: 15.5px;
+  font-weight: 700;
+  color: #072a5a;
+  margin: 0 0 8px;
+}
+
+.highlight-desc {
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: #5a6e85;
+  margin: 0 0 18px;
+  flex-grow: 1;
+}
+
+.highlight-action {
+  font-size: 12px;
+  font-weight: 700;
+  color: #0d468e;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: auto;
+  transition: gap 0.15s ease, color 0.15s ease;
+}
+
+.highlight-action:hover {
+  color: #b08726;
+  gap: 8px;
+}
+
+/* 3. Featured Devotional / Novena Section */
+.home-marian-section {
+  padding: 30px 0 70px;
+}
+
+.home-marian-card {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  background: #ffffff;
+  border: 1px solid rgba(14, 50, 95, 0.1);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 14px 40px rgba(14, 50, 95, 0.08);
+}
+
+.marian-visual-col {
+  position: relative;
+  height: 100%;
+  min-height: 380px;
+  background: #082142;
+}
+
+.marian-img-frame {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+}
+
+.marian-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 20%;
+}
+
+.marian-img-badge {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  background: rgba(5, 29, 64, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 12px 16px;
+  border-radius: 10px;
+  color: #fff;
+}
+
+.marian-img-badge span {
+  display: block;
+  font-family: Montserrat, Arial, sans-serif;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #f2cd72;
+}
+
+.marian-img-badge strong {
+  display: block;
+  font-family: 'Libre Baskerville', Georgia, serif;
+  font-size: 15px;
+  color: #fff;
+  margin-top: 1px;
+}
+
+.marian-img-badge small {
+  display: block;
+  font-size: 10.5px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.marian-content-col {
+  padding: 48px 46px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.marian-eyebrow {
+  display: inline-block;
+  font-family: Montserrat, Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #b08726;
+  margin-bottom: 8px;
+}
+
+.marian-title {
+  font-family: 'Libre Baskerville', Georgia, serif;
+  font-size: clamp(24px, 2.4vw, 32px);
+  font-weight: 700;
+  color: #072a5a;
+  margin: 0 0 10px;
+  line-height: 1.25;
+}
+
+.marian-desc {
+  font-size: 14px;
+  line-height: 1.75;
+  color: #4a5d73;
+  margin: 0 0 24px;
+  max-width: 620px;
+}
+
+.marian-devotional-dates {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.devotional-date-box {
+  padding: 12px 18px;
+  border-radius: 10px;
+  background: rgba(14, 50, 95, 0.04);
+  border: 1px solid rgba(14, 50, 95, 0.08);
+}
+
+.devotional-date-box.highlight-date {
+  background: rgba(212, 160, 23, 0.08);
+  border-color: rgba(212, 160, 23, 0.25);
+}
+
+.box-date {
+  display: block;
+  font-family: 'Libre Baskerville', Georgia, serif;
+  font-weight: 700;
+  font-size: 15px;
+  color: #072a5a;
+}
+
+.box-label {
+  display: block;
+  font-size: 11px;
+  color: #62748a;
+  margin-top: 2px;
+}
+
+.marian-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* 4. Featured News & Announcements */
+.home-news-section {
+  padding: 30px 0 70px;
+}
+
+.home-news-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 26px;
+}
+
+.home-news-card {
+  background: #ffffff;
+  border: 1px solid rgba(14, 50, 95, 0.08);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 6px 22px rgba(14, 50, 95, 0.05);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.home-news-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 34px rgba(14, 50, 95, 0.1);
+}
+
+.news-img-wrap {
+  position: relative;
+  height: 190px;
+  overflow: hidden;
+}
+
+.news-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.home-news-card:hover .news-img-wrap img {
+  transform: scale(1.04);
+}
+
+.news-tag {
+  position: absolute;
+  left: 14px;
+  top: 14px;
+  background: rgba(6, 28, 58, 0.85);
+  backdrop-filter: blur(4px);
+  color: #f2cd72;
+  font-family: Montserrat, Arial, sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.news-content-wrap {
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.news-meta-row {
+  font-size: 11px;
+  color: #738499;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.news-meta-dot {
+  color: #b08726;
+}
+
+.news-item-title {
+  font-family: 'Libre Baskerville', Georgia, serif;
+  font-size: 16.5px;
+  font-weight: 700;
+  color: #072a5a;
+  margin: 0 0 10px;
+  line-height: 1.35;
+}
+
+.news-item-desc {
+  font-size: 13px;
+  line-height: 1.65;
+  color: #506176;
+  margin: 0 0 18px;
+  flex-grow: 1;
+}
+
+.news-more-link {
+  font-size: 12px;
+  font-weight: 700;
+  color: #0d468e;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: gap 0.15s ease, color 0.15s ease;
+}
+
+.news-more-link:hover {
+  color: #b08726;
+  gap: 8px;
+}
+
+/* 5. Pilgrimage & Sacred Welcome Banner */
+.home-cta-section {
+  padding: 20px 0 80px;
+}
+
+.home-cta-banner {
+  background: linear-gradient(130deg, #052453 0%, #08346e 50%, #0b438d 100%);
+  border-radius: 20px;
+  padding: 50px 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+  box-shadow: 0 20px 54px rgba(6, 43, 102, 0.22);
+  border-left: 6px solid #d4a017;
+  color: #ffffff;
+}
+
+.cta-copy-wrap {
+  max-width: 620px;
+}
+
+.cta-eyebrow {
+  display: inline-block;
+  font-family: Montserrat, Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #f2cd72;
+  margin-bottom: 8px;
+}
+
+.cta-heading {
+  font-family: 'Libre Baskerville', Georgia, serif;
+  font-size: clamp(22px, 2.2vw, 30px);
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 12px;
+  line-height: 1.3;
+}
+
+.cta-subtext {
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+}
+
+.cta-actions-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+/* Responsive Styles for Homepage */
+@media (max-width: 1100px) {
+  .home-editorial-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .home-aerial-card {
+    grid-column: span 2;
+    min-height: 380px;
+    order: -1;
+  }
+
+  .home-highlights-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .home-marian-card {
+    grid-template-columns: 1fr;
+  }
+
+  .marian-visual-col {
+    min-height: 300px;
+    height: 360px;
+    max-height: 400px;
+  }
+
+  .home-news-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .home-cta-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 40px 36px;
+  }
+}
+
+@media (max-width: 768px) {
+  .home-editorial-grid {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+
+  .home-aerial-card {
+    grid-column: span 1;
+    min-height: 300px;
+  }
+
+  .home-about-card,
+  .home-schedule-card {
+    padding: 28px 22px;
+  }
+
+  .home-highlights-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .marian-visual-col {
+    min-height: 250px;
+    height: 280px;
+    max-height: 320px;
+  }
+
+  .marian-content-col {
+    padding: 32px 24px;
+  }
+
+  .marian-devotional-dates {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .home-news-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .home-cta-banner {
+    padding: 34px 24px;
+  }
+
+  .cta-actions-wrap {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .cta-actions-wrap .button {
+    text-align: center;
+  }
 }
 
 /* Shared inner-page treatment */
@@ -4122,8 +4829,8 @@ details[open] .accordion-icon::after {
   inset: 0;
   z-index: 1;
   background:
-    linear-gradient(90deg, rgba(6, 28, 58, .9) 0%, rgba(7, 35, 70, .72) 44%, rgba(7, 28, 52, .25) 78%),
-    linear-gradient(0deg, rgba(5, 23, 44, .32), transparent 45%);
+    linear-gradient(90deg, rgba(6, 28, 58, .88) 0%, rgba(7, 35, 70, .72) 48%, rgba(7, 28, 52, .32) 85%),
+    linear-gradient(0deg, rgba(5, 23, 44, .42), transparent 50%);
   pointer-events: none;
 }
 
@@ -4162,13 +4869,13 @@ details[open] .accordion-icon::after {
 }
 
 .master-hero-title {
-  max-width: 1120px;
-  margin: 16px 0 18px;
+  max-width: 880px;
+  margin: 14px 0 16px;
   color: #fff;
-  font-size: clamp(34px, 3.25vw, 56px);
-  line-height: 1.15;
-  letter-spacing: -.025em;
-  text-shadow: 0 3px 22px rgba(0, 0, 0, .2);
+  font-size: clamp(28px, 3vw, 46px);
+  line-height: 1.2;
+  letter-spacing: -.02em;
+  text-shadow: 0 3px 20px rgba(0, 0, 0, .25);
   font-family: var(--font-serif, "Cinzel", "Libre Baskerville", "Playfair Display", Georgia, serif);
   font-weight: 700;
 }
@@ -4178,10 +4885,10 @@ details[open] .accordion-icon::after {
 }
 
 .master-hero-desc {
-  max-width: 760px;
-  margin: 0 0 32px;
+  max-width: 720px;
+  margin: 0 0 28px;
   color: rgba(255, 255, 255, .88);
-  font-size: 16px;
+  font-size: 15.5px;
   line-height: 1.75;
 }
 

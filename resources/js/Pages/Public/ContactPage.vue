@@ -68,8 +68,9 @@ const handleSubmit = () => {
               <div class="card-icon" aria-hidden="true">◷</div>
               <div class="card-content">
                 <h3>Office Hours</h3>
-                <p><strong>Tuesday – Sunday</strong>: 8:00 AM – 12:00 NN | 1:30 PM – 5:00 PM</p>
-                <span class="sub-text text-amber">Monday: Office Closed (Maintenance & Day of Rest)</span>
+                <p><strong>Monday, Wednesday – Saturday</strong>: 8:00 AM – 11:30 AM | 1:00 PM – 5:00 PM</p>
+                <p><strong>Sunday</strong>: 8:30 AM – 12:00 NN</p>
+                <span class="sub-text text-amber">Tuesday: Closed for Day Off and During Holidays</span>
               </div>
             </div>
 
