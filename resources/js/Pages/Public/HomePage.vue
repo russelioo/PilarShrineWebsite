@@ -236,7 +236,62 @@ const featuredNews = [
       </div>
     </section>
 
-    <!-- 4. Featured News & Announcements -->
+    <!-- 4. Official Shrine Prayer: Prayer to Our Lady of the Pillar -->
+    <section class="home-prayer-section page-width" aria-label="Prayer to Our Lady of the Pillar">
+      <div class="home-prayer-card">
+        <div class="home-prayer-inner">
+          <div class="prayer-card-header">
+            <span class="prayer-eyebrow">DAILY DEVOTION</span>
+            <h2 class="prayer-title">Prayer to Our Lady of the Pillar</h2>
+            <div class="prayer-gold-rule" aria-hidden="true">
+              <span class="prayer-rule-line"></span>
+              <span class="prayer-rule-cross">✣</span>
+              <span class="prayer-rule-line"></span>
+            </div>
+            <p class="prayer-shrine-subtitle">Diocesan Shrine and Parish of Our Lady of the Pillar · Pilar, Sorsogon</p>
+          </div>
+
+          <div class="prayer-body-content">
+            <p class="prayer-stanza">Most Holy Virgin of the Pillar,</p>
+
+            <p class="prayer-stanza">to your care we confide</p>
+
+            <p class="prayer-stanza">the needs of our families,</p>
+
+            <p class="prayer-stanza">the joys of children,</p>
+
+            <p class="prayer-stanza">the dreams of youth,</p>
+
+            <p class="prayer-stanza">the anxieties of adults,</p>
+
+            <p class="prayer-stanza">the sufferings of the sick,</p>
+
+            <p class="prayer-stanza">and our preparation for life’s end.</p>
+
+            <p class="prayer-stanza">To you we entrust the perseverance of our priests and religious.</p>
+
+            <p class="prayer-stanza">Ever increase our faith,</p>
+
+            <p class="prayer-stanza">give assurance to our hope,</p>
+
+            <p class="prayer-stanza">and enliven our charity.</p>
+
+            <p class="prayer-stanza prayer-amen">Amen.</p>
+
+            <p class="prayer-stanza prayer-invocation">Our Lady of the Pillar, pray for us.</p>
+          </div>
+
+          <div class="prayer-footer-action">
+            <a href="#/novenas" class="button secondary prayer-action-btn">
+              <span>View Novenas &amp; Sacred Hymns</span>
+              <span aria-hidden="true">&rarr;</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Featured News & Announcements -->
     <section class="home-news-section page-width" aria-label="Recent News and Announcements">
       <div class="home-section-header">
         <span class="home-section-eyebrow">Parish Bulletin</span>

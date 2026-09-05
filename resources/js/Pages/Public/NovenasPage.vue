@@ -1,5 +1,46 @@
 <script setup>
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import {
+  SectionHeader,
+  ContentCard,
+  SiteButton,
+} from '../../components/SiteUI'
+import { devotionalResources } from '../../data/devotions'
+
 const pillarOfficial = '/images/our-lady-of-the-pillar-official.jpg'
+
+const activeCategory = ref('all')
+const activeResource = ref(null)
+
+const filteredResources = computed(() => {
+  if (activeCategory.value === 'all') return devotionalResources
+  return devotionalResources.filter(res => res.type === activeCategory.value)
+})
+
+const openResource = (resource) => {
+  activeResource.value = resource
+  document.body.style.overflow = 'hidden'
+}
+
+const closeResource = () => {
+  activeResource.value = null
+  document.body.style.overflow = ''
+}
+
+const handleKeydown = (e) => {
+  if (e.key === 'Escape' && activeResource.value) {
+    closeResource()
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', handleKeydown)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', handleKeydown)
+  document.body.style.overflow = ''
+})
 
 const additionalDevotions = [
   {
@@ -89,7 +130,97 @@ const additionalDevotions = [
       </div>
     </section>
 
-    <!-- 2. Additional Parish Devotions Section -->
+    <!-- 2. Dedicated Section: PRAY • SING • CELEBRATE -->
+    <section id="pray-sing-celebrate" class="pray-sing-celebrate-section page-width" aria-labelledby="devotions-section-title">
+      <SectionHeader
+        id="devotions-section-title"
+        eyebrow="PRAY • SING • CELEBRATE"
+        title="Official Prayer &amp; Sacred Hymns"
+        subtitle="Official devotional prayer and liturgical music honoring Nuestra Señora del Pilar, preserved for communal veneration and sacred celebration."
+      />
+
+      <!-- Quick Category Navigation Tabs -->
+      <nav class="devotional-filter-nav" role="tablist" aria-label="Devotional categories">
+        <button
+          type="button"
+          role="tab"
+          class="devotional-filter-tab"
+          :class="{ active: activeCategory === 'all' }"
+          :aria-selected="activeCategory === 'all'"
+          @click="activeCategory = 'all'"
+        >
+          <span>All Devotions</span>
+          <span class="tab-count-badge">{{ devotionalResources.length }}</span>
+        </button>
+        <button
+          type="button"
+          role="tab"
+          class="devotional-filter-tab"
+          :class="{ active: activeCategory === 'prayer' }"
+          :aria-selected="activeCategory === 'prayer'"
+          @click="activeCategory = 'prayer'"
+        >
+          <span>Prayers</span>
+        </button>
+        <button
+          type="button"
+          role="tab"
+          class="devotional-filter-tab"
+          :class="{ active: activeCategory === 'hymn' }"
+          :aria-selected="activeCategory === 'hymn'"
+          @click="activeCategory = 'hymn'"
+        >
+          <span>Our Lady of the Pillar Hymns</span>
+        </button>
+      </nav>
+
+      <!-- Devotional Resources Cards Grid -->
+      <div class="devotional-cards-grid">
+        <ContentCard
+          v-for="resource in filteredResources"
+          :key="resource.id"
+          class="devotional-resource-card"
+          :class="`resource-card-${resource.type}`"
+        >
+          <div class="card-eyebrow-row">
+            <span class="resource-category-pill" :class="resource.type">{{ resource.category }}</span>
+            <span class="resource-type-indicator" aria-hidden="true">
+              {{ resource.type === 'prayer' ? '📿' : '𝄞' }}
+            </span>
+          </div>
+
+          <h3 class="resource-title">{{ resource.title }}</h3>
+          <p v-if="resource.subtitle" class="resource-subtitle">{{ resource.subtitle }}</p>
+
+          <div class="resource-attribution">
+            <span class="attribution-bullet" aria-hidden="true">✦</span>
+            <span v-if="resource.composer" class="attribution-text">
+              Composed by <strong>{{ resource.composer }}</strong>
+            </span>
+            <span v-else class="attribution-text">
+              {{ resource.metadata }}
+            </span>
+          </div>
+
+          <p class="resource-desc">{{ resource.shortDescription }}</p>
+
+          <div class="resource-action-footer">
+            <SiteButton
+              variant="secondary"
+              class="resource-open-btn"
+              @click="openResource(resource)"
+            >
+              <span>{{ resource.actionLabel }}</span>
+              <svg class="action-btn-arrow" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+              </svg>
+            </SiteButton>
+          </div>
+        </ContentCard>
+      </div>
+    </section>
+
+    <!-- 3. Additional Parish Devotions Section -->
     <section class="devotions-section page-width">
       <div class="section-header-block">
         <span class="section-eyebrow">Devotional Life</span>
@@ -127,6 +258,104 @@ const additionalDevotions = [
         </article>
       </div>
     </section>
+
+    <!-- Dedicated Full-Screen Readable Lyrics & Prayer Modal -->
+    <Teleport to="body">
+      <transition name="reader-fade">
+        <div
+          v-if="activeResource"
+          class="devotion-reader-overlay"
+          role="dialog"
+          aria-modal="true"
+          :aria-labelledby="`reader-title-${activeResource.id}`"
+          @click.self="closeResource"
+        >
+          <div class="devotion-reader-container">
+            <!-- Header Bar -->
+            <div class="reader-top-bar">
+              <div class="reader-category-indicator">
+                <span class="reader-category-pill">{{ activeResource.category }}</span>
+                <span v-if="activeResource.type === 'hymn'" class="reader-kind-pill">SACRED HYMN</span>
+                <span v-else class="reader-kind-pill">OFFICIAL PRAYER</span>
+              </div>
+              <button
+                type="button"
+                class="reader-close-action"
+                aria-label="Close reading view"
+                @click="closeResource"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
+
+            <!-- Title & Metadata -->
+            <header class="reader-title-block">
+              <h2 :id="`reader-title-${activeResource.id}`" class="reader-main-title">
+                {{ activeResource.title }}
+              </h2>
+              <p v-if="activeResource.subtitle" class="reader-sub-title">
+                {{ activeResource.subtitle }}
+              </p>
+              <div class="reader-attribution-row">
+                <span v-if="activeResource.composer">
+                  Composed by <strong>{{ activeResource.composer }}</strong>
+                </span>
+                <span v-else>
+                  {{ activeResource.metadata }}
+                </span>
+              </div>
+              <div class="reader-gold-separator" aria-hidden="true"></div>
+            </header>
+
+            <!-- Scrollable Reading Surface -->
+            <div class="reader-reading-surface">
+              <div
+                v-for="(section, sIdx) in activeResource.sections"
+                :key="sIdx"
+                class="reader-stanza-block"
+                :class="{ 'is-chorus-section': section.isChorus }"
+              >
+                <div v-if="section.heading" class="stanza-label-badge">
+                  <span>{{ section.heading }}</span>
+                </div>
+                <div class="stanza-lines">
+                  <p
+                    v-for="(line, lIdx) in section.lines"
+                    :key="lIdx"
+                    class="stanza-verse-line"
+                    :class="{ 'line-spacer': !line }"
+                  >
+                    {{ line }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Extra Novena Gateway for Prayer Resource -->
+              <div v-if="activeResource.type === 'prayer'" class="reader-novena-gateway">
+                <div class="gateway-copy">
+                  <strong class="gateway-title">Nine-Day Novena &amp; Gozos</strong>
+                  <p class="gateway-desc">
+                    Pray the complete daily reflections, preparatory contrition, and historic Gozos to Our Lady of the Pillar.
+                  </p>
+                </div>
+                <a href="#/novena-details" class="gateway-btn" @click="closeResource">
+                  Open 9-Day Novena &rarr;
+                </a>
+              </div>
+            </div>
+
+            <!-- Footer Action Bar -->
+            <footer class="reader-footer-bar">
+              <SiteButton variant="secondary" class="reader-dismiss-button" @click="closeResource">
+                Close Reading View
+              </SiteButton>
+            </footer>
+          </div>
+        </div>
+      </transition>
+    </Teleport>
   </div>
 </template>
-

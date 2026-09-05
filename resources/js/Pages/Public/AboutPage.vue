@@ -1,8 +1,97 @@
 <script setup>
+import { ref, onMounted, onUnmounted } from 'vue'
+
 const parishAerial = '/images/pilar-shrine-aerial.png'
 const altar = '/images/pilar-shrine-sanctuary.jpg'
 const pillarOfficial = '/images/our-lady-of-the-pillar-official.jpg'
 const coronationCrowns = '/images/pilar-coronation-crowns.png'
+
+// Archival Photography Collection (5 Historical Photographs)
+const archivePhotos = [
+  {
+    id: 1,
+    src: '/images/archive/archive-parish-church.jpg',
+    title: 'Parish Church',
+    alt: 'Historical photograph of Our Lady of the Pillar Parish Church facade and sanctuary entrance',
+    isFeatured: true
+  },
+  {
+    id: 2,
+    src: '/images/archive/archive-parish-interior.jpg',
+    title: 'Parish Interior',
+    alt: 'Historical photograph of the parish interior with wooden pews and sanctuary altar'
+  },
+  {
+    id: 3,
+    src: '/images/archive/archive-our-lady-of-the-pillar.jpg',
+    title: 'Our Lady of the Pillar',
+    alt: 'Historical portrait of the image of Our Lady of the Pillar and the Infant Jesus'
+  },
+  {
+    id: 4,
+    src: '/images/archive/archive-marian-devotion.jpg',
+    title: 'Marian Devotion',
+    alt: 'Historical photograph of Marian devotion and solemn procession with parishioners'
+  },
+  {
+    id: 5,
+    src: '/images/archive/archive-historic-parish.jpg',
+    title: 'Historic Parish',
+    alt: 'Historical photograph of the parish building and convent grounds'
+  }
+]
+
+const featuredPhoto = archivePhotos[0]
+const supportingPhotos = archivePhotos.slice(1)
+
+// Lightbox Modal State & Handlers
+const activeLightboxIndex = ref(null)
+
+const openLightbox = (index) => {
+  activeLightboxIndex.value = index
+  if (typeof document !== 'undefined') {
+    document.body.style.overflow = 'hidden'
+  }
+}
+
+const closeLightbox = () => {
+  activeLightboxIndex.value = null
+  if (typeof document !== 'undefined') {
+    document.body.style.overflow = ''
+  }
+}
+
+const prevPhoto = () => {
+  if (activeLightboxIndex.value === null) return
+  activeLightboxIndex.value = (activeLightboxIndex.value - 1 + archivePhotos.length) % archivePhotos.length
+}
+
+const nextPhoto = () => {
+  if (activeLightboxIndex.value === null) return
+  activeLightboxIndex.value = (activeLightboxIndex.value + 1) % archivePhotos.length
+}
+
+const handleKeydown = (e) => {
+  if (activeLightboxIndex.value === null) return
+  if (e.key === 'Escape') closeLightbox()
+  if (e.key === 'ArrowLeft') prevPhoto()
+  if (e.key === 'ArrowRight') nextPhoto()
+}
+
+onMounted(() => {
+  if (typeof window !== 'undefined') {
+    window.addEventListener('keydown', handleKeydown)
+  }
+})
+
+onUnmounted(() => {
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('keydown', handleKeydown)
+  }
+  if (typeof document !== 'undefined') {
+    document.body.style.overflow = ''
+  }
+})
 </script>
 
 <template>
@@ -144,6 +233,76 @@ const coronationCrowns = '/images/pilar-coronation-crowns.png'
       </article>
     </section>
 
+    <!-- Archival Photo Section (Parish Heritage) -->
+    <section id="archival-heritage" class="about-archive page-width" aria-label="Parish Heritage and Archival Photographs">
+      <div class="section-header-block">
+        <span class="section-eyebrow">PARISH HERITAGE</span>
+        <h2>A Legacy of Faith Through the Years</h2>
+        <div class="gold-rule" aria-hidden="true">✣</div>
+        <p class="section-subtitle">
+          These archival photographs offer a glimpse into the history, devotion, and community life of Our Lady of the Pillar Parish.
+        </p>
+      </div>
+
+      <div class="archive-gallery-editorial">
+        <!-- 1 Larger Featured Historical Image -->
+        <div
+          class="archive-featured-card"
+          role="button"
+          tabindex="0"
+          :aria-label="'View full size: ' + featuredPhoto.title"
+          @click="openLightbox(0)"
+          @keydown.enter="openLightbox(0)"
+          @keydown.space.prevent="openLightbox(0)"
+        >
+          <div class="archive-featured-img-wrap">
+            <img :src="featuredPhoto.src" :alt="featuredPhoto.alt" class="archive-img">
+            <div class="archive-badge">
+              <span class="archive-badge-star" aria-hidden="true">✦</span>
+              <span>Featured Archival Photograph</span>
+            </div>
+            <div class="archive-zoom-hint" aria-hidden="true">
+              <span class="zoom-icon">⤢</span>
+              <span>Click to Expand</span>
+            </div>
+          </div>
+          <div class="archive-featured-caption">
+            <div class="caption-content">
+              <span class="caption-eyebrow">Historical Facade</span>
+              <h3 class="caption-title">{{ featuredPhoto.title }}</h3>
+            </div>
+            <span class="caption-prompt">View Photograph ↗</span>
+          </div>
+        </div>
+
+        <!-- 4 Supporting Historical Images in Responsive Grid -->
+        <div class="archive-grid-supporting">
+          <div
+            v-for="(photo, sIndex) in supportingPhotos"
+            :key="photo.id"
+            class="archive-card"
+            role="button"
+            tabindex="0"
+            :aria-label="'View full size: ' + photo.title"
+            @click="openLightbox(sIndex + 1)"
+            @keydown.enter="openLightbox(sIndex + 1)"
+            @keydown.space.prevent="openLightbox(sIndex + 1)"
+          >
+            <div class="archive-card-img-wrap">
+              <img :src="photo.src" :alt="photo.alt" class="archive-img">
+              <div class="archive-zoom-hint" aria-hidden="true">
+                <span class="zoom-icon">⤢</span>
+              </div>
+            </div>
+            <div class="archive-card-caption">
+              <h4 class="card-caption-title">{{ photo.title }}</h4>
+              <span class="card-caption-link">View ↗</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- 3. Historic Milestone Card (October 12, 2018) -->
     <section id="milestones" class="about-milestone page-width">
       <div class="milestone-card">
@@ -248,6 +407,70 @@ const coronationCrowns = '/images/pilar-coronation-crowns.png'
         </div>
       </div>
     </section>
+
+    <!-- Archival Lightbox Modal -->
+    <Teleport to="body">
+      <div
+        v-if="activeLightboxIndex !== null"
+        class="archive-lightbox-overlay"
+        role="dialog"
+        aria-modal="true"
+        :aria-label="archivePhotos[activeLightboxIndex].title"
+        @click.self="closeLightbox"
+      >
+        <div class="archive-lightbox-content">
+          <!-- Close Button -->
+          <button
+            type="button"
+            class="lightbox-close-btn"
+            aria-label="Close photograph viewer"
+            @click="closeLightbox"
+          >
+            ✕
+          </button>
+
+          <!-- Prev Button -->
+          <button
+            type="button"
+            class="lightbox-nav-btn prev"
+            aria-label="Previous photograph"
+            @click.stop="prevPhoto"
+          >
+            ‹
+          </button>
+
+          <!-- Main Photograph Display -->
+          <div class="lightbox-stage">
+            <img
+              :src="archivePhotos[activeLightboxIndex].src"
+              :alt="archivePhotos[activeLightboxIndex].alt"
+              class="lightbox-main-img"
+            >
+          </div>
+
+          <!-- Next Button -->
+          <button
+            type="button"
+            class="lightbox-nav-btn next"
+            aria-label="Next photograph"
+            @click.stop="nextPhoto"
+          >
+            ›
+          </button>
+
+          <!-- Lightbox Caption Bar -->
+          <div class="lightbox-caption-bar">
+            <div class="lightbox-caption-text">
+              <span class="lightbox-eyebrow">Archival Collection · Diocesan Shrine of Our Lady of the Pillar</span>
+              <h3 class="lightbox-title">{{ archivePhotos[activeLightboxIndex].title }}</h3>
+            </div>
+            <div class="lightbox-counter">
+              <span>{{ activeLightboxIndex + 1 }} / {{ archivePhotos.length }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 

@@ -8,7 +8,7 @@ export const primaryNavigation = [
 export const moreNavigation = [
   { key: 'events', aliases: ['news'], label: 'Events & News', href: '#/events' },
   { key: 'ministries', label: 'Ministries', href: '#/ministries' },
-  { key: 'novenas', aliases: ['novena-details'], label: 'Novenas', href: '#/novenas' },
+  { key: 'novenas', aliases: ['novena-details'], label: 'Novenas & Devotions', href: '#/novenas' },
   { key: 'store', label: 'Store', href: '#/store' },
   { key: 'contact', aliases: ['forms'], label: 'Contact', href: '#/contact' },
 ]
