@@ -7,7 +7,9 @@ import { getPublicPage } from './publicPageMap'
 
 const route = ref('home')
 const syncRoute = () => {
-  route.value = location.hash.replace(/^#\//, '').split('/')[0] || 'home'
+  const hashWithoutPrefix = location.hash.replace(/^#\/?/, '')
+  const cleanPath = hashWithoutPrefix.split('?')[0].split('/')[0]
+  route.value = cleanPath || 'home'
   scrollTo(0, 0)
 }
 onMounted(() => {
@@ -38,9 +40,9 @@ const currentPage = computed(() => getPublicPage(route.value))
 </script>
 
 <template>
-  <!-- Authentication Portal (Login / Register) with Unified Header and Footer -->
+  <!-- Authentication Portal (Login / Register / Profile Completion) with Unified Header and Footer -->
   <SiteLayout
-    v-if="route === 'login' || route === 'register'"
+    v-if="route === 'login' || route === 'register' || route === 'complete-profile'"
     :active="route"
   >
     <AuthPortal :mode="route" />

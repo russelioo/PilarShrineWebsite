@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { SearchableSelect } from './SiteUI'
 import {
   getRegions,
@@ -79,6 +79,21 @@ const regSuccess = ref(false)
 const regError = ref('')
 const regErrors = ref({})
 
+// Google OAuth & Profile Completion state
+const googleUnregistered = ref(false)
+const googleEmail = ref('')
+const googleName = ref('')
+const googleAvatar = ref('')
+const isNewGoogleUser = ref(false)
+const profileLoading = ref(false)
+const profileSaving = ref(false)
+const profileError = ref('')
+const profileSuccess = ref(false)
+
+const csrfToken = computed(() => {
+  return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? ''
+})
+
 // Date constraints
 const todayDate = computed(() => {
   const d = new Date()
@@ -134,9 +149,160 @@ const handleKeydown = (e) => {
   }
 }
 
+const getParamFromUrl = (key) => {
+  const hashParts = window.location.hash.split('?')
+  if (hashParts.length > 1) {
+    const params = new URLSearchParams(hashParts[1])
+    if (params.has(key)) return params.get(key)
+  }
+  const searchParams = new URLSearchParams(window.location.search)
+  if (searchParams.has(key)) return searchParams.get(key)
+  return null
+}
+
+const parseUrlParams = () => {
+  const errParam = getParamFromUrl('error')
+  if (errParam) {
+    const decoded = decodeURIComponent(errParam)
+    if (props.mode === 'register') {
+      regError.value = decoded
+    } else {
+      error.value = decoded
+    }
+  }
+
+  if (getParamFromUrl('google_unregistered') === '1') {
+    googleUnregistered.value = true
+    googleEmail.value = decodeURIComponent(getParamFromUrl('email') || '')
+    googleName.value = decodeURIComponent(getParamFromUrl('name') || '')
+  }
+
+  if (getParamFromUrl('new') === '1') {
+    isNewGoogleUser.value = true
+  }
+}
+
+const dismissGoogleUnregistered = () => {
+  googleUnregistered.value = false
+  googleEmail.value = ''
+  googleName.value = ''
+  window.location.hash = '#/login'
+}
+
+const loadProfileStatus = async () => {
+  profileLoading.value = true
+  profileError.value = ''
+  try {
+    const res = await fetch('/api/user/profile-status', {
+      headers: {
+        Accept: 'application/json',
+      },
+    })
+    if (!res.ok) {
+      if (res.status === 401) {
+        window.location.hash = '#/login'
+        return
+      }
+      throw new Error('Failed to fetch profile status.')
+    }
+    const data = await res.json()
+    if (data.user) {
+      const u = data.user
+      if (u.first_name) regFirstName.value = u.first_name
+      if (u.last_name) regLastName.value = u.last_name
+      if (u.email) regEmail.value = u.email
+      if (u.avatar) googleAvatar.value = u.avatar
+      if (u.name) googleName.value = u.name
+      if (u.date_of_birth) regDob.value = u.date_of_birth
+      if (u.phone) regMobile.value = u.phone
+      if (u.country) regCountry.value = u.country
+    }
+  } catch (e) {
+    console.error('Failed to load profile status:', e)
+    profileError.value = 'Unable to load profile data. Please refresh the page.'
+  } finally {
+    profileLoading.value = false
+  }
+}
+
+const saveCompleteProfile = async () => {
+  profileError.value = ''
+
+  if (!regDob.value) {
+    profileError.value = 'Please provide your Date of Birth.'
+    return
+  }
+  if (regDob.value > todayDate.value) {
+    profileError.value = 'Date of birth cannot be a future date.'
+    return
+  }
+  if (!regMobile.value) {
+    profileError.value = 'Please provide your active mobile phone number.'
+    return
+  }
+  if (!regRegionName.value || !regMunicipalityName.value || !regBarangayName.value) {
+    profileError.value = 'Please complete your residence location details (Region, Municipality/City, and Barangay).'
+    return
+  }
+
+  profileSaving.value = true
+
+  const isNcr = regProvince.value === 'NCR_NO_PROVINCE' || regProvince.value === 'NO_PROVINCE'
+
+  try {
+    const response = await fetch('/api/parishioner/complete-profile', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': csrfToken.value,
+      },
+      body: JSON.stringify({
+        first_name: regFirstName.value,
+        last_name: regLastName.value,
+        date_of_birth: regDob.value,
+        phone: regMobile.value,
+        country: regCountry.value,
+        region: regRegionName.value,
+        province: isNcr ? null : regProvinceName.value,
+        municipality_city: regMunicipalityName.value,
+        barangay: regBarangayName.value,
+      }),
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      profileError.value = data.message || 'Unable to update profile. Please check the fields and try again.'
+      return
+    }
+
+    profileSuccess.value = true
+    setTimeout(() => {
+      window.location.assign(data.redirect || '/parishioner/dashboard')
+    }, 1200)
+  } catch (err) {
+    console.error('Profile completion failed:', err)
+    profileError.value = 'Network error occurred. Please try again.'
+  } finally {
+    profileSaving.value = false
+  }
+}
+
 onMounted(() => {
   window.addEventListener('keydown', handleKeydown)
   loadRegions()
+  parseUrlParams()
+  if (props.mode === 'complete-profile') {
+    loadProfileStatus()
+  }
+})
+
+watch(() => props.mode, (newMode) => {
+  parseUrlParams()
+  if (newMode === 'complete-profile') {
+    loadProfileStatus()
+  }
 })
 
 onUnmounted(() => {
@@ -528,7 +694,7 @@ const register = async () => {
 
 <template>
   <section class="auth-page">
-    <div class="auth-shell page-width" :class="{ 'auth-shell-wide': mode === 'register' }">
+    <div class="auth-shell page-width" :class="{ 'auth-shell-wide': mode === 'register' || mode === 'complete-profile' }">
       <!-- Split Screen: Left Branding Section -->
       <aside class="auth-welcome" aria-label="Parish welcome and devotion">
         <div class="auth-welcome-inner">
@@ -542,14 +708,14 @@ const register = async () => {
             />
             <div class="auth-seal-meta">
               <span class="auth-kicker">
-                {{ mode === 'login' ? 'Welcome to our parish portal' : 'Join our parish community' }}
+                {{ mode === 'login' ? 'Welcome to our parish portal' : (mode === 'complete-profile' ? 'Parishioner onboarding' : 'Join our parish community') }}
               </span>
               <span class="auth-diocese-text">Diocese of Sorsogon &bull; Est. 1861</span>
             </div>
           </div>
 
           <h1 class="auth-welcome-title">
-            {{ mode === 'login' ? 'Faith brings us closer together.' : 'Your faith journey continues here.' }}
+            {{ mode === 'login' ? 'Faith brings us closer together.' : (mode === 'complete-profile' ? 'Complete your parish profile.' : 'Your faith journey continues here.') }}
           </h1>
 
           <div class="auth-ornament" aria-hidden="true">
@@ -561,7 +727,9 @@ const register = async () => {
           <p class="auth-welcome-desc">
             {{ mode === 'login'
               ? 'Access sacramental services, submit Mass intentions, and stay connected with the vibrant Catholic community of Our Lady of the Pillar.'
-              : 'Create your parishioner account to request sacraments, manage Mass intentions, receive bulletins, and keep your family pastoral records secure.'
+              : (mode === 'complete-profile'
+                ? 'Your Google account is now verified and connected. Please complete your personal details, contact number, and residence location to activate all parish services.'
+                : 'Create your parishioner account to request sacraments, manage Mass intentions, receive bulletins, and keep your family pastoral records secure.')
             }}
           </p>
 
@@ -636,6 +804,60 @@ const register = async () => {
               <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
             </svg>
             <span>{{ error }}</span>
+          </div>
+
+          <!-- Google Unregistered Prompt Banner -->
+          <div v-if="googleUnregistered" class="google-unregistered-banner" role="alert">
+            <div class="google-banner-header">
+              <span class="google-banner-badge" aria-hidden="true">
+                <svg class="google-icon" viewBox="0 0 24 24" width="22" height="22">
+                  <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
+                  <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
+                  <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.16 0 9.97 0 12s.45 3.84 1.25 5.42l4.03-3.15z"/>
+                  <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+                </svg>
+              </span>
+              <div>
+                <h3 class="google-banner-title">No Parish Account Found</h3>
+                <p class="google-banner-desc">
+                  No parish account was found for <strong>{{ googleEmail || 'this Google account' }}</strong>. Would you like to create one now?
+                </p>
+              </div>
+            </div>
+
+            <div class="google-banner-actions">
+              <form action="/auth/google/confirm-register" method="POST">
+                <input type="hidden" name="_token" :value="csrfToken" />
+                <button type="submit" class="btn btn-gold btn-sm">
+                  Create Parish Account
+                </button>
+              </form>
+              <button type="button" class="btn-cancel-link" @click="dismissGoogleUnregistered">
+                Cancel &amp; Sign In with another email
+              </button>
+            </div>
+          </div>
+
+          <!-- Google Sign In Button -->
+          <a
+            href="/auth/google?intent=login"
+            class="btn-google-auth"
+            aria-label="Continue with Google"
+          >
+            <svg class="google-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+              <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
+              <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
+              <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.16 0 9.97 0 12s.45 3.84 1.25 5.42l4.03-3.15z"/>
+              <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+            </svg>
+            <span>Continue with Google</span>
+          </a>
+
+          <!-- Divider -->
+          <div class="auth-divider" role="separator" aria-label="or sign in with email">
+            <span class="divider-line"></span>
+            <span class="divider-text">OR SIGN IN WITH EMAIL</span>
+            <span class="divider-line"></span>
           </div>
 
           <!-- Email Field -->
@@ -743,7 +965,7 @@ const register = async () => {
 
         <!-- 2. REGISTRATION FORM -->
         <form
-          v-else
+          v-else-if="mode === 'register'"
           class="auth-form-card auth-form-card-wide"
           @submit.prevent="register"
           novalidate
@@ -775,6 +997,28 @@ const register = async () => {
               <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
             </svg>
             <span>{{ regError }}</span>
+          </div>
+
+          <!-- Google Register Button -->
+          <a
+            href="/auth/google?intent=register"
+            class="btn-google-auth btn-google-auth-wide"
+            aria-label="Continue with Google"
+          >
+            <svg class="google-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+              <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
+              <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
+              <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.16 0 9.97 0 12s.45 3.84 1.25 5.42l4.03-3.15z"/>
+              <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+            </svg>
+            <span>Continue with Google</span>
+          </a>
+
+          <!-- Divider -->
+          <div class="auth-divider" role="separator" aria-label="or register with personal details">
+            <span class="divider-line"></span>
+            <span class="divider-text">OR REGISTER WITH EMAIL</span>
+            <span class="divider-line"></span>
           </div>
 
           <!-- SECTION 1: Personal Details -->
@@ -1169,6 +1413,338 @@ const register = async () => {
               <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
             </svg>
             <span>Staff, ministry leaders, and administrator accounts are issued directly by the parish office.</span>
+          </div>
+        </form>
+
+        <!-- 3. COMPLETE PROFILE FORM (GOOGLE ONBOARDING) -->
+        <form
+          v-else-if="mode === 'complete-profile'"
+          class="auth-form-card auth-form-card-wide"
+          @submit.prevent="saveCompleteProfile"
+          novalidate
+        >
+          <div class="form-header-nav">
+            <a class="auth-back" href="#/home">
+              <svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z" clip-rule="evenodd"/>
+              </svg>
+              <span>Back to home</span>
+            </a>
+            <span class="auth-card-kicker">PARISHIONER ONBOARDING</span>
+          </div>
+
+          <!-- User Google Identity Card -->
+          <div class="google-user-chip-card">
+            <img
+              v-if="googleAvatar"
+              :src="googleAvatar"
+              class="google-user-avatar"
+              alt="Google Avatar"
+            />
+            <div v-else class="google-user-avatar-fallback">
+              {{ (regFirstName || 'P').charAt(0) }}
+            </div>
+            <div class="google-user-chip-meta">
+              <h2 class="auth-card-title" style="margin-bottom: 2px;">Complete your parish profile</h2>
+              <p class="auth-card-desc" style="margin-bottom: 0;">
+                Connected with Google as <strong>{{ regEmail }}</strong>. Provide your birth date, phone, and residence to activate parish online services.
+              </p>
+            </div>
+          </div>
+
+          <!-- Success Alert -->
+          <div v-if="profileSuccess" class="auth-alert auth-alert-success" role="status">
+            <svg class="alert-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+            <span>Profile completed successfully! Redirecting to parishioner portal...</span>
+          </div>
+
+          <!-- Error Alert -->
+          <div v-if="profileError" class="auth-alert auth-alert-error" role="alert">
+            <svg class="alert-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+            </svg>
+            <span>{{ profileError }}</span>
+          </div>
+
+          <!-- Profile Loading Indicator -->
+          <div v-if="profileLoading" class="auth-loading-banner">
+            <span class="auth-spinner"></span>
+            <span>Loading profile records...</span>
+          </div>
+
+          <div v-else>
+            <!-- SECTION 1: Personal Details -->
+            <div class="form-section">
+              <div class="section-indicator">
+                <span class="section-num">1</span>
+                <span class="section-heading">Personal Information</span>
+              </div>
+
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label for="complete-first-name" class="form-label">
+                    First name
+                    <span class="required-star" aria-hidden="true">*</span>
+                  </label>
+                  <div class="input-control">
+                    <span class="input-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                      </svg>
+                    </span>
+                    <input
+                      id="complete-first-name"
+                      v-model="regFirstName"
+                      type="text"
+                      placeholder="Juan"
+                      required
+                      :disabled="profileSaving"
+                    />
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="complete-last-name" class="form-label">
+                    Last name
+                    <span class="required-star" aria-hidden="true">*</span>
+                  </label>
+                  <div class="input-control">
+                    <span class="input-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                      </svg>
+                    </span>
+                    <input
+                      id="complete-last-name"
+                      v-model="regLastName"
+                      type="text"
+                      placeholder="Dela Cruz"
+                      required
+                      :disabled="profileSaving"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Date of Birth with Modern Date Picker -->
+              <div class="form-group" style="margin-top: 14px;">
+                <label for="complete-dob" class="form-label">
+                  Date of birth
+                  <span class="required-star" aria-hidden="true">*</span>
+                </label>
+                <div class="input-control date-input-control">
+                  <span class="input-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/>
+                    </svg>
+                  </span>
+                  <input
+                    id="complete-dob"
+                    ref="dobInputRef"
+                    v-model="regDob"
+                    type="date"
+                    :max="todayDate"
+                    required
+                    class="native-date-input"
+                    :disabled="profileSaving"
+                  />
+                  <button
+                    type="button"
+                    class="date-picker-trigger-btn"
+                    aria-label="Open date picker calendar"
+                    title="Choose date from calendar"
+                    @click="openDatePicker"
+                  >
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/><circle cx="12" cy="15" r="1.5"/>
+                    </svg>
+                  </button>
+                </div>
+                <div v-if="formattedDobPreview" class="field-hint-badge">
+                  Selected: {{ formattedDobPreview }}
+                </div>
+                <span v-else class="field-helper-hint">Format: MM/DD/YYYY &bull; Must not be a future date</span>
+              </div>
+            </div>
+
+            <!-- SECTION 2: Contact & Residence -->
+            <div class="form-section">
+              <div class="section-indicator">
+                <span class="section-num">2</span>
+                <span class="section-heading">Contact &amp; Residence</span>
+              </div>
+
+              <!-- Email (Disabled / Readonly Google badge) -->
+              <div class="form-group full-width">
+                <label for="complete-email" class="form-label">
+                  Email address
+                  <span class="field-verified-pill">
+                    <svg viewBox="0 0 20 20" width="12" height="12" fill="currentColor" aria-hidden="true">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    Verified with Google
+                  </span>
+                </label>
+                <div class="input-control">
+                  <span class="input-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+                    </svg>
+                  </span>
+                  <input
+                    id="complete-email"
+                    :value="regEmail"
+                    type="email"
+                    disabled
+                    class="input-disabled-verified"
+                  />
+                </div>
+              </div>
+
+              <!-- Mobile Phone Number -->
+              <div class="form-group full-width" style="margin-top: 14px;">
+                <label for="complete-mobile" class="form-label">
+                  Mobile phone number
+                  <span class="required-star" aria-hidden="true">*</span>
+                </label>
+                <div class="input-control">
+                  <span class="input-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                    </svg>
+                  </span>
+                  <input
+                    id="complete-mobile"
+                    v-model="regMobile"
+                    type="tel"
+                    placeholder="09XX XXX XXXX"
+                    maxlength="13"
+                    required
+                    :disabled="profileSaving"
+                    @input="onMobileInput"
+                  />
+                </div>
+                <span class="field-helper-hint">Format: 09XX XXX XXXX (e.g. 0917 123 4567)</span>
+              </div>
+
+              <!-- Country Selector -->
+              <div class="form-group full-width" style="margin-top: 14px;">
+                <label class="form-label">
+                  Country
+                  <span class="required-star" aria-hidden="true">*</span>
+                </label>
+                <SearchableSelect
+                  v-model="regCountry"
+                  :options="countryOptions"
+                  placeholder="Select Country"
+                  :disabled="profileSaving"
+                />
+              </div>
+
+              <!-- Philippine PSGC Cascading Location Selectors -->
+              <div v-if="regCountry === 'Philippines'" class="location-group-box">
+                <div class="location-box-header">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+                  </svg>
+                  <span>Residence Address (PSGC Standard)</span>
+                </div>
+
+                <div class="form-grid-2">
+                  <div class="form-group">
+                    <label class="form-label">
+                      Region
+                      <span class="required-star" aria-hidden="true">*</span>
+                    </label>
+                    <SearchableSelect
+                      v-model="regRegion"
+                      :options="regionOptions"
+                      placeholder="Select Region"
+                      :loading="loadingRegions"
+                      :disabled="profileSaving"
+                      @change="onRegionChange"
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label">
+                      Province
+                      <span v-if="regProvince === 'NCR_NO_PROVINCE' || regProvince === 'NO_PROVINCE'" class="sub-label">(Not Applicable)</span>
+                      <span v-else class="required-star" aria-hidden="true">*</span>
+                    </label>
+                    <SearchableSelect
+                      v-model="regProvince"
+                      :options="provinceOptions"
+                      placeholder="Select Province"
+                      :loading="loadingProvinces"
+                      :disabled="profileSaving || loadingProvinces || provinceOptions.length === 0"
+                      @change="onProvinceChange"
+                    />
+                  </div>
+                </div>
+
+                <div class="form-grid-2" style="margin-top: 14px;">
+                  <div class="form-group">
+                    <label class="form-label">
+                      Municipality / City
+                      <span class="required-star" aria-hidden="true">*</span>
+                    </label>
+                    <SearchableSelect
+                      v-model="regMunicipality"
+                      :options="municipalityOptions"
+                      placeholder="Select Municipality / City"
+                      :loading="loadingMunicipalities"
+                      :disabled="profileSaving || loadingMunicipalities || municipalityOptions.length === 0"
+                      @change="onMunicipalityChange"
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label">
+                      Barangay
+                      <span class="required-star" aria-hidden="true">*</span>
+                    </label>
+                    <SearchableSelect
+                      v-model="regBarangay"
+                      :options="barangayOptions"
+                      placeholder="Select Barangay"
+                      :loading="loadingBarangays"
+                      :disabled="profileSaving || loadingBarangays || barangayOptions.length === 0"
+                      @change="onBarangayChange"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button
+              type="submit"
+              class="auth-submit-btn"
+              :disabled="profileSaving"
+              style="margin-top: 24px;"
+            >
+              <span v-if="profileSaving" class="btn-spinner" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="3">
+                  <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.25)"/>
+                  <path d="M12 2a10 10 0 0 1 10 10" stroke="#ffffff" stroke-linecap="round"/>
+                </svg>
+              </span>
+              <span>{{ profileSaving ? 'Saving profile...' : 'Save & Proceed to Parishioner Portal' }}</span>
+              <svg v-if="!profileSaving" class="btn-arrow" viewBox="0 0 20 20" width="16" height="16" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Confidentiality Footer -->
+          <div class="auth-privacy-stamp" style="margin-top: 20px;">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/>
+            </svg>
+            <span>Your information is protected and kept confidential under the Data Privacy Act.</span>
           </div>
         </form>
       </div>

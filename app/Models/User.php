@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'first_name', 'last_name', 'date_of_birth', 'country', 'region', 'province', 'municipality_city', 'barangay', 'email', 'password_hash', 'role', 'phone', 'is_verified', 'email_verified_at'])]
+#[Fillable(['name', 'first_name', 'last_name', 'date_of_birth', 'country', 'region', 'province', 'municipality_city', 'barangay', 'email', 'password_hash', 'role', 'phone', 'is_verified', 'email_verified_at', 'google_id', 'avatar'])]
 #[Hidden(['password_hash', 'remember_token', 'reset_token'])]
 class User extends Authenticatable
 {
@@ -39,12 +39,54 @@ class User extends Authenticatable
         return 'password_hash';
     }
 
+    public function isProfileComplete(): bool
+    {
+        return !empty($this->first_name)
+            && !empty($this->last_name)
+            && !empty($this->date_of_birth)
+            && !empty($this->phone)
+            && !empty($this->barangay);
+    }
+
     public function massIntentions(): HasMany
     {
         return $this->hasMany(MassIntention::class);
     }
+
     public function appointments(): HasMany
     {
         return $this->hasMany(Appointment::class);
+    }
+
+    public function formSubmissions(): HasMany
+    {
+        return $this->hasMany(FormSubmission::class);
+    }
+
+    public function getInitialsAttribute(): string
+    {
+        if (!empty($this->first_name) && !empty($this->last_name)) {
+            return strtoupper(substr($this->first_name, 0, 1) . substr($this->last_name, 0, 1));
+        }
+
+        $parts = preg_split('/\s+/', trim($this->name ?: ''));
+        if (!empty($parts[0])) {
+            $second = isset($parts[1]) ? substr($parts[1], 0, 1) : '';
+            return strtoupper(substr($parts[0], 0, 1) . $second);
+        }
+
+        return 'PA';
+    }
+
+    public function getDisplayNameAttribute(): string
+    {
+        return $this->name
+            ?: trim(($this->first_name ?? '') . ' ' . ($this->last_name ?? ''))
+            ?: 'Parishioner';
+    }
+
+    public function getAuthProviderAttribute(): string
+    {
+        return !empty($this->google_id) ? 'google' : 'password';
     }
 }

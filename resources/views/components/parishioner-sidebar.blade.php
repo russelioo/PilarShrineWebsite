@@ -25,15 +25,15 @@
     <div class="nav-group">
       <p class="nav-group-label">My Requests</p>
       <a href="{{ route('parishioner.mass-intentions') }}" class="{{ request()->routeIs('parishioner.mass-intentions') ? 'active' : '' }}"><svg class="nav-icon"><use href="#i-heart"/></svg><span>Mass Intentions</span></a>
-      <a href="{{ route('parishioner.sacrament-requests') }}" class="{{ request()->routeIs('parishioner.sacrament-requests') ? 'active' : '' }}"><svg class="nav-icon"><use href="#i-record"/></svg><span>Sacrament Requests</span></a>
+      <a href="javascript:void(0)" class="nav-item-disabled {{ request()->routeIs('parishioner.sacrament-requests') ? 'active' : '' }}" data-disabled-feature="true" data-feature-name="Sacrament Requests" role="button" aria-disabled="true" title="This feature will be available soon"><svg class="nav-icon"><use href="#i-record"/></svg><span>Sacrament Requests</span><span class="badge-soon">Soon</span></a>
       <a href="{{ route('parishioner.inquiries') }}" class="{{ request()->routeIs('parishioner.inquiries') ? 'active' : '' }}"><svg class="nav-icon"><use href="#i-form"/></svg><span>My Inquiries</span></a>
     </div>
 
     <div class="nav-group">
       <p class="nav-group-label">Submit Request</p>
-      <a href="{{ route('parishioner.request-mass-intention') }}" class="{{ request()->routeIs('parishioner.request-mass-intention') ? 'active' : '' }}"><svg class="nav-icon"><use href="#i-heart"/></svg><span>Request Mass Intention</span></a>
-      <a href="{{ route('parishioner.request-sacrament') }}" class="{{ request()->routeIs('parishioner.request-sacrament') ? 'active' : '' }}"><svg class="nav-icon"><use href="#i-record"/></svg><span>Baptism / Wedding / Funeral</span></a>
-      <a href="{{ route('parishioner.other-requests') }}" class="{{ request()->routeIs('parishioner.other-requests') ? 'active' : '' }}"><svg class="nav-icon"><use href="#i-form"/></svg><span>Other Requests</span></a>
+      <a href="javascript:void(0)" class="nav-item-disabled {{ request()->routeIs('parishioner.request-mass-intention') ? 'active' : '' }}" data-disabled-feature="true" data-feature-name="Request Mass Intention" role="button" aria-disabled="true" title="This feature will be available soon"><svg class="nav-icon"><use href="#i-heart"/></svg><span>Request Mass Intention</span><span class="badge-soon">Soon</span></a>
+      <a href="javascript:void(0)" class="nav-item-disabled {{ request()->routeIs('parishioner.request-sacrament') ? 'active' : '' }}" data-disabled-feature="true" data-feature-name="Baptism / Wedding / Funeral" role="button" aria-disabled="true" title="This feature will be available soon"><svg class="nav-icon"><use href="#i-record"/></svg><span>Baptism / Wedding / Funeral</span><span class="badge-soon">Soon</span></a>
+      <a href="javascript:void(0)" class="nav-item-disabled {{ request()->routeIs('parishioner.other-requests') ? 'active' : '' }}" data-disabled-feature="true" data-feature-name="Other Requests" role="button" aria-disabled="true" title="This feature will be available soon"><svg class="nav-icon"><use href="#i-form"/></svg><span>Other Requests</span><span class="badge-soon">Soon</span></a>
     </div>
 
     <div class="nav-group parishioner-services">

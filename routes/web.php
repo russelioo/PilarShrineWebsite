@@ -4,8 +4,12 @@ use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MassScheduleController;
 use App\Http\Controllers\MassIntentionManagementController;
+use App\Http\Controllers\Parishioner\DashboardController;
 use App\Http\Controllers\Parishioner\MassIntentionController;
+use App\Http\Controllers\Parishioner\ProfileSettingsController;
 use App\Http\Controllers\Parishioner\SacramentRequestController;
+use App\Http\Controllers\GoogleAuthController;
+use App\Http\Controllers\ProfileCompletionController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\TimeSlotController;
@@ -36,8 +40,20 @@ Route::post('/register', [RegisterController::class, 'store'])
     ->middleware('guest')
     ->name('register.store');
 
+// Google OAuth routes
+Route::get('/auth/google', [GoogleAuthController::class, 'redirect'])->name('auth.google');
+Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])->name('auth.google.callback');
+Route::post('/auth/google/confirm-register', [GoogleAuthController::class, 'confirmRegister'])->name('auth.google.confirm-register');
+
+// Profile Completion API routes
+Route::get('/api/user/profile-status', [ProfileCompletionController::class, 'status'])->name('user.profile-status');
+Route::post('/api/parishioner/complete-profile', [ProfileCompletionController::class, 'store'])
+    ->middleware('auth')
+    ->name('parishioner.complete-profile');
+
 Route::prefix('parishioner')->name('parishioner.')->middleware('auth')->group(function () {
     Route::view('/dashboard', 'parishioner.dashboard')->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/mass-intentions', [MassIntentionController::class, 'index'])->name('mass-intentions');
     Route::get('/sacrament-requests', [SacramentRequestController::class, 'index'])->name('sacrament-requests');
     Route::view('/inquiries', 'parishioner.inquiries')->name('inquiries');
@@ -52,6 +68,8 @@ Route::prefix('parishioner')->name('parishioner.')->middleware('auth')->group(fu
     Route::view('/ministries', 'parishioner.ministries')->name('ministries');
     Route::view('/messages-inquiries', 'parishioner.messages-inquiries')->name('messages-inquiries');
     Route::view('/profile-settings', 'parishioner.profile-settings')->name('profile-settings');
+    Route::get('/profile-settings', [ProfileSettingsController::class, 'index'])->name('profile-settings');
+    Route::put('/profile-settings', [ProfileSettingsController::class, 'update'])->name('profile-settings.update');
     Route::post('/logout', [AdminDashboardController::class, 'logout'])->name('logout');
 });
 Route::prefix('admin')->name('admin.')->group(function () {
