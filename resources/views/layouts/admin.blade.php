@@ -3,156 +3,332 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>@yield('title', 'Pilar Shrine Admin')</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@yield('title', 'Admin Portal') — Pilar Shrine</title>
     <link rel="icon" href="/images/pilar-shrine-logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
-        :root{--navy:#062f78;--blue:#0b58b5;--gold:#d6aa3e;--ink:#1b2b40;--muted:#718096;--bg:#f3f7fb;--line:#dce5ee;--side-top:#052b69;--side-bottom:#073f94}
-        *{box-sizing:border-box}
-        body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,sans-serif}
-        .layout{min-height:100vh;display:grid;grid-template-columns:280px 1fr;transition:grid-template-columns .25s ease}
-        .layout.sidebar-collapsed{grid-template-columns:76px 1fr}
-
-        /* ===== Sidebar ===== */
-        .sidebar{position:sticky;top:0;height:100vh;overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none;display:flex;flex-direction:column;padding:26px 18px;background:linear-gradient(180deg,var(--side-top),var(--side-bottom));color:#fff;transition:padding .25s ease}
-        .sidebar::-webkit-scrollbar{display:none}
-        .brand{display:flex;align-items:center;gap:11px;padding:4px 8px 18px}
-        .brand-copy{min-width:0;white-space:nowrap}
-        .sidebar-toggle{width:30px;height:30px;flex:none;display:grid;place-items:center;margin-left:auto;padding:0;border:1px solid #ffffff35;border-radius:7px;background:#ffffff16;color:#fff;cursor:pointer}
-        .sidebar-toggle:hover{background:#ffffff2b}
-        .sidebar-toggle svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .25s ease}
-        .brand-mark{width:42px;height:42px;flex:none;border-radius:50%;background:#fff;display:grid;place-items:center;overflow:hidden}
-        .brand-mark img{width:26px;height:32px;object-fit:contain}
-        .brand b{display:block;font:700 14px Georgia,serif;color:#fff}
-        .brand small{display:block;margin-top:2px;color:#c7c2ec;font-size:9px;text-transform:none}
-
-        .nav{padding:0 2px}
-        .nav-top{display:flex;gap:12px;align-items:center;padding:12px 14px;margin:0 2px 20px;border-radius:9px;background:#ffffff26;color:#fff;font-size:12px;font-weight:700;text-decoration:none}
-        .nav-top b{font-size:15px}
-
-        .nav-group{margin-bottom:18px}
-        .nav-group-label{margin:0 12px 8px;color:#8fb1dc;font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
-        .nav-group a{display:flex;gap:12px;align-items:center;padding:10px 12px;margin:2px 0;border-radius:7px;color:#dce9f8;font-size:12px;text-decoration:none}
-        .nav-group a b{width:16px;text-align:center;font-size:13px;font-style:normal}
-        .nav-icon{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-        .nav-group a.active,.nav-group a:hover{background:#ffffff1c;color:#fff}
-        .nav-group a.active{border-left:3px solid var(--gold);padding-left:9px}
-        .sidebar-collapsed .sidebar{padding-left:10px;padding-right:10px}
-        .sidebar-collapsed .brand{justify-content:center;padding-left:0;padding-right:0}
-        .sidebar-collapsed .brand-mark,.sidebar-collapsed .brand-copy,.sidebar-collapsed .nav-group-label,.sidebar-collapsed .nav a span{display:none}
-        .sidebar-collapsed .sidebar-toggle{margin-left:0}
-        .sidebar-collapsed .sidebar-toggle svg{transform:rotate(180deg)}
-        .sidebar-collapsed .nav-top,.sidebar-collapsed .nav-group a{justify-content:center;padding-left:12px;padding-right:12px}
-        .sidebar-collapsed .nav-group a.active{padding-left:9px}
-        .sidebar-tooltip{position:fixed;z-index:1000;padding:7px 10px;border-radius:6px;background:#152238;color:#fff;box-shadow:0 6px 18px #0003;font-size:11px;font-weight:700;white-space:nowrap;pointer-events:none;opacity:0;transform:translateX(-4px);transition:opacity .12s ease,transform .12s ease}
-        .sidebar-tooltip.visible{opacity:1;transform:translateX(0)}
-
-        /* ===== Main / topbar / content shell ===== */
-        .main{min-width:0}
-        .topbar{height:78px;display:flex;align-items:center;justify-content:space-between;padding:0 36px;border-bottom:1px solid var(--line);background:#fff}
-        .topbar h1{margin:0;color:var(--navy);font-size:22px;font-family:Georgia,serif}
-        .profile{display:flex;align-items:center;gap:11px;font-size:11px}
-        .avatar{width:36px;height:36px;display:grid;place-items:center;border-radius:50%;background:#eaf2fb;color:var(--navy);font-weight:800}
-        .profile-actions{display:flex;align-items:center;gap:14px}
-        .logout-button{padding:9px 13px;border:1px solid #d5dfe9;border-radius:6px;background:#fff;color:#8b2635;font-size:9px;font-weight:700;text-transform:uppercase;cursor:pointer}
-        .logout-button:hover{border-color:#b64555;background:#fff7f8}
-        .content{padding:32px 36px}
-
-        .welcome{display:flex;justify-content:space-between;align-items:end;margin-bottom:25px}
-        .welcome h2{margin:0 0 6px;color:var(--navy);font-size:26px;font-family:Georgia,serif}
-        .welcome p,.date{margin:0;color:var(--muted);font-size:11px}
-
-        /* ===== Generic buttons used across admin pages ===== */
-        .btn{padding:10px 16px;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer}
-        .btn-primary{border:1px solid var(--navy);background:var(--navy);color:#fff}
-        .btn-outline{border:1px solid var(--line);background:#fff;color:var(--ink)}
-        .page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-        .page-header h2{margin:0;color:var(--navy);font-family:Georgia,serif}
-        .page-header .actions{display:flex;gap:10px}
-
-        @media(max-width:900px){
-            .layout{grid-template-columns:76px 1fr}
-            .brand div,.nav-group-label,.nav-group a span,.nav-top span{display:none}
+        :root {
+            --navy: #062f78;
+            --navy-dark: #041e4d;
+            --navy-light: #0d4399;
+            --blue: #155cb4;
+            --blue-subtle: #eff6ff;
+            --gold: #d8aa3c;
+            --gold-light: #fef8eb;
+            --gold-hover: #c4962c;
+            --ink: #0f172a;
+            --ink-secondary: #334155;
+            --muted: #64748b;
+            --muted-light: #94a3b8;
+            --border: #e2e8f0;
+            --border-subtle: #f1f5f9;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --success: #16a34a;
+            --success-bg: #dcfce7;
+            --warning: #d97706;
+            --warning-bg: #fef3c7;
+            --danger: #dc2626;
+            --danger-bg: #fee2e2;
+            --info: #2563eb;
+            --info-bg: #dbeafe;
+            --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.05);
+            --shadow-sm: 0 2px 6px rgba(15, 23, 42, 0.06);
+            --shadow: 0 4px 16px rgba(6, 47, 120, 0.07);
+            --shadow-lg: 0 12px 28px rgba(6, 47, 120, 0.11);
+            --radius-sm: 6px;
+            --radius: 10px;
+            --radius-lg: 14px;
+            --radius-xl: 18px;
+            --sidebar-width: 270px;
+            --sidebar-collapsed-width: 74px;
+            --topbar-height: 72px;
         }
-        @media(max-width:620px){
-            .layout{display:block}
-            .sidebar{display:none}
-            .topbar,.content{padding-left:18px;padding-right:18px}
-            .welcome{display:block}
-            .date{margin-top:12px}
-            .profile>div:last-child{display:none}
-            .profile-actions{gap:8px}
-            .logout-button{padding:8px 10px}
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--ink);
+            font-family: 'Montserrat', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 13px;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ===== Main Layout Grid ===== */
+        .admin-layout {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: var(--sidebar-width) 1fr;
+            transition: grid-template-columns 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .admin-layout.sidebar-collapsed {
+            grid-template-columns: var(--sidebar-collapsed-width) 1fr;
+        }
+
+        /* ===== Main Content Region ===== */
+        .main-content {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .content-body {
+            flex: 1;
+            padding: 30px 36px 60px;
+            max-width: 1560px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* ===== Sidebar Backdrop for Mobile Drawer ===== */
+        .sidebar-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.55);
+            backdrop-filter: blur(2px);
+            z-index: 998;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+            pointer-events: none;
+        }
+
+        .sidebar-backdrop.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* ===== Floating Tooltip for Collapsed Sidebar ===== */
+        .sidebar-tooltip {
+            position: fixed;
+            z-index: 1005;
+            padding: 6px 11px;
+            border-radius: var(--radius-sm);
+            background: #0f1e36;
+            color: #ffffff;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateX(-4px);
+            transition: opacity 0.12s ease, transform 0.12s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-tooltip.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* ===== Generic Utility Classes ===== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 9px 15px;
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.18s ease;
+            border: 1px solid transparent;
+        }
+
+        .btn-primary {
+            background: var(--navy);
+            color: #fff;
+            border-color: var(--navy);
+        }
+
+        .btn-primary:hover {
+            background: var(--navy-light);
+            border-color: var(--navy-light);
+            box-shadow: 0 4px 12px rgba(6, 47, 120, 0.2);
+        }
+
+        .btn-outline {
+            background: #fff;
+            color: var(--ink-secondary);
+            border-color: var(--border);
+        }
+
+        .btn-outline:hover {
+            background: #f8fafc;
+            border-color: var(--muted-light);
+            color: var(--navy);
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px;
+        }
+
+        .page-header h2 {
+            margin: 0;
+            color: var(--navy);
+            font: 700 22px 'Libre Baskerville', Georgia, serif;
+        }
+
+        .page-header .actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* ===== Responsive Breakpoints ===== */
+        @media (max-width: 1024px) {
+            .content-body {
+                padding: 24px 20px 48px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .admin-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar-backdrop {
+                display: block;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .content-body {
+                padding: 18px 14px 40px;
+            }
         }
     </style>
 
     @stack('styles')
 </head>
 <body>
-    <div class="layout">
-        <!-- Sidebar -->
+    <div class="admin-layout" id="admin-layout">
+        <!-- Sidebar Backdrop for Mobile Overlay -->
+        <div class="sidebar-backdrop" id="sidebar-backdrop" aria-hidden="true"></div>
+
+        <!-- Modern Sidebar -->
         <x-admin-sidebar />
 
-        <main class="main">
-            <!-- Top Bar -->
+        <!-- Main Workspace -->
+        <main class="main-content" id="main-content">
+            <!-- Modern Topbar -->
             <x-admin-topbar :title="$title ?? 'Dashboard'" />
 
-            <!-- Content -->
-            <div class="content">
+            <!-- Content Area -->
+            <div class="content-body">
                 @yield('content')
             </div>
         </main>
     </div>
 
-
+    <!-- Collapsed Tooltip Target -->
     <div class="sidebar-tooltip" id="sidebar-tooltip" role="tooltip"></div>
 
     <script>
         (() => {
-            const layout = document.querySelector('.layout');
+            const layout = document.getElementById('admin-layout');
+            const sidebar = document.querySelector('.admin-sidebar');
             const toggle = document.getElementById('sidebar-toggle');
+            const mobileToggle = document.getElementById('mobile-sidebar-toggle');
+            const backdrop = document.getElementById('sidebar-backdrop');
             const tooltip = document.getElementById('sidebar-tooltip');
-            const sidebar = document.querySelector('.sidebar');
-            if (!layout || !toggle || !tooltip) return;
 
-            const hideTooltip = () => tooltip.classList.remove('visible');
-            const showTooltip = (link) => {
-                if (!layout.classList.contains('sidebar-collapsed')) return;
-                const label = link.querySelector('span')?.textContent.trim();
-                if (!label) return;
-                const rect = link.getBoundingClientRect();
+            // --- Desktop Sidebar Collapse ---
+            const setCollapsed = (collapsed) => {
+                if (window.innerWidth <= 900) return;
+                layout?.classList.toggle('sidebar-collapsed', collapsed);
+                toggle?.setAttribute('aria-expanded', String(!collapsed));
+                toggle?.setAttribute('aria-label', collapsed ? 'Expand sidebar' : 'Collapse sidebar');
+            };
+
+            const savedCollapse = localStorage.getItem('pilar-admin-sidebar-collapsed') === 'true';
+            if (window.innerWidth > 900 && savedCollapse) {
+                setCollapsed(true);
+            }
+
+            toggle?.addEventListener('click', () => {
+                hideTooltip();
+                const willCollapse = !layout.classList.contains('sidebar-collapsed');
+                setCollapsed(willCollapse);
+                localStorage.setItem('pilar-admin-sidebar-collapsed', String(willCollapse));
+            });
+
+            // --- Mobile Drawer Toggle ---
+            const openMobileDrawer = () => {
+                sidebar?.classList.add('mobile-open');
+                backdrop?.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            };
+
+            const closeMobileDrawer = () => {
+                sidebar?.classList.remove('mobile-open');
+                backdrop?.classList.remove('active');
+                document.body.style.overflow = '';
+            };
+
+            mobileToggle?.addEventListener('click', openMobileDrawer);
+            backdrop?.addEventListener('click', closeMobileDrawer);
+
+            // --- Tooltip on Collapsed Navigation ---
+            const hideTooltip = () => tooltip?.classList.remove('visible');
+            const showTooltip = (el) => {
+                if (!layout?.classList.contains('sidebar-collapsed') || window.innerWidth <= 900) return;
+                const label = el.getAttribute('data-title') || el.querySelector('.nav-label')?.textContent.trim();
+                if (!label || !tooltip) return;
+                const rect = el.getBoundingClientRect();
                 tooltip.textContent = label;
-                tooltip.style.left = `${rect.right + 10}px`;
+                tooltip.style.left = `${rect.right + 12}px`;
                 tooltip.style.top = `${rect.top + (rect.height / 2)}px`;
                 tooltip.style.transform = 'translateY(-50%)';
                 tooltip.classList.add('visible');
             };
 
-            document.querySelectorAll('.nav a').forEach((link) => {
-                link.addEventListener('mouseenter', () => showTooltip(link));
-                link.addEventListener('mouseleave', hideTooltip);
-                link.addEventListener('focus', () => showTooltip(link));
-                link.addEventListener('blur', hideTooltip);
+            document.querySelectorAll('.admin-nav-item').forEach((item) => {
+                item.addEventListener('mouseenter', () => showTooltip(item));
+                item.addEventListener('mouseleave', hideTooltip);
+                item.addEventListener('focus', () => showTooltip(item));
+                item.addEventListener('blur', hideTooltip);
+                item.addEventListener('click', () => {
+                    if (window.innerWidth <= 900) closeMobileDrawer();
+                });
             });
+
             sidebar?.addEventListener('scroll', hideTooltip);
 
-            const setCollapsed = (collapsed) => {
-                layout.classList.toggle('sidebar-collapsed', collapsed);
-                toggle.setAttribute('aria-expanded', String(!collapsed));
-                toggle.setAttribute('aria-label', collapsed ? 'Expand sidebar' : 'Collapse sidebar');
-            };
-
-            setCollapsed(localStorage.getItem('admin-sidebar-collapsed') === 'true');
-            toggle.addEventListener('click', () => {
-                hideTooltip();
-                const collapsed = !layout.classList.contains('sidebar-collapsed');
-                setCollapsed(collapsed);
-                localStorage.setItem('admin-sidebar-collapsed', String(collapsed));
+            // --- Global Keyboard Shortcuts ---
+            window.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+                    e.preventDefault();
+                    const searchInput = document.getElementById('global-search-input');
+                    searchInput?.focus();
+                    searchInput?.select();
+                }
+                if (e.key === 'Escape') {
+                    closeMobileDrawer();
+                    document.querySelectorAll('.dropdown-popover.open').forEach(menu => menu.classList.remove('open'));
+                }
             });
         })();
     </script>
-    <!-- Scripts -->
+
     @stack('scripts')
 </body>
 </html>

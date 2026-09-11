@@ -1,60 +1,603 @@
-<aside class="sidebar">
-  <svg aria-hidden="true" style="display:none">
-    <symbol id="i-dashboard" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol>
-    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><path d="M3 21v-2a6 6 0 0 1 12 0v2M16 3.5a4 4 0 0 1 0 7.5M18 15a6 6 0 0 1 3 5v1"/></symbol>
-    <symbol id="i-staff" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M5 21v-2a7 7 0 0 1 14 0v2M18 8h4M20 6v4"/></symbol>
-    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></symbol>
-    <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></symbol>
-    <symbol id="i-form" viewBox="0 0 24 24"><path d="M6 3h12a2 2 0 0 1 2 2v16H4V5a2 2 0 0 1 2-2ZM8 8h8M8 12h8M8 16h5"/></symbol>
-    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
-    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></symbol>
-    <symbol id="i-money" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M7 9H6v1M17 15h1v-1"/></symbol>
-    <symbol id="i-record" viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2ZM14 3v5h5M8 13h8M8 17h6"/></symbol>
-    <symbol id="i-megaphone" viewBox="0 0 24 24"><path d="m3 11 15-6v14L3 13v-2ZM7 15l1 5h4l-2-4M21 9v6"/></symbol>
-  </svg>
-  <div class="brand">
-    <div class="brand-mark"><img src="/images/pilar-shrine-logo.png" alt="Pilar Shrine"></div>
-    <div class="brand-copy"><b>Pilar Shrine</b><small>Admin Portal</small></div>
+<!-- resources/views/components/admin-sidebar.blade.php -->
+<aside class="admin-sidebar" id="admin-sidebar" aria-label="Admin Navigation">
+  <!-- Brand Header -->
+  <div class="sidebar-header">
+    <a href="{{ route('admin.dashboard') }}" class="brand-link" title="Our Lady of the Pillar Shrine Admin Portal">
+      <div class="brand-logo-wrap">
+        <img src="/images/pilar-shrine-logo.png" alt="Our Lady of the Pillar Parish Shrine Full Logo" class="brand-logo-img">
+      </div>
+      <div class="brand-info">
+        <span class="brand-title">Pilar Shrine</span>
+        <span class="brand-badge">ADMIN PORTAL</span>
+      </div>
+    </a>
     <button class="sidebar-toggle" id="sidebar-toggle" type="button" aria-label="Collapse sidebar" aria-expanded="true">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
     </button>
   </div>
-  <nav class="nav">
-    <a class="nav-top {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}"><svg class="nav-icon"><use href="#i-dashboard"/></svg><span>Dashboard</span></a>
-    <div class="nav-group">
-      <p class="nav-group-label">User Management</p>
-      <a href="{{ route('admin.parishioners') }}" class="{{ request()->routeIs('admin.parishioners') ? 'active' : '' }}"><svg class="nav-icon"><use href="#i-users"/></svg><span>Parishioners</span></a>
-      <a href="{{ route('admin.staff') }}" class="{{ request()->routeIs('admin.staff') ? 'active' : '' }}"><svg class="nav-icon"><use href="#i-staff"/></svg><span>Staff Management</span></a>
+
+  <!-- Navigation -->
+  <nav class="sidebar-nav" aria-label="Sidebar Menu">
+    <!-- DASHBOARD -->
+    <div class="nav-section">
+      <span class="nav-section-title">DASHBOARD</span>
+      <a href="{{ route('admin.dashboard') }}" 
+         class="admin-nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"
+         data-title="Dashboard">
+        <span class="nav-icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+            <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+            <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+            <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+          </svg>
+        </span>
+        <span class="nav-label">Dashboard</span>
+      </a>
     </div>
-    <div class="nav-group">
-      <p class="nav-group-label">Requests</p>
-      <a href="{{ route('admin.mass-intentions') }}" class="{{ request()->routeIs('admin.mass-intentions') ? 'active' : '' }}"><svg class="nav-icon"><use href="#i-heart"/></svg><span>Mass Intentions</span></a>
-      <a href="{{ route('admin.appointments') }}" class="{{ request()->routeIs('admin.appointments') ? 'active' : '' }}"><svg class="nav-icon"><use href="#i-calendar"/></svg><span>Appointments</span></a>
-      <a href="{{ route('admin.form-submissions') }}" class="{{ request()->routeIs('admin.form-submissions') ? 'active' : '' }}"><svg class="nav-icon"><use href="#i-form"/></svg><span>Form Submissions</span></a>
+
+    <!-- USER MANAGEMENT -->
+    <div class="nav-section">
+      <span class="nav-section-title">USER MANAGEMENT</span>
+      <a href="{{ route('admin.parishioners') }}" 
+         class="admin-nav-item {{ request()->routeIs('admin.parishioners') ? 'active' : '' }}"
+         data-title="Parishioners">
+        <span class="nav-icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+        </span>
+        <span class="nav-label">Parishioners</span>
+      </a>
+      <a href="{{ route('admin.staff') }}" 
+         class="admin-nav-item {{ request()->routeIs('admin.staff') ? 'active' : '' }}"
+         data-title="Staff Management">
+        <span class="nav-icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <line x1="19" y1="8" x2="19" y2="14"></line>
+            <line x1="22" y1="11" x2="16" y2="11"></line>
+          </svg>
+        </span>
+        <span class="nav-label">Staff Management</span>
+      </a>
     </div>
-    <div class="nav-group">
-      <p class="nav-group-label">Scheduling System</p>
-      <a href="{{ route('admin.mass-schedules') }}" class="{{ request()->routeIs('admin.mass-schedules') ? 'active' : '' }}"><svg class="nav-icon"><use href="#i-calendar"/></svg><span>Mass Schedules</span></a>
-      <a href="{{ route('admin.time-slots') }}" class="{{ request()->routeIs('admin.time-slots') ? 'active' : '' }}"><svg class="nav-icon"><use href="#i-clock"/></svg><span>Time Slots</span></a>
-      <a href="{{ route('admin.events') }}" class="{{ request()->routeIs('admin.events') ? 'active' : '' }}"><svg class="nav-icon"><use href="#i-calendar"/></svg><span>Events</span></a>
+
+    <!-- REQUESTS -->
+    <div class="nav-section">
+      <span class="nav-section-title">REQUESTS</span>
+      <a href="{{ route('admin.mass-intentions') }}" 
+         class="admin-nav-item {{ request()->routeIs('admin.mass-intentions') ? 'active' : '' }}"
+         data-title="Mass Intentions">
+        <span class="nav-icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+          </svg>
+        </span>
+        <span class="nav-label">Mass Intentions</span>
+        <span class="nav-badge-pill">Requests</span>
+      </a>
+      <a href="{{ route('admin.appointments') }}" 
+         class="admin-nav-item {{ request()->routeIs('admin.appointments') ? 'active' : '' }}"
+         data-title="Appointments">
+        <span class="nav-icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+        </span>
+        <span class="nav-label">Appointments</span>
+      </a>
+      <a href="{{ route('admin.form-submissions') }}" 
+         class="admin-nav-item {{ request()->routeIs('admin.form-submissions') ? 'active' : '' }}"
+         data-title="Form Submissions">
+        <span class="nav-icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+        </span>
+        <span class="nav-label">Form Submissions</span>
+      </a>
     </div>
-    <div class="nav-group">
-      <p class="nav-group-label">Content Management</p>
-      <a href="{{ route('admin.announcements') }}" class="{{ request()->routeIs('admin.announcements') ? 'active' : '' }}"><svg class="nav-icon"><use href="#i-megaphone"/></svg><span>Announcements</span></a>
-      <a href="{{ route('admin.forms') }}" class="{{ request()->routeIs('admin.forms') ? 'active' : '' }}"><svg class="nav-icon"><use href="#i-form"/></svg><span>Forms</span></a>
-      <a href="{{ route('admin.form-fields') }}" class="{{ request()->routeIs('admin.form-fields') ? 'active' : '' }}"><svg class="nav-icon"><use href="#i-form"/></svg><span>Form Fields</span></a>
+
+    <!-- SCHEDULING SYSTEM -->
+    <div class="nav-section">
+      <span class="nav-section-title">SCHEDULING SYSTEM</span>
+      <a href="{{ route('admin.mass-schedules') }}" 
+         class="admin-nav-item {{ request()->routeIs('admin.mass-schedules') ? 'active' : '' }}"
+         data-title="Mass Schedules">
+        <span class="nav-icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+        </span>
+        <span class="nav-label">Mass Schedules</span>
+      </a>
+      <a href="{{ route('admin.time-slots') }}" 
+         class="admin-nav-item {{ request()->routeIs('admin.time-slots') ? 'active' : '' }}"
+         data-title="Time Slots">
+        <span class="nav-icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+          </svg>
+        </span>
+        <span class="nav-label">Time Slots</span>
+      </a>
+      <a href="{{ route('admin.events') }}" 
+         class="admin-nav-item {{ request()->routeIs('admin.events') ? 'active' : '' }}"
+         data-title="Events">
+        <span class="nav-icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+            <circle cx="8" cy="14" r="1"></circle>
+            <circle cx="12" cy="14" r="1"></circle>
+            <circle cx="16" cy="14" r="1"></circle>
+          </svg>
+        </span>
+        <span class="nav-label">Events</span>
+      </a>
     </div>
-    <div class="nav-group">
-      <p class="nav-group-label">Financial</p>
-      <a href="{{ route('admin.donations') }}" class="{{ request()->routeIs('admin.donations') ? 'active' : '' }}"><svg class="nav-icon"><use href="#i-money"/></svg><span>Donations</span></a>
+
+    <!-- CONTENT MANAGEMENT -->
+    <div class="nav-section">
+      <span class="nav-section-title">CONTENT MANAGEMENT</span>
+      <a href="{{ route('admin.announcements') }}" 
+         class="admin-nav-item {{ request()->routeIs('admin.announcements') ? 'active' : '' }}"
+         data-title="Announcements">
+        <span class="nav-icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+          </svg>
+        </span>
+        <span class="nav-label">Announcements</span>
+      </a>
+      <a href="{{ route('admin.forms') }}" 
+         class="admin-nav-item {{ request()->routeIs('admin.forms*') ? 'active' : '' }}"
+         data-title="Forms">
+        <span class="nav-icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="12" y1="18" x2="12" y2="12"></line>
+            <line x1="9" y1="15" x2="15" y2="15"></line>
+          </svg>
+        </span>
+        <span class="nav-label">Forms</span>
+      </a>
+      <a href="{{ route('admin.dashboard') }}#livestream-panel" 
+         class="admin-nav-item"
+         data-title="Media / Livestream">
+        <span class="nav-icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polygon points="23 7 16 12 23 17 23 7"></polygon>
+            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+          </svg>
+        </span>
+        <span class="nav-label">Media / Livestream</span>
+      </a>
+      <a href="{{ route('admin.donations') }}" 
+         class="admin-nav-item {{ request()->routeIs('admin.donations') ? 'active' : '' }}"
+         data-title="Donations">
+        <span class="nav-icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="12" y1="1" x2="12" y2="23"></line>
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+          </svg>
+        </span>
+        <span class="nav-label">Donations</span>
+      </a>
     </div>
-    <div class="nav-group">
-      <p class="nav-group-label">Records</p>
-      <a href="{{ route('admin.sacramental-records') }}" class="{{ request()->routeIs('admin.sacramental-records') ? 'active' : '' }}"><svg class="nav-icon"><use href="#i-record"/></svg><span>Sacramental Records</span></a>
+
+    <!-- RECORDS -->
+    <div class="nav-section">
+      <span class="nav-section-title">RECORDS</span>
+      <a href="{{ route('admin.sacramental-records') }}" 
+         class="admin-nav-item {{ request()->routeIs('admin.sacramental-records') ? 'active' : '' }}"
+         data-title="Sacramental Records">
+        <span class="nav-icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+          </svg>
+        </span>
+        <span class="nav-label">Sacramental Records</span>
+      </a>
     </div>
-    <div class="nav-group">
-      <p class="nav-group-label">System</p>
-      <a href="{{ route('admin.notifications') }}" class="{{ request()->routeIs('admin.notifications') ? 'active' : '' }}"><svg class="nav-icon"><use href="#i-bell"/></svg><span>Notifications</span></a>
+
+    <!-- SYSTEM -->
+    <div class="nav-section">
+      <span class="nav-section-title">SYSTEM</span>
+      <a href="{{ route('admin.notifications') }}" 
+         class="admin-nav-item {{ request()->routeIs('admin.notifications') ? 'active' : '' }}"
+         data-title="Settings &amp; Notifications">
+        <span class="nav-icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </span>
+        <span class="nav-label">Settings</span>
+      </a>
     </div>
   </nav>
+
+  <!-- Sidebar Footer / Status Pill -->
+  <div class="sidebar-footer">
+    <div class="footer-status-card">
+      <div class="status-indicator-dot"></div>
+      <div class="status-text">
+        <span class="status-title">Diocesan Shrine &amp; Parish</span>
+        <span class="status-subtitle">Pilar, Sorsogon · Online</span>
+      </div>
+    </div>
+  </div>
 </aside>
+
+<style>
+  /* ===== Premium 2026 SaaS Sidebar ===== */
+  .admin-sidebar {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 14px 24px;
+    background: linear-gradient(180deg, #051d45 0%, #062657 40%, #051e44 100%);
+    color: #ffffff;
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), padding 0.25s ease;
+    z-index: 999;
+  }
+
+  .admin-sidebar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Header / Brand */
+  .sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 4px 6px 20px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+  }
+
+  .brand-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    min-width: 0;
+    transition: opacity 0.18s ease;
+  }
+
+  .brand-link:hover {
+    opacity: 0.92;
+  }
+
+  .brand-logo-wrap {
+    width: 46px;
+    height: 46px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.3));
+    transition: transform 0.2s ease;
+  }
+
+  .brand-link:hover .brand-logo-wrap {
+    transform: scale(1.06);
+  }
+
+  .brand-logo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  .brand-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .brand-title {
+    font-family: 'Libre Baskerville', Georgia, serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: #ffffff;
+    white-space: nowrap;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+  }
+
+  .brand-badge {
+    color: #e2ba64;
+    font-size: 8.5px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .sidebar-toggle {
+    width: 28px;
+    height: 28px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 7px;
+    background: rgba(255, 255, 255, 0.06);
+    color: #c9def5;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+  }
+
+  .sidebar-toggle:hover {
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #ffffff;
+  }
+
+  .sidebar-toggle svg {
+    width: 14px;
+    height: 14px;
+    transition: transform 0.25s ease;
+  }
+
+  /* Navigation Structure */
+  .sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    flex: 1;
+  }
+
+  .nav-section {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .nav-section-title {
+    padding: 6px 12px 4px;
+    color: #8bb3e8;
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    user-select: none;
+  }
+
+  /* Nav Items */
+  .admin-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    color: #c9ddf5;
+    text-decoration: none;
+    font-size: 12.5px;
+    font-weight: 500;
+    transition: all 0.16s ease;
+    position: relative;
+    user-select: none;
+  }
+
+  .admin-nav-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+    transform: translateX(2px);
+  }
+
+  /* Active Item: Sleek 2026 SaaS Pill */
+  .admin-nav-item.active {
+    background: rgba(255, 255, 255, 0.13);
+    color: #ffffff;
+    font-weight: 600;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.12), 0 2px 6px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Sleek Gold Left Accent Indicator */
+  .admin-nav-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 6px;
+    bottom: 6px;
+    width: 3.5px;
+    border-radius: 0 3px 3px 0;
+    background: #d8aa3c;
+    box-shadow: 0 0 8px rgba(216, 170, 60, 0.6);
+  }
+
+  .nav-icon-box {
+    width: 20px;
+    height: 20px;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+  }
+
+  .nav-icon-box svg {
+    width: 17px;
+    height: 17px;
+    transition: color 0.16s ease;
+  }
+
+  .admin-nav-item.active .nav-icon-box svg {
+    color: #f7d27e;
+  }
+
+  .nav-label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: -0.01em;
+  }
+
+  .nav-badge-pill {
+    margin-left: auto;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #f7d27e;
+    background: rgba(216, 170, 60, 0.16);
+    border: 1px solid rgba(216, 170, 60, 0.35);
+    padding: 1px 6px;
+    border-radius: 10px;
+    text-transform: uppercase;
+  }
+
+  /* Footer Status Card */
+  .sidebar-footer {
+    padding-top: 14px;
+    margin-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .footer-status-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .status-indicator-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #22c55e;
+    box-shadow: 0 0 6px rgba(34, 197, 94, 0.7);
+    flex-shrink: 0;
+  }
+
+  .status-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .status-title {
+    font-size: 10px;
+    font-weight: 700;
+    color: #e2eeff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .status-subtitle {
+    font-size: 9px;
+    color: #8bb3e8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* ===== Collapsed Sidebar Mode ===== */
+  .sidebar-collapsed .admin-sidebar {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .sidebar-collapsed .brand-info,
+  .sidebar-collapsed .nav-section-title,
+  .sidebar-collapsed .nav-label,
+  .sidebar-collapsed .nav-badge-pill,
+  .sidebar-collapsed .sidebar-footer {
+    display: none;
+  }
+
+  .sidebar-collapsed .sidebar-header {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 14px;
+  }
+
+  .sidebar-collapsed .brand-link {
+    display: flex;
+    justify-content: center;
+  }
+
+  .sidebar-collapsed .brand-logo-wrap {
+    width: 38px;
+    height: 38px;
+  }
+
+  .sidebar-collapsed .sidebar-toggle {
+    margin: 0 auto;
+  }
+
+  .sidebar-collapsed .sidebar-toggle svg {
+    transform: rotate(180deg);
+  }
+
+  .sidebar-collapsed .admin-nav-item {
+    justify-content: center;
+    padding: 10px 0;
+    border-radius: 9px;
+  }
+
+  .sidebar-collapsed .admin-nav-item.active::before {
+    display: none;
+  }
+
+  .sidebar-collapsed .admin-nav-item.active {
+    background: rgba(255, 255, 255, 0.18);
+    box-shadow: 0 0 0 2px var(--gold);
+  }
+
+  /* ===== Mobile Drawer Mode ===== */
+  @media (max-width: 900px) {
+    .admin-sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 275px;
+      transform: translateX(-100%);
+      transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 0 35px rgba(0, 0, 0, 0.5);
+    }
+
+    .admin-sidebar.mobile-open {
+      transform: translateX(0);
+    }
+
+    .sidebar-toggle {
+      display: none;
+    }
+  }
+</style>
