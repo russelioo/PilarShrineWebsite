@@ -62,7 +62,13 @@
         .profile-name{font-size:12px;font-weight:700;color:var(--navy);white-space:nowrap;max-width:170px;overflow:hidden;text-overflow:ellipsis}
         .profile-role{font-size:10px;color:var(--muted);white-space:nowrap}
         .avatar{width:36px;height:36px;display:grid;place-items:center;border-radius:50%;background:#eaf2fb;color:var(--navy);font-weight:800;overflow:hidden;flex-shrink:0}
-        .logout-button{padding:8px 13px;border:1px solid #d5dfe9;border-radius:6px;background:#fff;color:#8b2635;font-size:9px;font-weight:700;text-transform:uppercase;cursor:pointer;transition:background .15s,border-color .15s}
+        
+          .btn-topbar-website{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border:1px solid #ccd8e4;border-radius:6px;background:#f8fafc;color:var(--navy);font-size:11px;font-weight:700;text-decoration:none;transition:all .15s ease}
+          .btn-topbar-website:hover{background:#fff;border-color:var(--gold);color:var(--gold)}
+          .btn-topbar-website svg{color:var(--navy)}
+          .btn-topbar-website:hover svg{color:var(--gold)}
+
+          .logout-button{padding:8px 13px;border:1px solid #d5dfe9;border-radius:6px;background:#fff;color:#8b2635;font-size:9px;font-weight:700;text-transform:uppercase;cursor:pointer;transition:background .15s,border-color .15s}
         .logout-button:hover{border-color:#b64555;background:#fff7f8}
 
         /* ===== Disabled navigation items & Available Soon elements ===== */
@@ -114,7 +120,13 @@
             .date{margin-top:12px}
             .profile>div:last-child{display:none}
             .profile-actions{gap:8px}
-            .logout-button{padding:8px 10px}
+            
+          .btn-topbar-website{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border:1px solid #ccd8e4;border-radius:6px;background:#f8fafc;color:var(--navy);font-size:11px;font-weight:700;text-decoration:none;transition:all .15s ease}
+          .btn-topbar-website:hover{background:#fff;border-color:var(--gold);color:var(--gold)}
+          .btn-topbar-website svg{color:var(--navy)}
+          .btn-topbar-website:hover svg{color:var(--gold)}
+
+          .logout-button{padding:8px 10px}
         }
     </style>
 

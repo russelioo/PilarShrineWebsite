@@ -92,11 +92,12 @@ class GoogleAuthController extends Controller
                 return redirect('/#/complete-profile');
             }
 
-            // Redirect to appropriate dashboard based on role
+            // Redirect to appropriate destination based on role
+            // Parishioners return to the Official Public Website homepage
             return match ($existingUser->role) {
                 'admin' => redirect()->route('admin.dashboard'),
                 'staff' => redirect()->route('staff.dashboard'),
-                default => redirect()->route('parishioner.dashboard'),
+                default => redirect('/?login=success'),
             };
         }
 
@@ -128,7 +129,10 @@ class GoogleAuthController extends Controller
         if ($existingUser) {
             Auth::login($existingUser, true);
             $request->session()->regenerate();
-            return redirect()->route('parishioner.dashboard');
+            if (!$existingUser->isProfileComplete()) {
+                return redirect('/#/complete-profile');
+            }
+            return redirect('/?login=success');
         }
 
         return $this->registerGoogleUser($request, $pending);

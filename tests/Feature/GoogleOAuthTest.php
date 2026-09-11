@@ -89,7 +89,7 @@ class GoogleOAuthTest extends TestCase
         $this->assertTrue($existing->is_verified);
         $this->assertNotNull($existing->email_verified_at);
 
-        $response->assertRedirect(route('parishioner.dashboard'));
+        $response->assertRedirect('/?login=success');
     }
 
     public function test_google_callback_for_unregistered_user_on_login_auto_creates_account(): void
@@ -193,7 +193,7 @@ class GoogleOAuthTest extends TestCase
         $response->assertOk()
             ->assertJson([
                 'success' => true,
-                'redirect' => route('parishioner.dashboard'),
+                'redirect' => '/?welcome=1',
             ]);
 
         $user->refresh();

@@ -84,7 +84,7 @@ class ProfileCompletionController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Profile completed successfully!',
-            'redirect' => route('parishioner.dashboard'),
+            'redirect' => '/?welcome=1',
         ]);
     }
 }

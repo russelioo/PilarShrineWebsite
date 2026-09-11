@@ -33,7 +33,7 @@ class LoginController extends Controller
         $redirect = match ($user->role) {
             'admin' => route('admin.dashboard'),
             'staff' => route('staff.dashboard'),
-            default => route('parishioner.dashboard'),
+            default => '/?login=success',
         };
 
         return response()->json(['redirect' => $redirect]);

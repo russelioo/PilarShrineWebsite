@@ -1,6 +1,7 @@
 <script setup>
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import NavDropdown from '../Navigation/NavDropdown.vue'
+import UserNavDropdown from './UserNavDropdown.vue'
 import NavItem from '../Navigation/NavItem.vue'
 import { accountNavigation, isNavigationItemActive, primaryNavigation } from '../Navigation/navigationItems'
 import SiteButton from '../UI/SiteButton.vue'
@@ -14,6 +15,37 @@ const props = defineProps({
 const open = ref(false)
 const servicesOpen = ref(false)
 const root = ref(null)
+
+const authUser = ref(typeof window !== 'undefined' && window.__AUTH_USER__ ? window.__AUTH_USER__ : null)
+const csrfToken = computed(() => {
+  return typeof document !== 'undefined' ? (document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '') : ''
+})
+
+const getInitials = (name) => {
+  if (!name) return 'P'
+  const parts = String(name).trim().split(/\s+/)
+  if (parts.length >= 2) {
+    return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase()
+  }
+  return parts[0].charAt(0).toUpperCase()
+}
+
+const checkAuthStatus = async () => {
+  if (!authUser.value && typeof fetch !== 'undefined') {
+    try {
+      const res = await fetch('/api/user/profile-status', { headers: { 'Accept': 'application/json' } })
+      if (res.ok) {
+        const data = await res.json()
+        if (data.authenticated && data.user) {
+          authUser.value = data.user
+        }
+      }
+    } catch (e) {
+      // Guest
+    }
+  }
+}
+
 
 const closeNavigation = () => {
   open.value = false
@@ -39,6 +71,8 @@ watch(open, value => {
 })
 
 onMounted(() => {
+  checkAuthStatus()
+
   document.addEventListener('pointerdown', handleOutside)
   document.addEventListener('keydown', handleEscape)
 })
@@ -83,8 +117,13 @@ onBeforeUnmount(() => {
         />
       </template>
 
-      <!-- Auth Actions (Sign In & Prominent Create Account) -->
-      <div class="auth-actions" aria-label="Parish account">
+      <!-- Authenticated User Dropdown Menu -->
+      <div v-if="authUser" class="auth-actions" aria-label="Parishioner account">
+        <UserNavDropdown :user="authUser" @close-nav="closeNavigation" />
+      </div>
+
+      <!-- Guest Auth Actions (Sign In & Prominent Create Account) -->
+      <div v-else class="auth-actions" aria-label="Parish account">
         <SiteButton
           v-for="item in accountNavigation"
           :key="item.key"
@@ -359,4 +398,142 @@ onBeforeUnmount(() => {
     font-size: 8px;
   }
 }
+</style>
+
+<style scoped>
+
+/* Authenticated User Nav Actions */
+.auth-user-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-user-identity {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 10px 3px 3px;
+  border-radius: 20px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.nav-user-avatar {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  min-height: 28px;
+  max-width: 28px;
+  max-height: 28px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background: #062f78;
+  color: #fff;
+  border: 1.5px solid #d8aa3c;
+  flex-shrink: 0;
+}
+
+.nav-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.nav-avatar-initials {
+  font-size: 11px;
+  font-weight: 700;
+  font-family: Georgia, serif;
+}
+
+.nav-user-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: #062f78;
+  max-width: 130px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.btn-parish-account {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: linear-gradient(135deg, #062f78 0%, #0c4ea2 100%);
+  color: #ffffff !important;
+  border: 1px solid #d8aa3c;
+  box-shadow: 0 3px 10px rgba(6, 47, 120, 0.2);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  font-size: 11px;
+  text-transform: uppercase;
+  padding: 0 16px;
+  height: 38px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+
+.btn-parish-account:hover {
+  background: linear-gradient(135deg, #083b94 0%, #0e5dbf 100%);
+  box-shadow: 0 5px 14px rgba(6, 47, 120, 0.3);
+  transform: translateY(-1px);
+}
+
+.btn-parish-account svg {
+  color: #f6d588;
+}
+
+.nav-logout-form {
+  margin: 0;
+  padding: 0;
+  display: inline-flex;
+}
+
+.nav-logout-btn {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+
+.nav-logout-btn:hover {
+  background: #fef2f2;
+  border-color: #fca5a5;
+  color: #dc2626;
+}
+
+@media (max-width: 1050px) {
+  .auth-user-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    margin-left: 0;
+    padding-top: 12px;
+    border-top: 1px solid #e2e8f0;
+  }
+  .nav-user-identity {
+    justify-content: center;
+  }
+  .btn-parish-account, .nav-logout-btn {
+    width: 100%;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+}
+
 </style>

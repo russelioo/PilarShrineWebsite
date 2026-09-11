@@ -279,7 +279,7 @@ const saveCompleteProfile = async () => {
 
     profileSuccess.value = true
     setTimeout(() => {
-      window.location.assign(data.redirect || '/parishioner/dashboard')
+      window.location.assign(data.redirect || '/?welcome=1')
     }, 1200)
   } catch (err) {
     console.error('Profile completion failed:', err)
@@ -590,7 +590,7 @@ const login = async () => {
       return
     }
 
-    window.location.assign(data.redirect || '/admin/dashboard')
+    window.location.assign(data.redirect || '/?login=success')
   } catch (err) {
     console.error('Sign-in request failed:', err)
     error.value = 'Unable to connect to the parish server. Please refresh the page (press F5 or Ctrl+F5) and try again.'
@@ -1457,7 +1457,7 @@ const register = async () => {
             <svg class="alert-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
               <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
             </svg>
-            <span>Profile completed successfully! Redirecting to parishioner portal...</span>
+            <span>Profile completed successfully! Welcome to Our Lady of the Pillar Parish.</span>
           </div>
 
           <!-- Error Alert -->
@@ -1862,3 +1862,31 @@ const register = async () => {
 
 <style src="../auth.css"></style>
 
+
+<style scoped>
+
+.profile-req-checklist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.req-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #64748b;
+}
+.req-chip.done {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+  color: #065f46;
+}
+
+</style>

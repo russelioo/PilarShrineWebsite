@@ -36,10 +36,71 @@ onMounted(() => {
 })
 onUnmounted(() => clearInterval(livestreamTimer))
 
+
+const welcomeNotification = ref(null)
+
+const checkNotification = () => {
+  if (typeof window === 'undefined') return
+  const urlParams = new URLSearchParams(window.location.search)
+  if (urlParams.has('welcome') || urlParams.has('registered')) {
+    welcomeNotification.value = {
+      type: 'success',
+      title: 'Welcome to Our Lady of the Pillar Parish!',
+      message: 'Your parishioner account has been created successfully.',
+      showPortalLink: true,
+    }
+    urlParams.delete('welcome')
+    urlParams.delete('registered')
+    const newUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '') + window.location.hash
+    window.history.replaceState({}, '', newUrl)
+  } else if (urlParams.has('login')) {
+    const userName = window.__AUTH_USER__?.name || 'Parishioner'
+    welcomeNotification.value = {
+      type: 'info',
+      title: `Welcome back, ${userName}!`,
+      message: 'You are signed in to Our Lady of the Pillar Parish.',
+      showPortalLink: true,
+    }
+    urlParams.delete('login')
+    const newUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '') + window.location.hash
+    window.history.replaceState({}, '', newUrl)
+  }
+}
+
+onMounted(() => {
+  checkNotification()
+})
+
 const currentPage = computed(() => getPublicPage(route.value))
 </script>
 
 <template>
+  <!-- Subtle Floating Welcome / Login Notice for Official Website -->
+  <transition name="banner-slide">
+    <div v-if="welcomeNotification" class="public-welcome-toast" role="status">
+      <div class="toast-card page-width">
+        <div class="toast-main">
+          <div class="toast-badge-icon">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+          </div>
+          <div class="toast-copy">
+            <strong>{{ welcomeNotification.title }}</strong>
+            <p>{{ welcomeNotification.message }}</p>
+          </div>
+        </div>
+        <div class="toast-actions">
+          <a v-if="welcomeNotification.showPortalLink" href="/portal" class="toast-portal-link">
+            My Parish Account &rarr;
+          </a>
+          <button type="button" class="toast-dismiss-btn" @click="welcomeNotification = null" aria-label="Close notification">&times;</button>
+        </div>
+      </div>
+    </div>
+  </transition>
+
   <!-- Authentication Portal (Login / Register / Profile Completion) with Unified Header and Footer -->
   <SiteLayout
     v-if="route === 'login' || route === 'register' || route === 'complete-profile'"

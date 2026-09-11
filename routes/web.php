@@ -51,6 +51,11 @@ Route::post('/api/parishioner/complete-profile', [ProfileCompletionController::c
     ->middleware('auth')
     ->name('parishioner.complete-profile');
 
+
+Route::get('/portal', function () {
+    return redirect()->route('parishioner.dashboard');
+})->middleware('auth')->name('portal');
+
 Route::prefix('parishioner')->name('parishioner.')->middleware('auth')->group(function () {
     Route::view('/dashboard', 'parishioner.dashboard')->name('dashboard');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

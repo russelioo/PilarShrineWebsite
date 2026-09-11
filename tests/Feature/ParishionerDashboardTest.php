@@ -116,4 +116,30 @@ class ParishionerDashboardTest extends TestCase
         $response->assertSee('Active Sacrament Requests');
         $response->assertSee('Active Mass Intentions');
     }
+
+    public function test_portal_route_redirects_authenticated_user_to_dashboard(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->get('/portal');
+
+        $response->assertRedirect(route('parishioner.dashboard'));
+    }
+
+    public function test_portal_route_redirects_guest_to_login(): void
+    {
+        $response = $this->get('/portal');
+
+        $response->assertRedirect('/login');
+    }
+
+    public function test_parishioner_logout_redirects_to_official_website(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->post('/parishioner/logout');
+
+        $response->assertRedirect('/');
+        $this->assertGuest();
+    }
 }
