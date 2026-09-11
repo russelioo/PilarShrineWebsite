@@ -389,30 +389,45 @@ const login = async () => {
   loading.value = true
 
   try {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? ''
     const response = await fetch('/login', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ?? '',
+        'X-CSRF-TOKEN': csrfToken,
       },
       body: JSON.stringify({
-        email: email.value,
+        email: email.value.trim(),
         password: password.value,
         remember: remember.value,
       }),
     })
 
-    const data = await response.json()
+    let data = {}
+    try {
+      data = await response.json()
+    } catch {
+      // Response was not JSON (e.g. HTML 419 session expired or 500 error)
+    }
 
     if (!response.ok) {
+      if (response.status === 419) {
+        error.value = 'Your security session has expired. Please refresh the page (press F5 or Ctrl+F5) and try signing in again.'
+        return
+      }
+      if (response.status === 500) {
+        error.value = 'A parish server error occurred. Please refresh and try again shortly.'
+        return
+      }
       error.value = data.errors?.email?.[0] ?? data.message ?? 'The provided credentials do not match our parish records.'
       return
     }
 
-    window.location.assign(data.redirect)
-  } catch {
-    error.value = 'Unable to connect to the parish server. Please check your network and try again.'
+    window.location.assign(data.redirect || '/admin/dashboard')
+  } catch (err) {
+    console.error('Sign-in request failed:', err)
+    error.value = 'Unable to connect to the parish server. Please refresh the page (press F5 or Ctrl+F5) and try again.'
   } finally {
     loading.value = false
   }
@@ -476,9 +491,18 @@ const register = async () => {
       }),
     })
 
-    const data = await response.json()
+    let data = {}
+    try {
+      data = await response.json()
+    } catch {
+      // Response was not JSON
+    }
 
     if (!response.ok) {
+      if (response.status === 419) {
+        regError.value = 'Your security session has expired. Please refresh the page (press F5 or Ctrl+F5) and try again.'
+        return
+      }
       if (data.errors) {
         regErrors.value = data.errors
         const firstErrorKey = Object.keys(data.errors)[0]
@@ -494,7 +518,8 @@ const register = async () => {
       window.location.hash = '/login'
     }, 1500)
   } catch (err) {
-    regError.value = 'Unable to connect to the parish server. Please check your network connection and try again.'
+    console.error('Registration failed:', err)
+    regError.value = 'Unable to connect to the parish server. Please refresh the page (press F5 or Ctrl+F5) and try again.'
   } finally {
     regLoading.value = false
   }
