@@ -2145,6 +2145,9 @@ body .schedule-hero::before {
   border-radius: 14px;
   background: linear-gradient(135deg, #f0f6fc 0%, #f7fbff 100%);
   box-shadow: 0 4px 18px rgba(10, 55, 127, .06);
+  max-width: 1060px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .notice-icon {
@@ -2177,10 +2180,9 @@ body .schedule-hero::before {
 
 /* Schedule Layout */
 .schedule-page .schedule-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(350px, .85fr);
-  gap: 36px;
-  align-items: start;
+  display: block;
+  max-width: 1060px;
+  margin: 0 auto;
   padding: 0;
 }
 
@@ -2613,12 +2615,11 @@ body .sacraments-hero::before {
   color: #b88628;
 }
 
-/* Two-Column Detail Layout */
+/* Sacramental Detail Layout (Full Width Focused) */
 .sacraments-detail-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1.22fr) minmax(340px, .78fr);
-  gap: 34px;
-  align-items: start;
+  display: block;
+  max-width: 1060px;
+  margin: 0 auto;
 }
 
 /* Left Column: Sacrament Main Card */
@@ -4745,12 +4746,8 @@ details[open] .accordion-icon::after {
   }
 
   .schedule-page .schedule-layout {
-    grid-template-columns: 1fr;
-    gap: 36px;
-  }
-
-  .schedule-sidebar {
-    position: static;
+    display: block;
+    max-width: 100%;
   }
 
   .sacraments-tabs {

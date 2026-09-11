@@ -1,5 +1,4 @@
 <script setup>
-const altar = '/images/pilar-shrine-sanctuary.jpg'
 </script>
 
 <template>
@@ -140,56 +139,6 @@ const altar = '/images/pilar-shrine-sanctuary.jpg'
           </article>
         </div>
 
-        <!-- Right Column: Supporting Shrine Visual & Parish Office Panel -->
-        <aside class="schedule-sidebar">
-          <!-- Shrine Visual Card -->
-          <div class="sidebar-visual-card">
-            <img :src="altar" alt="Sanctuary and Altar of Our Lady of the Pillar Shrine">
-            <div class="sidebar-visual-caption">
-              <span>Our Place of Worship</span>
-              <strong>Our Lady of the Pillar Shrine</strong>
-              <small>Diocesan Shrine &amp; Parish · Pilar, Sorsogon</small>
-            </div>
-          </div>
-
-          <!-- Parish Office Supporting Panel -->
-          <div class="parish-office-card">
-            <div class="office-header">
-              <span class="section-eyebrow">Parish Information</span>
-              <h3>Parish Office &amp; Services</h3>
-            </div>
-            <p class="office-desc">For Mass intentions, certificate requests, or sacrament inquiries, please visit or contact our parish office.</p>
-            
-            <div class="office-meta-list">
-              <div class="office-meta-item">
-                <span class="meta-icon" aria-hidden="true">⌖</span>
-                <div>
-                  <b>Location</b>
-                  <span>Binanuahan, Pilar, Sorsogon</span>
-                </div>
-              </div>
-              <div class="office-meta-item">
-                <span class="meta-icon" aria-hidden="true">☏</span>
-                <div>
-                  <b>Contact Number</b>
-                  <span>0946-869-1254</span>
-                </div>
-              </div>
-              <div class="office-meta-item">
-                <span class="meta-icon" aria-hidden="true">✉</span>
-                <div>
-                  <b>Email Address</b>
-                  <span>olppspilarsorsogon@gmail.com</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="office-actions">
-              <a class="button" href="#/forms">Request Mass Intention</a>
-              <a class="button secondary" href="#/sacraments">Sacrament Requirements</a>
-            </div>
-          </div>
-        </aside>
       </div>
     </div>
   </div>

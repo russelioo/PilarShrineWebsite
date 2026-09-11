@@ -1,8 +1,6 @@
 <script setup>
 import { computed, ref } from 'vue'
 
-const altar = '/images/pilar-shrine-sanctuary.jpg'
-
 const sacramentOptions = [
   {
     name: 'Baptism',
@@ -234,59 +232,6 @@ const selectedSacrament = computed(() => sacramentOptions[selectedSacramentIndex
             </div>
           </div>
         </article>
-
-        <!-- Right Column: Shrine Sanctuary Visual & Parish Office Panel -->
-        <aside class="sacrament-sidebar">
-          <!-- Framed Altar Visual Card -->
-          <div class="sidebar-visual-card">
-            <img :src="altar" alt="Altar and Sanctuary of Our Lady of the Pillar Diocesan Shrine">
-            <div class="sidebar-visual-caption">
-              <span>Sanctuary of Grace</span>
-              <strong>Diocesan Shrine Sanctuary</strong>
-              <small>Our Lady of the Pillar Parish · Binanuahan, Pilar</small>
-            </div>
-          </div>
-
-          <!-- Parish Office Supporting Panel -->
-          <div class="parish-office-card">
-            <div class="office-header">
-              <span class="section-eyebrow">Parish Information</span>
-              <h3>Parish Office &amp; Services</h3>
-            </div>
-            <p class="office-desc">
-              To register for sacraments, request canonical certificates, or schedule counseling and seminars, please visit or contact our parish office.
-            </p>
-
-            <div class="office-meta-list">
-              <div class="office-meta-item">
-                <span class="meta-icon" aria-hidden="true">⌖</span>
-                <div>
-                  <b>Location</b>
-                  <span>Binanuahan, Pilar, Sorsogon</span>
-                </div>
-              </div>
-              <div class="office-meta-item">
-                <span class="meta-icon" aria-hidden="true">☏</span>
-                <div>
-                  <b>Contact Number</b>
-                  <span>0946-869-1254</span>
-                </div>
-              </div>
-              <div class="office-meta-item">
-                <span class="meta-icon" aria-hidden="true">✉</span>
-                <div>
-                  <b>Email Address</b>
-                  <span>olppspilarsorsogon@gmail.com</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="office-actions">
-              <a class="button" href="#/forms">Request Form / Certificate</a>
-              <a class="button secondary" href="#/contact">Contact Parish Office</a>
-            </div>
-          </div>
-        </aside>
       </div>
     </div>
   </div>
