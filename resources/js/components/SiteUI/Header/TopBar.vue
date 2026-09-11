@@ -1,7 +1,7 @@
 <template>
   <div class="top-strip">
     <a href="tel:+639468691254">☎ <span>0946-869-1254</span></a>
-    <a href="mailto:olppspilarsorsogon@gmail.com">✉ <span>olppspilarsorsogon@gmail.com</span></a>
+    <a href="https://mail.google.com/mail/?view=cm&fs=1&to=olppspilarsorsogon@gmail.com&su=Parish%20Inquiry%20-%20Pilar%20Shrine" target="_blank" rel="noopener noreferrer" title="Compose message in Gmail">✉ <span>olppspilarsorsogon@gmail.com</span></a>
     <span>⌖ Binanuahan, Pilar, Sorsogon</span>
     <div class="socials" aria-label="Official social media channels">
       <a

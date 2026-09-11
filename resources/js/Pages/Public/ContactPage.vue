@@ -1,23 +1,61 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
-const formData = ref({
-  name: '',
-  email: '',
-  phone: '',
-  subject: '',
-  message: '',
+const parishEmail = 'olppspilarsorsogon@gmail.com'
+const isCopied = ref(false)
+const selectedTopic = ref('General Parish Inquiry')
+
+const topics = [
+  'General Parish Inquiry',
+  'Sacraments & Certificate Request',
+  'Mass Intention Follow-up',
+  'Pilgrimage & Group Visitation',
+  'Donation & Shrine Support',
+  'Pastoral Care & Sick Call Request',
+]
+
+const subjectParam = computed(() => {
+  return encodeURIComponent(`${selectedTopic.value} - Pilar Shrine`)
 })
 
-const isSubmitted = ref(false)
+const gmailUrl = computed(() => {
+  return `https://mail.google.com/mail/?view=cm&fs=1&to=${parishEmail}&su=${subjectParam.value}`
+})
 
-const handleSubmit = () => {
-  if (!formData.value.name || !formData.value.message) return
-  isSubmitted.value = true
-  setTimeout(() => {
-    formData.value = { name: '', email: '', phone: '', subject: '', message: '' }
-    isSubmitted.value = false
-  }, 4000)
+const yahooUrl = computed(() => {
+  return `https://compose.mail.yahoo.com/?to=${parishEmail}&subj=${subjectParam.value}`
+})
+
+const outlookUrl = computed(() => {
+  return `https://outlook.live.com/mail/0/deeplink/compose?to=${parishEmail}&subject=${subjectParam.value}`
+})
+
+const defaultMailUrl = computed(() => {
+  return `mailto:${parishEmail}?subject=${subjectParam.value}`
+})
+
+const copyEmail = async () => {
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(parishEmail)
+    } else {
+      const el = document.createElement('textarea')
+      el.value = parishEmail
+      el.setAttribute('readonly', '')
+      el.style.position = 'absolute'
+      el.style.left = '-9999px'
+      document.body.appendChild(el)
+      el.select()
+      document.execCommand('copy')
+      document.body.removeChild(el)
+    }
+    isCopied.value = true
+    setTimeout(() => {
+      isCopied.value = false
+    }, 2500)
+  } catch (err) {
+    console.error('Failed to copy email:', err)
+  }
 }
 </script>
 
@@ -59,8 +97,31 @@ const handleSubmit = () => {
               <div class="card-icon" aria-hidden="true">✉</div>
               <div class="card-content">
                 <h3>Electronic Mail</h3>
-                <p><a href="mailto:olppspilarsorsogon@gmail.com">olppspilarsorsogon@gmail.com</a></p>
-                <span class="sub-text">Inquiries, records, and administrative communications</span>
+                <p>
+                  <a
+                    :href="gmailUrl"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="email-main-link"
+                    title="Click to compose directly in Gmail"
+                  >
+                    {{ parishEmail }}
+                  </a>
+                </p>
+                <div class="card-email-pills">
+                  <a :href="gmailUrl" target="_blank" rel="noopener noreferrer" class="provider-chip gmail-chip" title="Compose in Gmail">
+                    <span>Gmail</span>
+                    <span class="chip-arrow" aria-hidden="true">↗</span>
+                  </a>
+                  <a :href="yahooUrl" target="_blank" rel="noopener noreferrer" class="provider-chip yahoo-chip" title="Compose in Yahoo Mail">
+                    <span>Yahoo</span>
+                    <span class="chip-arrow" aria-hidden="true">↗</span>
+                  </a>
+                  <button type="button" @click="copyEmail" class="provider-chip copy-chip" :title="isCopied ? 'Copied' : 'Copy address'">
+                    <span>{{ isCopied ? 'Copied! ✓' : 'Copy 📋' }}</span>
+                  </button>
+                </div>
+                <span class="sub-text">Direct email redirection for inquiries, records, and administrative communications</span>
               </div>
             </div>
 
@@ -101,85 +162,184 @@ const handleSubmit = () => {
           </div>
         </div>
 
-        <!-- Contact Form Side -->
+        <!-- Direct Email Redirection Hub Side -->
         <div class="contact-form-panel">
-          <div class="form-container-card">
+          <div class="form-container-card email-hub-card">
             <div class="form-card-header">
-              <h3>Send us a Message</h3>
-              <p>Fill out this form and our parish staff will respond to your inquiry.</p>
+              <div class="email-hub-tag">
+                <span class="hub-spark" aria-hidden="true">✦</span>
+                <span>Direct Email Redirection</span>
+              </div>
+              <h3 class="email-hub-title">Email Our Parish Office</h3>
+              <p>
+                Click your preferred email service below to be directed straight to your compose screen addressed to
+                <strong class="email-highlight">{{ parishEmail }}</strong>.
+              </p>
             </div>
 
-            <div v-if="isSubmitted" class="alert-success" role="alert">
-              <span class="success-icon">✓</span>
-              <div>
-                <strong>Thank you for contacting us!</strong>
-                <p>Your message has been received. Our parish office will get back to you shortly.</p>
-              </div>
-            </div>
-
-            <form v-else class="contact-inquiry-form" @submit.prevent="handleSubmit">
-              <div class="form-group">
-                <label for="contact-name">Full Name <span class="required">*</span></label>
-                <input
-                  id="contact-name"
-                  v-model="formData.name"
-                  type="text"
-                  placeholder="e.g. Juan dela Cruz"
-                  required
-                />
-              </div>
-
-              <div class="form-row two-col">
-                <div class="form-group">
-                  <label for="contact-email">Email Address</label>
-                  <input
-                    id="contact-email"
-                    v-model="formData.email"
-                    type="email"
-                    placeholder="your.email@example.com"
-                  />
-                </div>
-                <div class="form-group">
-                  <label for="contact-phone">Phone Number</label>
-                  <input
-                    id="contact-phone"
-                    v-model="formData.phone"
-                    type="tel"
-                    placeholder="09XX XXX XXXX"
-                  />
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label for="contact-subject">Subject</label>
-                <select id="contact-subject" v-model="formData.subject">
-                  <option value="" disabled selected>Select a subject</option>
-                  <option value="General Inquiry">General Inquiry</option>
-                  <option value="Sacraments / Certificates">Sacrament Inquiries or Certificate Request</option>
-                  <option value="Mass Intentions">Mass Intention Follow-up</option>
-                  <option value="Pilgrimage & Group Visit">Pilgrimage & Group Visitation</option>
-                  <option value="Donation & Shrine Support">Donations & Shrine Support</option>
-                  <option value="Pastoral Care">Pastoral Counseling or Home Visitation</option>
+            <!-- Optional Topic / Subject Selection -->
+            <div class="topic-selector-box">
+              <label for="topic-select" class="topic-label">
+                <span class="topic-label-text">Select Inquiry Topic</span>
+                <span class="topic-label-hint">(Pre-fills subject line)</span>
+              </label>
+              <div class="topic-select-wrap">
+                <select id="topic-select" v-model="selectedTopic" class="topic-select">
+                  <option v-for="t in topics" :key="t" :value="t">{{ t }}</option>
                 </select>
               </div>
+            </div>
 
-              <div class="form-group">
-                <label for="contact-message">Message <span class="required">*</span></label>
-                <textarea
-                  id="contact-message"
-                  v-model="formData.message"
-                  rows="5"
-                  placeholder="How can our parish community assist you?"
-                  required
-                ></textarea>
+            <!-- Email Providers List -->
+            <div class="email-providers-stack">
+              <!-- 1. Google Gmail (Recommended) -->
+              <a
+                :href="gmailUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="provider-btn-card gmail-provider"
+                title="Compose directly in Google Gmail"
+              >
+                <div class="provider-brand-badge gmail-badge">
+                  <svg viewBox="0 0 24 24" width="28" height="28" fill="none" aria-hidden="true">
+                    <path d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6zm-2 0l-8 5-8-5h16zm0 12H4V8l8 5 8-5v10z" fill="#EA4335"/>
+                  </svg>
+                </div>
+                <div class="provider-info">
+                  <div class="provider-name-row">
+                    <span class="provider-title">Google Gmail</span>
+                    <span class="recommended-badge">Recommended</span>
+                  </div>
+                  <span class="provider-desc">Directly opens Gmail compose in a new tab or app</span>
+                </div>
+                <div class="provider-action">
+                  <span>Open Gmail</span>
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                  </svg>
+                </div>
+              </a>
+
+              <!-- 2. Yahoo Mail -->
+              <a
+                :href="yahooUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="provider-btn-card yahoo-provider"
+                title="Compose in Yahoo Mail"
+              >
+                <div class="provider-brand-badge yahoo-badge">
+                  <svg viewBox="0 0 24 24" width="28" height="28" fill="none" aria-hidden="true">
+                    <rect width="24" height="24" rx="6" fill="#6001D2"/>
+                    <path d="M7 6.5L10.5 13V18H13.5V13L17 6.5H13.8L12 10.5L10.2 6.5H7ZM18.5 15.5C18.5 16.3 17.8 17 17 17C16.2 17 15.5 16.3 15.5 15.5C15.5 14.7 16.2 14 17 14C17.8 14 18.5 14.7 18.5 15.5Z" fill="white"/>
+                  </svg>
+                </div>
+                <div class="provider-info">
+                  <div class="provider-name-row">
+                    <span class="provider-title">Yahoo Mail</span>
+                  </div>
+                  <span class="provider-desc">Direct compose in Yahoo Mail web client</span>
+                </div>
+                <div class="provider-action">
+                  <span>Open Yahoo</span>
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                  </svg>
+                </div>
+              </a>
+
+              <!-- 3. Outlook / Hotmail -->
+              <a
+                :href="outlookUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="provider-btn-card outlook-provider"
+                title="Compose in Microsoft Outlook"
+              >
+                <div class="provider-brand-badge outlook-badge">
+                  <svg viewBox="0 0 24 24" width="28" height="28" fill="none" aria-hidden="true">
+                    <rect width="24" height="24" rx="6" fill="#0078D4"/>
+                    <path d="M7 6H17C17.55 6 18 6.45 18 7V17C18 17.55 17.55 18 17 18H7C6.45 18 6 17.55 6 17V7C6 6.45 6.45 6 7 6Z" stroke="white" stroke-width="1.5"/>
+                    <path d="M6 7.5L12 12L18 7.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <div class="provider-info">
+                  <div class="provider-name-row">
+                    <span class="provider-title">Outlook / Hotmail</span>
+                  </div>
+                  <span class="provider-desc">Direct compose in Microsoft Outlook.com</span>
+                </div>
+                <div class="provider-action">
+                  <span>Open Outlook</span>
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                  </svg>
+                </div>
+              </a>
+
+              <!-- 4. Default Mail Client (mailto) -->
+              <a
+                :href="defaultMailUrl"
+                class="provider-btn-card default-provider"
+                title="Open system default email client"
+              >
+                <div class="provider-brand-badge default-badge">
+                  <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                    <polyline points="22,6 12,13 2,6"></polyline>
+                  </svg>
+                </div>
+                <div class="provider-info">
+                  <div class="provider-name-row">
+                    <span class="provider-title">Default Email App</span>
+                  </div>
+                  <span class="provider-desc">Open Apple Mail, Windows Mail, Thunderbird, etc.</span>
+                </div>
+                <div class="provider-action">
+                  <span>Open App</span>
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                  </svg>
+                </div>
+              </a>
+            </div>
+
+            <!-- Copy Address Bar -->
+            <div class="copy-address-container">
+              <div class="copy-helper-label">Or copy address manually:</div>
+              <div class="copy-address-bar">
+                <span class="copy-email-code">{{ parishEmail }}</span>
+                <button
+                  type="button"
+                  class="copy-action-btn"
+                  :class="{ copied: isCopied }"
+                  @click="copyEmail"
+                >
+                  <svg v-if="!isCopied" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                  <svg v-else viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                  <span>{{ isCopied ? 'Copied to Clipboard! ✓' : 'Copy Email' }}</span>
+                </button>
               </div>
+            </div>
 
-              <button type="submit" class="button submit-btn">
-                <span>Send Message</span>
-                <span aria-hidden="true">➤</span>
-              </button>
-            </form>
+            <!-- Secretariat Office Notice -->
+            <div class="secretariat-notice">
+              <span class="notice-icon" aria-hidden="true">ℹ</span>
+              <p>
+                Emails are attended to during parish office hours (Mon, Wed–Sat 8:00 AM – 5:00 PM; Sun 8:30 AM – 12:00 NN). For emergency sick calls or viaticum, call directly at <a href="tel:+639468691254">0946-869-1254</a>.
+              </p>
+            </div>
 
+            <!-- Quick Services Footer -->
             <div class="quick-links-footer">
               <span class="quick-title">Quick Services:</span>
               <div class="quick-tags">
@@ -322,147 +482,387 @@ const handleSubmit = () => {
   font-weight: 500;
 }
 
-/* Form Panel */
-.form-container-card {
+/* Left Card Email Action Pills */
+.card-email-pills {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 6px 0 8px;
+  flex-wrap: wrap;
+}
+
+.provider-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 14px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-decoration: none;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #0e325f;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.provider-chip:hover {
+  transform: translateY(-1px);
+}
+
+.gmail-chip:hover {
+  border-color: #ea4335;
+  color: #ea4335;
+  background: #fff5f5;
+}
+
+.yahoo-chip:hover {
+  border-color: #6001d2;
+  color: #6001d2;
+  background: #faf5ff;
+}
+
+.copy-chip:hover {
+  border-color: #0e325f;
+  color: #0e325f;
+  background: #eef4fb;
+}
+
+/* Email Hub Card */
+.email-hub-card {
   background: #ffffff;
-  border-radius: 16px;
+  border-radius: 18px;
   border: 1px solid rgba(14, 50, 95, 0.1);
-  box-shadow: 0 10px 30px rgba(14, 50, 95, 0.07);
+  box-shadow: 0 12px 36px rgba(14, 50, 95, 0.08);
   padding: 2.25rem;
 }
 
 @media (max-width: 640px) {
-  .form-container-card {
+  .email-hub-card {
     padding: 1.5rem;
   }
 }
 
 .form-card-header {
-  margin-bottom: 1.75rem;
+  margin-bottom: 1.5rem;
   border-bottom: 1px solid rgba(14, 50, 95, 0.08);
   padding-bottom: 1.25rem;
 }
 
-.form-card-header h3 {
+.email-hub-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fbf5e6;
+  border: 1px solid rgba(216, 170, 60, 0.4);
+  color: #8c6819;
+  font-size: 0.725rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 20px;
+  margin-bottom: 0.75rem;
+}
+
+.hub-spark {
+  color: #d8aa3c;
+  font-size: 0.8rem;
+}
+
+.email-hub-title {
   font-family: var(--font-serif, "Cinzel", "Playfair Display", Georgia, serif);
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   color: var(--blue, #0e325f);
-  margin: 0 0 0.35rem;
+  margin: 0 0 0.4rem;
 }
 
 .form-card-header p {
   font-size: 0.9375rem;
   color: var(--text-muted, #55687d);
+  line-height: 1.55;
   margin: 0;
 }
 
-.alert-success {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  background: #ecfdf5;
-  border: 1px solid #10b981;
-  color: #065f46;
-  padding: 1.25rem 1.5rem;
-  border-radius: 10px;
+.email-highlight {
+  color: #0e325f;
+  background: #f1f5f9;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.95em;
+  font-weight: 700;
+}
+
+/* Topic Selector */
+.topic-selector-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 16px;
   margin-bottom: 1.5rem;
 }
 
-.success-icon {
-  font-size: 1.5rem;
-  font-weight: bold;
-  background: #10b981;
-  color: #fff;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-}
-
-.contact-inquiry-form {
+.topic-label {
   display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
 }
 
-.form-row.two-col {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1.25rem;
+.topic-label-text {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #0e325f;
 }
 
-@media (min-width: 640px) {
-  .form-row.two-col {
-    grid-template-columns: 1fr 1fr;
-  }
+.topic-label-hint {
+  font-size: 0.75rem;
+  color: #64748b;
 }
 
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
-}
-
-.form-group label {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--blue, #0e325f);
-}
-
-.required {
-  color: #dc2626;
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea {
+.topic-select {
   width: 100%;
-  padding: 0.75rem 1rem;
-  font-size: 0.9375rem;
+  padding: 10px 14px;
+  font-size: 0.9rem;
   font-family: inherit;
   border: 1px solid #cbd5e1;
   border-radius: 8px;
-  background: #f8fafc;
-  color: #1e293b;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  background: #ffffff;
+  color: #0e325f;
+  font-weight: 600;
+  cursor: pointer;
   box-sizing: border-box;
 }
 
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
+.topic-select:focus {
   outline: none;
-  background: #ffffff;
-  border-color: var(--bright, #1b5cb8);
+  border-color: #1b5cb8;
   box-shadow: 0 0 0 3px rgba(27, 92, 184, 0.15);
 }
 
-.submit-btn {
+/* Providers Stack */
+.email-providers-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  margin-bottom: 1.5rem;
+}
+
+.provider-btn-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.provider-btn-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(14, 50, 95, 0.08);
+}
+
+.provider-brand-badge {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: #f8fafc;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.gmail-provider {
+  border-color: rgba(234, 67, 53, 0.3);
+  background: linear-gradient(135deg, #ffffff 0%, #fffcfc 100%);
+}
+
+.gmail-provider:hover {
+  border-color: #ea4335;
+  box-shadow: 0 10px 24px rgba(234, 67, 53, 0.12);
+}
+
+.gmail-provider:hover .provider-action {
+  background: #ea4335;
+  color: #ffffff;
+}
+
+.yahoo-provider:hover {
+  border-color: #6001d2;
+  box-shadow: 0 10px 24px rgba(96, 1, 210, 0.12);
+}
+
+.yahoo-provider:hover .provider-action {
+  background: #6001d2;
+  color: #ffffff;
+}
+
+.outlook-provider:hover {
+  border-color: #0078d4;
+  box-shadow: 0 10px 24px rgba(0, 120, 212, 0.12);
+}
+
+.outlook-provider:hover .provider-action {
+  background: #0078d4;
+  color: #ffffff;
+}
+
+.default-provider:hover {
+  border-color: #0e325f;
+  box-shadow: 0 10px 24px rgba(14, 50, 95, 0.12);
+}
+
+.default-provider:hover .provider-action {
+  background: #0e325f;
+  color: #ffffff;
+}
+
+.provider-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.provider-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.provider-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0e325f;
+}
+
+.recommended-badge {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 12px;
+  letter-spacing: 0.04em;
+}
+
+.provider-desc {
+  font-size: 0.8125rem;
+  color: #64748b;
+  line-height: 1.35;
+}
+
+.provider-action {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  width: 100%;
-  padding: 0.875rem 1.5rem;
-  font-size: 1rem;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 20px;
+  background: #f1f5f9;
+  color: #0e325f;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+/* Copy Address Bar */
+.copy-address-container {
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 1.25rem;
+}
+
+.copy-helper-label {
+  font-size: 0.75rem;
   font-weight: 600;
-  background: var(--blue, #0e325f);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  margin-bottom: 6px;
+}
+
+.copy-address-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.copy-email-code {
+  font-family: monospace;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #0e325f;
+}
+
+.copy-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: #0e325f;
   color: #ffffff;
   border: none;
   border-radius: 8px;
+  font-size: 0.8125rem;
+  font-weight: 600;
   cursor: pointer;
-  margin-top: 0.5rem;
-  transition: background 0.2s ease, transform 0.15s ease;
+  transition: all 0.2s ease;
 }
 
-.submit-btn:hover {
-  background: var(--bright, #1b5cb8);
-  transform: translateY(-1px);
+.copy-action-btn:hover {
+  background: #1b5cb8;
 }
 
+.copy-action-btn.copied {
+  background: #10b981;
+}
+
+/* Notice */
+.secretariat-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 10px;
+  padding: 12px 14px;
+  color: #1e40af;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+.notice-icon {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #2563eb;
+  flex-shrink: 0;
+}
+
+.secretariat-notice a {
+  color: #1d4ed8;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+/* Quick Services Footer */
 .quick-links-footer {
-  margin-top: 2rem;
+  margin-top: 1.5rem;
   padding-top: 1.25rem;
   border-top: 1px dashed rgba(14, 50, 95, 0.15);
   display: flex;

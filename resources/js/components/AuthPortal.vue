@@ -1236,7 +1236,7 @@ const register = async () => {
                 </div>
                 <div class="contact-row">
                   <strong>Official Email:</strong>
-                  <a href="mailto:olppspilarsorsogon@gmail.com">olppspilarsorsogon@gmail.com</a>
+                  <a href="https://mail.google.com/mail/?view=cm&fs=1&to=olppspilarsorsogon@gmail.com&su=Parish%20Inquiry%20-%20Pilar%20Shrine" target="_blank" rel="noopener noreferrer">olppspilarsorsogon@gmail.com</a>
                 </div>
                 <div class="contact-row">
                   <strong>Office Hours:</strong>

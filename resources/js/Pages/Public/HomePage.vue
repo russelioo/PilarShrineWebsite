@@ -41,27 +41,27 @@ const pastoralHighlights = [
 // Featured News from parish records
 const featuredNews = [
   {
-    title: 'May Crowning Celebration 2025',
+    title: 'May Crowning Celebration 2026',
     category: 'Parish Life',
-    date: 'May 10, 2025',
-    place: 'Church Grounds',
-    image: 'https://images.unsplash.com/photo-1473177104440-ffee2f376098?auto=format&fit=crop&w=900&q=80',
+    date: 'May 10, 2026',
+    place: 'Church Sanctuary',
+    image: '/images/church-interior.png',
     description: 'Join our parish community for this sacred floral offering, Marian hymns, and community fellowship.',
   },
   {
-    title: 'Parish Fiesta Schedule',
+    title: 'Parish Fiesta Schedule 2026',
     category: 'Liturgical Feast',
-    date: 'May 1, 2025',
-    place: 'Parish Grounds',
-    image: 'https://images.unsplash.com/photo-1515169067868-5387ec356754?auto=format&fit=crop&w=900&q=80',
+    date: 'May 1, 2026',
+    place: 'Shrine & Sea Grounds',
+    image: '/images/pilar-shrine-aerial.png',
     description: 'Celebrate the vibrant patronal spirit of our shrine with solemn Masses, novenas, and thanksgiving celebrations.',
   },
   {
     title: 'Blessed Mother Statue Procession',
-    category: 'Upcoming Notice',
-    date: 'May 10, 2025',
-    place: 'Town Proper',
-    image: 'https://images.unsplash.com/photo-1515169067868-5387ec356754?auto=format&fit=crop&w=900&q=80',
+    category: 'Marian Devotion',
+    date: 'October 12, 2026',
+    place: 'Town Proper & Shrine',
+    image: '/images/pilar-shrine-sanctuary.jpg',
     description: 'Annual Marian floral offering and solemn candlelight procession honoring Nuestra Señora del Pilar.',
   },
 ]
@@ -303,20 +303,41 @@ const featuredNews = [
         <article v-for="item in featuredNews" :key="item.title" class="home-news-card">
           <div class="news-img-wrap">
             <img :src="item.image" :alt="item.title" loading="lazy">
-            <span class="news-tag">{{ item.category }}</span>
+            <div class="news-img-overlay" aria-hidden="true"></div>
+            <span class="news-tag">
+              <span class="tag-spark" aria-hidden="true">✦</span>
+              <span>{{ item.category }}</span>
+            </span>
           </div>
           <div class="news-content-wrap">
             <div class="news-meta-row">
-              <span class="news-meta-item">◷ {{ item.date }}</span>
-              <span class="news-meta-dot">•</span>
-              <span class="news-meta-item">⌖ {{ item.place }}</span>
+              <span class="news-meta-item">
+                <svg class="news-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                <span>{{ item.date }}</span>
+              </span>
+              <span class="news-meta-dot" aria-hidden="true">•</span>
+              <span class="news-meta-item">
+                <svg class="news-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                  <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                <span>{{ item.place }}</span>
+              </span>
             </div>
             <h3 class="news-item-title">{{ item.title }}</h3>
             <p class="news-item-desc">{{ item.description }}</p>
             <div class="news-item-footer">
               <a class="news-more-link" href="#/news">
-                <span>Read Full Announcement</span>
-                <span aria-hidden="true">&rarr;</span>
+                <span class="link-label">Read Full Announcement</span>
+                <span class="link-arrow-circle" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                  </svg>
+                </span>
               </a>
             </div>
           </div>

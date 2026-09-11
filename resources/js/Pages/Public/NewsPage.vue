@@ -3,27 +3,27 @@ import { ref } from 'vue'
 
 const news = [
   {
-    title: 'May Crowning Celebration 2025',
+    title: 'May Crowning Celebration 2026',
     category: 'Parish Life',
-    date: 'May 10, 2025',
+    date: 'May 10, 2026',
     place: 'Church Grounds',
-    image: 'https://images.unsplash.com/photo-1473177104440-ffee2f376098?auto=format&fit=crop&w=900&q=80',
+    image: '/images/church-interior.png',
     description: 'Join our parish community for this sacred and joyful celebration in honor of the Blessed Virgin Mary, featuring floral offerings, Marian hymns, and community fellowship.',
     fullText: 'Join our parish community for this sacred and joyful celebration in honor of the Blessed Virgin Mary. The May Crowning is a venerable Marian tradition uniting devotees and families of our shrine in offering flowers, prayers, and hymns to Our Lady of the Pillar. Families and children are encouraged to participate in the floral offering and the community fellowship following the Holy Mass.',
   },
   {
-    title: 'Parish Fiesta Schedule',
+    title: 'Parish Fiesta Schedule 2026',
     category: 'Liturgical Feast',
-    date: 'May 1, 2025',
-    place: 'Parish Grounds',
-    image: 'https://images.unsplash.com/photo-1515169067868-5387ec356754?auto=format&fit=crop&w=900&q=80',
+    date: 'May 1, 2026',
+    place: 'Parish Grounds & Shrine',
+    image: '/images/pilar-shrine-aerial.png',
     description: 'Celebrate the vibrant patronal spirit of our shrine with solemn Masses, novena prayers, cultural exhibits, and thanksgiving celebrations for the whole community.',
     fullText: 'Celebrate the vibrant patronal spirit of our shrine with solemn Masses, novena prayers, cultural exhibits, and thanksgiving celebrations. The festivities bring together parishioners, pilgrims, and visitors in expressing gratitude for the continuous maternal protection of Our Lady of the Pillar over our municipality.',
   },
   {
-    title: 'Youth Camp 2025',
+    title: 'Youth Camp 2026',
     category: 'Youth Ministry',
-    date: 'April 20, 2025',
+    date: 'April 20, 2026',
     place: 'Retreat House',
     image: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=900&q=80',
     description: 'An inspiring spiritual formation weekend for young parishioners focused on faith leadership, communal worship, and active ministry involvement.',
@@ -34,21 +34,21 @@ const news = [
 const announcements = [
   {
     title: 'Blessed Mother Statue Procession',
-    date: 'May 10, 2025',
+    date: 'October 12, 2026',
     place: 'Church Grounds & Town Proper',
-    badge: 'Upcoming',
-    description: 'Annual Marian floral offering and solemn candlelight procession honoring Nuestra Señora del Pillar.',
+    badge: 'Marian Devotion',
+    description: 'Annual Marian floral offering and solemn candlelight procession honoring Nuestra Señora del Pilar.',
   },
   {
-    title: 'Holy Week 2025 Schedule',
-    date: 'April 8, 2025',
+    title: 'Holy Week 2026 Schedule',
+    date: 'April 8, 2026',
     place: 'Parish Shrine & Chapels',
     badge: 'Liturgical Notice',
     description: 'Complete schedules for Palm Sunday, Chrism Mass, Visita Iglesia, Seven Last Words, and the Solemn Easter Vigil.',
   },
   {
     title: 'Parishioner Dinner Fellowship',
-    date: 'March 25, 2025',
+    date: 'March 25, 2026',
     place: 'Parish Pastoral Center',
     badge: 'Community',
     description: 'An evening of fraternal fellowship and thanksgiving for parish volunteers, pastoral councils, and ministry leaders.',
@@ -72,12 +72,24 @@ const activeNewsModal = ref(null)
           <article v-for="a in announcements" :key="a.title" class="news-announcement-card">
             <div class="announcement-header">
               <span class="announcement-badge">{{ a.badge }}</span>
-              <time class="announcement-date">◷ {{ a.date }}</time>
+              <time class="announcement-date">
+                <svg class="news-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                <span>{{ a.date }}</span>
+              </time>
             </div>
             <h3>{{ a.title }}</h3>
             <p class="announcement-desc">{{ a.description }}</p>
             <div class="announcement-meta">
-              <span class="announcement-place">⌖ {{ a.place }}</span>
+              <span class="announcement-place">
+                <svg class="news-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                  <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                <span>{{ a.place }}</span>
+              </span>
             </div>
           </article>
         </div>
@@ -97,9 +109,21 @@ const activeNewsModal = ref(null)
           </div>
           <div class="featured-content">
             <div class="featured-meta">
-              <time class="featured-date">◷ {{ news[0].date }}</time>
+              <time class="featured-date">
+                <svg class="news-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                <span>{{ news[0].date }}</span>
+              </time>
               <span class="featured-dot">•</span>
-              <span class="featured-place">⌖ {{ news[0].place }}</span>
+              <span class="featured-place">
+                <svg class="news-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                  <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                <span>{{ news[0].place }}</span>
+              </span>
             </div>
             <h3>{{ news[0].title }}</h3>
             <div class="gold-rule left small">✣</div>
@@ -129,8 +153,20 @@ const activeNewsModal = ref(null)
             </div>
             <div class="card-body">
               <div class="card-meta">
-                <time class="meta-date">◷ {{ n.date }}</time>
-                <span class="meta-place">⌖ {{ n.place }}</span>
+                <time class="meta-date">
+                  <svg class="news-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                  <span>{{ n.date }}</span>
+                </time>
+                <span class="meta-place">
+                  <svg class="news-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                    <circle cx="12" cy="10" r="3"></circle>
+                  </svg>
+                  <span>{{ n.place }}</span>
+                </span>
               </div>
               <h3>{{ n.title }}</h3>
               <p class="card-summary">{{ n.description }}</p>

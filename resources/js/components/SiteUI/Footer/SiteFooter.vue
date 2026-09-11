@@ -42,7 +42,7 @@ const quickLinks = [
             </p>
             <p class="info-item">
               <span class="icon" aria-hidden="true">✉</span>
-              <a href="mailto:olppspilarsorsogon@gmail.com" class="info-link">olppspilarsorsogon@gmail.com</a>
+              <a href="https://mail.google.com/mail/?view=cm&fs=1&to=olppspilarsorsogon@gmail.com&su=Parish%20Inquiry%20-%20Pilar%20Shrine" target="_blank" rel="noopener noreferrer" class="info-link" title="Compose message in Gmail">olppspilarsorsogon@gmail.com</a>
             </p>
           </div>
 
