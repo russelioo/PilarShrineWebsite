@@ -6,6 +6,7 @@ use App\Http\Controllers\MassScheduleController;
 use App\Http\Controllers\MassIntentionManagementController;
 use App\Http\Controllers\Parishioner\MassIntentionController;
 use App\Http\Controllers\Parishioner\SacramentRequestController;
+use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\TimeSlotController;
 use App\Services\FacebookLiveService;
@@ -26,6 +27,14 @@ Route::get('/login', function () {
 Route::post('/login', [LoginController::class, 'store'])
     ->middleware('guest')
     ->name('login.store');
+
+Route::get('/register', function () {
+    return redirect('/#/register');
+})->middleware('guest')->name('register');
+
+Route::post('/register', [RegisterController::class, 'store'])
+    ->middleware('guest')
+    ->name('register.store');
 
 Route::prefix('parishioner')->name('parishioner.')->middleware('auth')->group(function () {
     Route::view('/dashboard', 'parishioner.dashboard')->name('dashboard');

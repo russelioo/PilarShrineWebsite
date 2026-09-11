@@ -1,5 +1,12 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { SearchableSelect } from './SiteUI'
+import {
+  getRegions,
+  getProvinces,
+  getCitiesMunicipalities,
+  getBarangays,
+} from '../services/philippineLocations'
 
 const props = defineProps({
   mode: {
@@ -19,9 +26,49 @@ const showPassword = ref(false)
 // Registration state
 const regFirstName = ref('')
 const regLastName = ref('')
+const regDob = ref('')
 const regEmail = ref('')
 const regMobile = ref('')
+const regCountry = ref('Philippines')
+
+// PSGC Cascading Location state (defaulted to Bicol Region & Sorsogon)
+const regRegion = ref('050000000')
+const regRegionName = ref('Bicol Region')
+const regProvince = ref('056200000')
+const regProvinceName = ref('Sorsogon')
+const regMunicipality = ref('')
+const regMunicipalityName = ref('')
 const regBarangay = ref('')
+const regBarangayName = ref('')
+
+// Cascading Options
+const regionOptions = ref([])
+const provinceOptions = ref([])
+const municipalityOptions = ref([])
+const barangayOptions = ref([])
+
+// Loading states for cascading locations
+const loadingRegions = ref(false)
+const loadingProvinces = ref(false)
+const loadingMunicipalities = ref(false)
+const loadingBarangays = ref(false)
+
+// Country options
+const countryOptions = [
+  { value: 'Philippines', label: 'Philippines' },
+  { value: 'United States', label: 'United States' },
+  { value: 'Canada', label: 'Canada' },
+  { value: 'United Kingdom', label: 'United Kingdom' },
+  { value: 'Australia', label: 'Australia' },
+  { value: 'Italy', label: 'Italy' },
+  { value: 'Saudi Arabia', label: 'Saudi Arabia' },
+  { value: 'United Arab Emirates', label: 'United Arab Emirates' },
+  { value: 'Singapore', label: 'Singapore' },
+  { value: 'Japan', label: 'Japan' },
+  { value: 'Other', label: 'Other Country' },
+]
+
+// Account Security & Consent
 const regPassword = ref('')
 const regConfirmPassword = ref('')
 const regConsent = ref(false)
@@ -30,9 +77,46 @@ const regShowConfirmPassword = ref(false)
 const regLoading = ref(false)
 const regSuccess = ref(false)
 const regError = ref('')
+const regErrors = ref({})
+
+// Date constraints
+const todayDate = computed(() => {
+  const d = new Date()
+  const year = d.getFullYear()
+  const month = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+})
+
+const formattedDobPreview = computed(() => {
+  if (!regDob.value) return ''
+  try {
+    const [y, m, d] = regDob.value.split('-').map(Number)
+    if (!y || !m || !d) return ''
+    const dateObj = new Date(y, m - 1, d)
+    return dateObj.toLocaleDateString('en-PH', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    })
+  } catch {
+    return ''
+  }
+})
+
+const dobInputRef = ref(null)
+const openDatePicker = () => {
+  if (dobInputRef.value) {
+    if (typeof dobInputRef.value.showPicker === 'function') {
+      dobInputRef.value.showPicker()
+    } else {
+      dobInputRef.value.focus()
+    }
+  }
+}
 
 // Modal state for Terms, Privacy, and Forgot Password
-const activeModal = ref(null) // 'terms' | 'privacy' | 'forgot' | null
+const activeModal = ref(null)
 
 const openModal = (type) => {
   activeModal.value = type
@@ -50,13 +134,223 @@ const handleKeydown = (e) => {
   }
 }
 
-onMounted(() => window.addEventListener('keydown', handleKeydown))
+onMounted(() => {
+  window.addEventListener('keydown', handleKeydown)
+  loadRegions()
+})
+
 onUnmounted(() => {
   window.removeEventListener('keydown', handleKeydown)
   document.body.style.overflow = ''
 })
 
-// Password strength calculation for registration
+// Mobile phone formatting: 09XX XXX XXXX
+const onMobileInput = (e) => {
+  let val = e.target.value.replace(/\D/g, '')
+  if (val.startsWith('63')) {
+    val = '0' + val.slice(2)
+  }
+  if (val.length > 11) {
+    val = val.slice(0, 11)
+  }
+  let formatted = val
+  if (val.length > 4 && val.length <= 7) {
+    formatted = `${val.slice(0, 4)} ${val.slice(4)}`
+  } else if (val.length > 7) {
+    formatted = `${val.slice(0, 4)} ${val.slice(4, 7)} ${val.slice(7)}`
+  }
+  regMobile.value = formatted
+}
+
+// Cascading Location Loaders
+const loadRegions = async () => {
+  loadingRegions.value = true
+  try {
+    const list = await getRegions()
+    regionOptions.value = list.map((r) => ({
+      value: r.code,
+      label: r.name,
+      rawName: r.rawName || r.name,
+    }))
+
+    // Setup initial defaults: Bicol Region (050000000) & Sorsogon (056200000)
+    const bicol = regionOptions.value.find(
+      (r) => r.value === '050000000' || r.label.includes('Bicol') || r.rawName?.includes('Bicol')
+    )
+    if (bicol) {
+      regRegion.value = bicol.value
+      regRegionName.value = bicol.rawName || bicol.label
+
+      loadingProvinces.value = true
+      const provinces = await getProvinces(bicol.value)
+      provinceOptions.value = provinces.map((p) => ({
+        value: p.code,
+        label: p.name,
+      }))
+      loadingProvinces.value = false
+
+      const sorsogon = provinceOptions.value.find(
+        (p) => p.value === '056200000' || p.label.toLowerCase().includes('sorsogon')
+      )
+      if (sorsogon) {
+        regProvince.value = sorsogon.value
+        regProvinceName.value = sorsogon.label
+
+        loadingMunicipalities.value = true
+        const cities = await getCitiesMunicipalities(bicol.value, sorsogon.value)
+        municipalityOptions.value = cities.map((c) => ({
+          value: c.code,
+          label: c.name,
+        }))
+        loadingMunicipalities.value = false
+      }
+    }
+  } catch (err) {
+    console.error('Failed to load regions:', err)
+  } finally {
+    loadingRegions.value = false
+  }
+}
+
+const onCountryChange = (selected) => {
+  if (selected && (selected.value === 'Philippines' || selected.name === 'Philippines')) {
+    if (!regRegion.value) {
+      loadRegions()
+    }
+  }
+}
+
+const onRegionChange = async (selected) => {
+  regProvince.value = ''
+  regProvinceName.value = ''
+  regMunicipality.value = ''
+  regMunicipalityName.value = ''
+  regBarangay.value = ''
+  regBarangayName.value = ''
+  provinceOptions.value = []
+  municipalityOptions.value = []
+  barangayOptions.value = []
+
+  if (!selected) {
+    regRegion.value = ''
+    regRegionName.value = ''
+    return
+  }
+
+  regRegion.value = selected.value || selected.code
+  regRegionName.value = selected.rawName || selected.label || selected.name
+
+  // NCR handling
+  const isNcr = regRegion.value === '130000000' || (regRegionName.value && regRegionName.value.includes('NCR'))
+  if (isNcr) {
+    regProvince.value = 'NCR_NO_PROVINCE'
+    regProvinceName.value = 'N/A (National Capital Region / Independent)'
+    provinceOptions.value = [
+      { value: 'NCR_NO_PROVINCE', label: 'N/A (National Capital Region / Independent)' }
+    ]
+    loadingMunicipalities.value = true
+    try {
+      const cities = await getCitiesMunicipalities(regRegion.value, null)
+      municipalityOptions.value = cities.map((c) => ({
+        value: c.code,
+        label: c.name,
+      }))
+    } finally {
+      loadingMunicipalities.value = false
+    }
+  } else {
+    loadingProvinces.value = true
+    try {
+      const provinces = await getProvinces(regRegion.value)
+      if (provinces.length === 0) {
+        regProvince.value = 'NO_PROVINCE'
+        regProvinceName.value = 'N/A (Independent Cities)'
+        provinceOptions.value = [
+          { value: 'NO_PROVINCE', label: 'N/A (Independent Cities)' }
+        ]
+        loadingMunicipalities.value = true
+        const cities = await getCitiesMunicipalities(regRegion.value, null)
+        municipalityOptions.value = cities.map((c) => ({
+          value: c.code,
+          label: c.name,
+        }))
+        loadingMunicipalities.value = false
+      } else {
+        provinceOptions.value = provinces.map((p) => ({
+          value: p.code,
+          label: p.name,
+        }))
+      }
+    } finally {
+      loadingProvinces.value = false
+    }
+  }
+}
+
+const onProvinceChange = async (selected) => {
+  regMunicipality.value = ''
+  regMunicipalityName.value = ''
+  regBarangay.value = ''
+  regBarangayName.value = ''
+  municipalityOptions.value = []
+  barangayOptions.value = []
+
+  if (!selected || selected.value === 'NCR_NO_PROVINCE') {
+    return
+  }
+
+  regProvince.value = selected.value || selected.code
+  regProvinceName.value = selected.label || selected.name
+
+  loadingMunicipalities.value = true
+  try {
+    const cities = await getCitiesMunicipalities(regRegion.value, regProvince.value)
+    municipalityOptions.value = cities.map((c) => ({
+      value: c.code,
+      label: c.name,
+    }))
+  } finally {
+    loadingMunicipalities.value = false
+  }
+}
+
+const onMunicipalityChange = async (selected) => {
+  regBarangay.value = ''
+  regBarangayName.value = ''
+  barangayOptions.value = []
+
+  if (!selected) {
+    regMunicipality.value = ''
+    regMunicipalityName.value = ''
+    return
+  }
+
+  regMunicipality.value = selected.value || selected.code
+  regMunicipalityName.value = selected.label || selected.name
+
+  loadingBarangays.value = true
+  try {
+    const barangays = await getBarangays(regMunicipality.value)
+    barangayOptions.value = barangays.map((b) => ({
+      value: b.code || b.name,
+      label: b.name,
+    }))
+  } finally {
+    loadingBarangays.value = false
+  }
+}
+
+const onBarangayChange = (selected) => {
+  if (!selected) {
+    regBarangay.value = ''
+    regBarangayName.value = ''
+    return
+  }
+  regBarangay.value = selected.value || selected.code
+  regBarangayName.value = selected.label || selected.name
+}
+
+// Password strength calculation
 const passwordStrength = computed(() => {
   const pwd = regPassword.value
   if (!pwd) return { score: 0, label: '', color: '' }
@@ -125,7 +419,10 @@ const login = async () => {
 }
 
 // Registration handler
-const register = () => {
+const register = async () => {
+  regError.value = ''
+  regErrors.value = {}
+
   if (regPassword.value !== regConfirmPassword.value) {
     regError.value = 'Passwords do not match. Please verify your entries.'
     return
@@ -136,16 +433,71 @@ const register = () => {
     return
   }
 
-  regError.value = ''
+  if (!regDob.value) {
+    regError.value = 'Please provide your Date of Birth.'
+    return
+  }
+
+  if (regDob.value > todayDate.value) {
+    regError.value = 'Date of birth cannot be a future date.'
+    return
+  }
+
+  if (!regRegionName.value || !regMunicipalityName.value || !regBarangayName.value) {
+    regError.value = 'Please complete your residence location details (Region, Municipality/City, and Barangay).'
+    return
+  }
+
   regLoading.value = true
 
-  setTimeout(() => {
-    regLoading.value = false
+  const isNcr = regProvince.value === 'NCR_NO_PROVINCE' || regProvince.value === 'NO_PROVINCE'
+
+  try {
+    const response = await fetch('/register', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ?? '',
+      },
+      body: JSON.stringify({
+        first_name: regFirstName.value,
+        last_name: regLastName.value,
+        date_of_birth: regDob.value,
+        email: regEmail.value,
+        phone: regMobile.value,
+        country: regCountry.value || 'Philippines',
+        region: regRegionName.value,
+        province: isNcr ? null : (regProvinceName.value || null),
+        municipality_city: regMunicipalityName.value,
+        barangay: regBarangayName.value,
+        password: regPassword.value,
+        password_confirmation: regConfirmPassword.value,
+      }),
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      if (data.errors) {
+        regErrors.value = data.errors
+        const firstErrorKey = Object.keys(data.errors)[0]
+        regError.value = data.errors[firstErrorKey][0]
+      } else {
+        regError.value = data.message || 'Unable to create account. Please check the details and try again.'
+      }
+      return
+    }
+
     regSuccess.value = true
     setTimeout(() => {
-      location.hash = '/login'
-    }, 1400)
-  }, 700)
+      window.location.hash = '/login'
+    }, 1500)
+  } catch (err) {
+    regError.value = 'Unable to connect to the parish server. Please check your network connection and try again.'
+  } finally {
+    regLoading.value = false
+  }
 }
 </script>
 
@@ -409,7 +761,10 @@ const register = () => {
 
             <div class="form-grid-2">
               <div class="form-group">
-                <label for="reg-first-name" class="form-label">First name</label>
+                <label for="reg-first-name" class="form-label">
+                  First name
+                  <span class="required-star" aria-hidden="true">*</span>
+                </label>
                 <div class="input-control">
                   <span class="input-icon" aria-hidden="true">
                     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -428,7 +783,10 @@ const register = () => {
               </div>
 
               <div class="form-group">
-                <label for="reg-last-name" class="form-label">Last name</label>
+                <label for="reg-last-name" class="form-label">
+                  Last name
+                  <span class="required-star" aria-hidden="true">*</span>
+                </label>
                 <div class="input-control">
                   <span class="input-icon" aria-hidden="true">
                     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -446,6 +804,46 @@ const register = () => {
                 </div>
               </div>
             </div>
+
+            <!-- Date of Birth with Modern Date Picker -->
+            <div class="form-group" style="margin-top: 14px;">
+              <label for="reg-dob" class="form-label">
+                Date of birth
+                <span class="required-star" aria-hidden="true">*</span>
+              </label>
+              <div class="input-control date-input-control">
+                <span class="input-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/>
+                  </svg>
+                </span>
+                <input
+                  id="reg-dob"
+                  ref="dobInputRef"
+                  v-model="regDob"
+                  type="date"
+                  autocomplete="bday"
+                  :max="todayDate"
+                  required
+                  class="native-date-input"
+                />
+                <button
+                  type="button"
+                  class="date-picker-trigger-btn"
+                  aria-label="Open date picker calendar"
+                  title="Choose date from calendar"
+                  @click="openDatePicker"
+                >
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/><circle cx="12" cy="15" r="1.5"/>
+                  </svg>
+                </button>
+              </div>
+              <div v-if="formattedDobPreview" class="field-hint-badge">
+                Selected: {{ formattedDobPreview }}
+              </div>
+              <span v-else class="field-helper-hint">Format: MM/DD/YYYY &bull; Must not be a future date</span>
+            </div>
           </div>
 
           <!-- SECTION 2: Contact & Residence -->
@@ -455,8 +853,12 @@ const register = () => {
               <span class="section-heading">Contact &amp; Residence</span>
             </div>
 
+            <!-- Email (Full Width) -->
             <div class="form-group full-width">
-              <label for="reg-email" class="form-label">Email address</label>
+              <label for="reg-email" class="form-label">
+                Email address
+                <span class="required-star" aria-hidden="true">*</span>
+              </label>
               <div class="input-control">
                 <span class="input-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -474,9 +876,13 @@ const register = () => {
               </div>
             </div>
 
+            <!-- Mobile Number & Country Grid -->
             <div class="form-grid-2">
               <div class="form-group">
-                <label for="reg-mobile" class="form-label">Mobile number</label>
+                <label for="reg-mobile" class="form-label">
+                  Mobile number
+                  <span class="required-star" aria-hidden="true">*</span>
+                </label>
                 <div class="input-control">
                   <span class="input-icon" aria-hidden="true">
                     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -485,32 +891,91 @@ const register = () => {
                   </span>
                   <input
                     id="reg-mobile"
-                    v-model="regMobile"
+                    :value="regMobile"
                     type="tel"
                     autocomplete="tel"
-                    placeholder="0917 123 4567"
+                    inputmode="tel"
+                    placeholder="09XX XXX XXXX"
                     required
+                    @input="onMobileInput"
                   />
                 </div>
+                <span class="field-helper-hint">Format: 09XX XXX XXXX (11 digits)</span>
               </div>
 
-              <div class="form-group">
-                <label for="reg-barangay" class="form-label">Barangay</label>
-                <div class="input-control">
-                  <span class="input-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>
-                    </svg>
-                  </span>
-                  <input
-                    id="reg-barangay"
-                    v-model="regBarangay"
-                    type="text"
-                    placeholder="e.g. Poblacion, Binanuahan, Danlog"
-                    required
-                  />
-                </div>
-              </div>
+              <!-- Country Selector -->
+              <SearchableSelect
+                id="reg-country"
+                v-model="regCountry"
+                :options="countryOptions"
+                label="Country"
+                placeholder="Select country..."
+                search-placeholder="Search country..."
+                :clearable="false"
+                :required="true"
+                @change="onCountryChange"
+              />
+            </div>
+
+            <!-- Region & Province Cascading Grid -->
+            <div class="form-grid-2" style="margin-top: 14px;">
+              <!-- Region -->
+              <SearchableSelect
+                id="reg-region"
+                v-model="regRegion"
+                :options="regionOptions"
+                label="Region"
+                placeholder="Select region..."
+                search-placeholder="Search Philippine region..."
+                :loading="loadingRegions"
+                :required="true"
+                @change="onRegionChange"
+              />
+
+              <!-- Province -->
+              <SearchableSelect
+                id="reg-province"
+                v-model="regProvince"
+                :options="provinceOptions"
+                label="Province"
+                :placeholder="regRegion ? (regProvince === 'NCR_NO_PROVINCE' ? 'N/A (NCR / Independent)' : 'Select province...') : 'Select region first'"
+                search-placeholder="Search province..."
+                :disabled="!regRegion || regProvince === 'NCR_NO_PROVINCE' || regProvince === 'NO_PROVINCE'"
+                :loading="loadingProvinces"
+                :required="regProvince !== 'NCR_NO_PROVINCE' && regProvince !== 'NO_PROVINCE'"
+                @change="onProvinceChange"
+              />
+            </div>
+
+            <!-- Municipality/City & Barangay Cascading Grid -->
+            <div class="form-grid-2" style="margin-top: 14px;">
+              <!-- Municipality / City -->
+              <SearchableSelect
+                id="reg-municipality"
+                v-model="regMunicipality"
+                :options="municipalityOptions"
+                label="Municipality / City"
+                :placeholder="regRegion ? 'Select municipality or city...' : 'Select region & province first'"
+                search-placeholder="Search municipality or city..."
+                :disabled="!regRegion || (!regProvince && regRegion !== '130000000')"
+                :loading="loadingMunicipalities"
+                :required="true"
+                @change="onMunicipalityChange"
+              />
+
+              <!-- Barangay -->
+              <SearchableSelect
+                id="reg-barangay"
+                v-model="regBarangay"
+                :options="barangayOptions"
+                label="Barangay"
+                :placeholder="regMunicipality ? 'Select barangay...' : 'Select municipality / city first'"
+                search-placeholder="Search barangay..."
+                :disabled="!regMunicipality"
+                :loading="loadingBarangays"
+                :required="true"
+                @change="onBarangayChange"
+              />
             </div>
           </div>
 
@@ -523,7 +988,10 @@ const register = () => {
 
             <div class="form-grid-2">
               <div class="form-group">
-                <label for="reg-password" class="form-label">Password</label>
+                <label for="reg-password" class="form-label">
+                  Password
+                  <span class="required-star" aria-hidden="true">*</span>
+                </label>
                 <div class="input-control">
                   <span class="input-icon" aria-hidden="true">
                     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -573,7 +1041,10 @@ const register = () => {
               </div>
 
               <div class="form-group">
-                <label for="reg-confirm-password" class="form-label">Confirm password</label>
+                <label for="reg-confirm-password" class="form-label">
+                  Confirm password
+                  <span class="required-star" aria-hidden="true">*</span>
+                </label>
                 <div class="input-control">
                   <span class="input-icon" aria-hidden="true">
                     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -616,6 +1087,16 @@ const register = () => {
                   </span>
                 </div>
               </div>
+            </div>
+
+            <!-- Password Security Helper Note -->
+            <div class="security-note">
+              <span class="security-note-icon" aria-hidden="true">
+                <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                </svg>
+              </span>
+              <span>Must be at least 8 characters long. Combine uppercase, lowercase, numbers, and symbols to ensure optimal account security.</span>
             </div>
           </div>
 

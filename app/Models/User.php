@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password_hash', 'role', 'phone', 'is_verified', 'email_verified_at'])]
+#[Fillable(['name', 'first_name', 'last_name', 'date_of_birth', 'country', 'region', 'province', 'municipality_city', 'barangay', 'email', 'password_hash', 'role', 'phone', 'is_verified', 'email_verified_at'])]
 #[Hidden(['password_hash', 'remember_token', 'reset_token'])]
 class User extends Authenticatable
 {
@@ -27,6 +27,7 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'date_of_birth' => 'date',
             'password_hash' => 'hashed',
             'last_login' => 'datetime',
             'is_verified' => 'boolean',
