@@ -1,11 +1,11 @@
 export const serviceNavigation = [
   { key: 'schedule', label: 'Mass & Confession Schedule', href: '#/schedule', description: 'Daily & Sunday mass schedules and confessions' },
   { key: 'sacraments', label: 'Sacraments & Pastoral Care', href: '#/sacraments', description: 'Baptism, Confirmation, Matrimony, and pastoral services' },
-  { key: 'forms', label: 'Mass Intention Request', href: '#/forms', description: 'Request prayers and intentions for holy masses online' },
   { key: 'ministries', label: 'Shrine Ministries', href: '#/ministries', description: 'Parish organizations and lay pastoral apostolates' },
   { key: 'novenas', aliases: ['novena-details'], label: 'Novenas & Devotions', href: '#/novenas', description: 'Devotions to Nuestra Señora del Pilar' },
   { key: 'news', aliases: ['events'], label: 'News & Announcements', href: '#/news', description: 'Parish bulletin, liturgical calendar, and updates' },
   { key: 'store', label: 'Religious Store', href: '#/store', description: 'Religious articles, candles, and devotional items', soon: true },
+  { key: 'forms', label: 'Mass Intention Request', href: '#/forms', description: 'Request prayers and intentions for holy masses online', soon: true },
 ]
 
 export const primaryNavigation = [

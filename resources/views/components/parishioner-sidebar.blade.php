@@ -22,11 +22,17 @@
   <nav class="nav">
     <a class="nav-top {{ request()->routeIs('parishioner.dashboard') ? 'active' : '' }}" href="{{ route('parishioner.dashboard') }}"><svg class="nav-icon"><use href="#i-dashboard"/></svg><span>Dashboard</span></a>
 
+    <div class="nav-group parishioner-services">
+      <a href="{{ route('parishioner.ministries') }}" class="{{ request()->routeIs('parishioner.ministries') ? 'active' : '' }}"><svg class="nav-icon"><use href="#i-users"/></svg><span>Ministries</span></a>
+      <a href="{{ route('parishioner.messages-inquiries') }}" class="{{ request()->routeIs('parishioner.messages-inquiries') ? 'active' : '' }}"><svg class="nav-icon"><use href="#i-form"/></svg><span>Messages / Inquiries</span></a>
+      <a href="{{ route('parishioner.profile-settings') }}" class="{{ request()->routeIs('parishioner.profile-settings') ? 'active' : '' }}"><svg class="nav-icon"><use href="#i-staff"/></svg><span>Profile / Settings</span></a>
+    </div>
+
     <div class="nav-group">
       <p class="nav-group-label">My Requests</p>
-      <a href="{{ route('parishioner.mass-intentions') }}" class="{{ request()->routeIs('parishioner.mass-intentions') ? 'active' : '' }}"><svg class="nav-icon"><use href="#i-heart"/></svg><span>Mass Intentions</span></a>
-      <a href="javascript:void(0)" class="nav-item-disabled {{ request()->routeIs('parishioner.sacrament-requests') ? 'active' : '' }}" data-disabled-feature="true" data-feature-name="Sacrament Requests" role="button" aria-disabled="true" title="This feature will be available soon"><svg class="nav-icon"><use href="#i-record"/></svg><span>Sacrament Requests</span><span class="badge-soon">Soon</span></a>
-      <a href="{{ route('parishioner.inquiries') }}" class="{{ request()->routeIs('parishioner.inquiries') ? 'active' : '' }}"><svg class="nav-icon"><use href="#i-form"/></svg><span>My Inquiries</span></a>
+      <a href="javascript:void(0)" class="nav-item-disabled" data-disabled-feature="true" data-feature-name="Mass Intentions" role="button" aria-disabled="true" title="This feature will be available soon"><svg class="nav-icon"><use href="#i-heart"/></svg><span>Mass Intentions</span><span class="badge-soon">Soon</span></a>
+      <a href="javascript:void(0)" class="nav-item-disabled" data-disabled-feature="true" data-feature-name="Sacrament Requests" role="button" aria-disabled="true" title="This feature will be available soon"><svg class="nav-icon"><use href="#i-record"/></svg><span>Sacrament Requests</span><span class="badge-soon">Soon</span></a>
+      <a href="javascript:void(0)" class="nav-item-disabled" data-disabled-feature="true" data-feature-name="My Inquiries" role="button" aria-disabled="true" title="This feature will be available soon"><svg class="nav-icon"><use href="#i-form"/></svg><span>My Inquiries</span><span class="badge-soon">Soon</span></a>
     </div>
 
     <div class="nav-group">
@@ -36,13 +42,10 @@
       <a href="javascript:void(0)" class="nav-item-disabled {{ request()->routeIs('parishioner.other-requests') ? 'active' : '' }}" data-disabled-feature="true" data-feature-name="Other Requests" role="button" aria-disabled="true" title="This feature will be available soon"><svg class="nav-icon"><use href="#i-form"/></svg><span>Other Requests</span><span class="badge-soon">Soon</span></a>
     </div>
 
-    <div class="nav-group parishioner-services">
-      <a href="{{ route('parishioner.events-schedule') }}" class="{{ request()->routeIs('parishioner.events-schedule') ? 'active' : '' }}"><svg class="nav-icon"><use href="#i-calendar"/></svg><span>Events &amp; Schedule</span></a>
-      <a href="{{ route('parishioner.announcements') }}" class="{{ request()->routeIs('parishioner.announcements') ? 'active' : '' }}"><svg class="nav-icon"><use href="#i-megaphone"/></svg><span>Announcements</span></a>
-      <a href="{{ route('parishioner.donations') }}" class="{{ request()->routeIs('parishioner.donations') ? 'active' : '' }}"><svg class="nav-icon"><use href="#i-money"/></svg><span>Donations</span></a>
-      <a href="{{ route('parishioner.ministries') }}" class="{{ request()->routeIs('parishioner.ministries') ? 'active' : '' }}"><svg class="nav-icon"><use href="#i-users"/></svg><span>Ministries</span></a>
-      <a href="{{ route('parishioner.messages-inquiries') }}" class="{{ request()->routeIs('parishioner.messages-inquiries') ? 'active' : '' }}"><svg class="nav-icon"><use href="#i-form"/></svg><span>Messages / Inquiries</span></a>
-      <a href="{{ route('parishioner.profile-settings') }}" class="{{ request()->routeIs('parishioner.profile-settings') ? 'active' : '' }}"><svg class="nav-icon"><use href="#i-staff"/></svg><span>Profile / Settings</span></a>
+    <div class="nav-group">
+      <a href="javascript:void(0)" class="nav-item-disabled" data-disabled-feature="true" data-feature-name="Events &amp; Schedule" role="button" aria-disabled="true" title="This feature will be available soon"><svg class="nav-icon"><use href="#i-calendar"/></svg><span>Events &amp; Schedule</span><span class="badge-soon">Soon</span></a>
+      <a href="javascript:void(0)" class="nav-item-disabled" data-disabled-feature="true" data-feature-name="Announcements" role="button" aria-disabled="true" title="This feature will be available soon"><svg class="nav-icon"><use href="#i-megaphone"/></svg><span>Announcements</span><span class="badge-soon">Soon</span></a>
+      <a href="javascript:void(0)" class="nav-item-disabled" data-disabled-feature="true" data-feature-name="Donations" role="button" aria-disabled="true" title="This feature will be available soon"><svg class="nav-icon"><use href="#i-money"/></svg><span>Donations</span><span class="badge-soon">Soon</span></a>
     </div>
   </nav>
 </aside>
