@@ -1,21 +1,32 @@
+export const serviceNavigation = [
+  { key: 'schedule', label: 'Mass & Confession Schedule', href: '#/schedule', description: 'Daily & Sunday mass schedules and confessions' },
+  { key: 'sacraments', label: 'Sacraments & Pastoral Care', href: '#/sacraments', description: 'Baptism, Confirmation, Matrimony, and pastoral services' },
+  { key: 'forms', label: 'Mass Intention Request', href: '#/forms', description: 'Request prayers and intentions for holy masses online' },
+  { key: 'ministries', label: 'Shrine Ministries', href: '#/ministries', description: 'Parish organizations and lay pastoral apostolates' },
+  { key: 'novenas', aliases: ['novena-details'], label: 'Novenas & Devotions', href: '#/novenas', description: 'Devotions to Nuestra Señora del Pilar' },
+  { key: 'news', aliases: ['events'], label: 'News & Announcements', href: '#/news', description: 'Parish bulletin, liturgical calendar, and updates' },
+  { key: 'store', label: 'Religious Store', href: '#/store', description: 'Religious articles, candles, and devotional items' },
+]
+
 export const primaryNavigation = [
   { key: 'home', label: 'Home', href: '#/home' },
+  {
+    key: 'services',
+    label: 'Parish Services',
+    href: '#/schedule',
+    aliases: ['schedule', 'sacraments', 'forms', 'ministries', 'novenas', 'novena-details', 'news', 'events', 'store'],
+    children: serviceNavigation,
+  },
   { key: 'about', label: 'About', href: '#/about' },
-  { key: 'schedule', label: 'Mass Schedule', href: '#/schedule' },
-  { key: 'sacraments', label: 'Sacraments', href: '#/sacraments' },
+  { key: 'contact', label: 'Contact', href: '#/contact' },
 ]
 
-export const moreNavigation = [
-  { key: 'events', aliases: ['news'], label: 'Events & News', href: '#/events' },
-  { key: 'ministries', label: 'Ministries', href: '#/ministries' },
-  { key: 'novenas', aliases: ['novena-details'], label: 'Novenas & Devotions', href: '#/novenas' },
-  { key: 'store', label: 'Store', href: '#/store' },
-  { key: 'contact', aliases: ['forms'], label: 'Contact', href: '#/contact' },
-]
+// Maintained for backwards compatibility with SiteFooter and existing consumers
+export const moreNavigation = serviceNavigation
 
 export const accountNavigation = [
-  { key: 'login', label: 'Sign in', href: '#/login', variant: 'secondary' },
-  { key: 'register', label: 'Sign up', href: '#/register', variant: 'primary' },
+  { key: 'login', label: 'Sign In', href: '#/login', variant: 'secondary' },
+  { key: 'register', label: 'Create Account', href: '#/register', variant: 'primary' },
 ]
 
 export const isNavigationItemActive = (item, route) => {
@@ -28,3 +39,4 @@ export const isNavigationItemActive = (item, route) => {
   }
   return false
 }
+

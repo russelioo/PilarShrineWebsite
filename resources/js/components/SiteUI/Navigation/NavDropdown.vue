@@ -7,6 +7,7 @@ const props = defineProps({
   items: { type: Array, required: true },
   activeRoute: { type: String, default: 'home' },
   open: { type: Boolean, default: false },
+  label: { type: String, default: 'Parish Services' },
 })
 
 const emit = defineEmits(['update:open', 'navigate'])
@@ -152,11 +153,11 @@ onBeforeUnmount(() => {
       :class="{ active: isActive, 'is-open': isOpen }"
       aria-haspopup="menu"
       :aria-expanded="isOpen"
-      aria-label="More navigation links"
+      :aria-label="`${label} navigation links`"
       @click="onTriggerClick"
       @keydown="onTriggerKeydown"
     >
-      <span>More</span>
+      <span>{{ label }}</span>
       <span class="nav-arrow" aria-hidden="true">▾</span>
     </button>
 

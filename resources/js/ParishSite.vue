@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import AuthPortal from './components/AuthPortal.vue'
+import SiteLayout from './components/SiteUI/Layout/SiteLayout.vue'
 import MasterPageShell from './components/SiteUI/Layout/MasterPageShell.vue'
 import { getPublicPage } from './publicPageMap'
 
@@ -37,11 +38,13 @@ const currentPage = computed(() => getPublicPage(route.value))
 </script>
 
 <template>
-  <!-- Authentication Portal (Login / Register) -->
-  <AuthPortal
+  <!-- Authentication Portal (Login / Register) with Unified Header and Footer -->
+  <SiteLayout
     v-if="route === 'login' || route === 'register'"
-    :mode="route"
-  />
+    :active="route"
+  >
+    <AuthPortal :mode="route" />
+  </SiteLayout>
 
   <!-- One Master Page Shell for ALL Public Pages -->
   <MasterPageShell

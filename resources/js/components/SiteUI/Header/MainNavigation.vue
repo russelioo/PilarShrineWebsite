@@ -2,7 +2,7 @@
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import NavDropdown from '../Navigation/NavDropdown.vue'
 import NavItem from '../Navigation/NavItem.vue'
-import { accountNavigation, isNavigationItemActive, moreNavigation, primaryNavigation } from '../Navigation/navigationItems'
+import { accountNavigation, isNavigationItemActive, primaryNavigation } from '../Navigation/navigationItems'
 import SiteButton from '../UI/SiteButton.vue'
 import MobileNavigation from './MobileNavigation.vue'
 
@@ -12,12 +12,12 @@ const props = defineProps({
 })
 
 const open = ref(false)
-const moreOpen = ref(false)
+const servicesOpen = ref(false)
 const root = ref(null)
 
 const closeNavigation = () => {
   open.value = false
-  moreOpen.value = false
+  servicesOpen.value = false
 }
 
 const handleOutside = event => {
@@ -52,35 +52,45 @@ onBeforeUnmount(() => {
 
 <template>
   <nav ref="root" class="navbar site-container" :class="{ scrolled }" aria-label="Main navigation">
-    <a class="brand" href="#/home" @click="closeNavigation">
-      <img class="brand-logo" :src="'/images/pilar-shrine-logo.png'" alt="Our Lady of the Pillar Parish logo">
-      <div><strong>PILAR SHRINE</strong><span>SORSOGON</span></div>
+    <a class="brand" href="#/home" @click="closeNavigation" aria-label="Our Lady of the Pillar Parish Home">
+      <img class="brand-logo" :src="'/images/pilar-shrine-logo.png'" alt="Our Lady of the Pillar Parish seal" width="46" height="58">
+      <div class="brand-copy">
+        <strong class="brand-name">Our Lady of the Pillar Parish</strong>
+        <span class="brand-sub">Diocesan Shrine &bull; Pilar, Sorsogon</span>
+      </div>
     </a>
 
-    <MobileNavigation :open="open" @toggle="open = !open; moreOpen = false" />
+    <MobileNavigation :open="open" @toggle="open = !open; servicesOpen = false" />
 
     <div id="site-navigation" class="nav-links" :class="{ open, scrolled }">
-      <NavItem
-        v-for="item in primaryNavigation"
-        :key="item.key"
-        :item="item"
-        :active="isNavigationItemActive(item, props.active)"
-        @navigate="closeNavigation"
-      />
+      <template v-for="item in primaryNavigation" :key="item.key">
+        <!-- Dropdown for items with children (Parish Services) -->
+        <NavDropdown
+          v-if="item.children"
+          v-model:open="servicesOpen"
+          :label="item.label"
+          :items="item.children"
+          :active-route="props.active"
+          @navigate="closeNavigation"
+        />
 
-      <NavDropdown
-        v-model:open="moreOpen"
-        :items="moreNavigation"
-        :active-route="props.active"
-        @navigate="closeNavigation"
-      />
+        <!-- Standard Nav Link (Home, About, Contact) -->
+        <NavItem
+          v-else
+          :item="item"
+          :active="isNavigationItemActive(item, props.active)"
+          @navigate="closeNavigation"
+        />
+      </template>
 
+      <!-- Auth Actions (Sign In & Prominent Create Account) -->
       <div class="auth-actions" aria-label="Parish account">
         <SiteButton
           v-for="item in accountNavigation"
           :key="item.key"
           :href="item.href"
           :variant="item.variant"
+          :class="['nav-auth-btn', `nav-auth-${item.key}`]"
           :active="isNavigationItemActive(item, props.active)"
           @click="closeNavigation"
         >
@@ -93,7 +103,7 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .navbar {
-  height: 76px;
+  height: 78px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -104,43 +114,55 @@ onBeforeUnmount(() => {
 .brand {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   color: var(--color-primary);
-  line-height: 1.05;
+  line-height: 1.15;
   text-decoration: none;
   flex-shrink: 0;
 }
 
 .brand-logo {
-  width: 43px;
-  height: 54px;
+  width: 44px;
+  height: 56px;
   object-fit: contain;
   transition: width 0.25s, height 0.25s;
 }
 
-.brand strong,
-.brand span {
-  display: block;
+.brand-copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
 }
 
-.brand strong {
-  font-size: 15px;
+.brand-name {
+  font-family: 'Libre Baskerville', Georgia, serif;
+  font-size: 15.5px;
+  font-weight: 700;
+  color: var(--color-primary);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
 }
 
-.brand span {
-  font-size: 15px;
-  font-weight: 400;
+.brand-sub {
+  font-family: Montserrat, -apple-system, sans-serif;
+  font-size: 9.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #c89b3c;
+  margin-top: 3px;
+  line-height: 1;
 }
 
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
 }
 
-/* ==========================================================================
-   Stable Base Footprint for Top-Level Navigation Links (Home, About, Schedule, Sacraments)
-   ========================================================================== */
+/* Base Footprint for Top-Level Navigation Links */
 .nav-links :deep(> a) {
   display: inline-flex !important;
   align-items: center !important;
@@ -157,7 +179,7 @@ onBeforeUnmount(() => {
   font-family: inherit !important;
   font-size: 11px !important;
   font-weight: 700 !important;
-  letter-spacing: 0.015em !important;
+  letter-spacing: 0.02em !important;
   text-transform: uppercase !important;
   white-space: nowrap !important;
   line-height: 1 !important;
@@ -173,7 +195,7 @@ onBeforeUnmount(() => {
   color: var(--color-primary) !important;
 }
 
-/* Focus and Focus-Visible: Never show outline on mouse click, only on keyboard tab */
+/* Focus and Focus-Visible */
 .nav-links :deep(> a:focus:not(:focus-visible)) {
   outline: none !important;
   box-shadow: none !important;
@@ -184,52 +206,97 @@ onBeforeUnmount(() => {
   outline-offset: 2px !important;
 }
 
-/* Active navigation state - identical dimensions, zero layout shift */
-.nav-links :deep(> a.active) {
+/* Active navigation state */
+.nav-links :deep(> a.active),
+.nav-links :deep(.nav-more.active) {
   background: var(--color-primary-light) !important;
   color: #0752a4 !important;
-  border: 1px solid rgba(11, 59, 130, 0.12) !important;
+  border: 1px solid rgba(11, 59, 130, 0.14) !important;
 }
 
-/* ==========================================================================
-   Auth Actions
-   ========================================================================== */
+/* Auth Actions */
 .auth-actions {
   display: flex;
   align-items: center;
-  gap: 9px;
-  margin-left: 12px;
+  gap: 10px;
+  margin-left: 14px;
 }
 
-/* ==========================================================================
-   Scrolled Header State
-   ========================================================================== */
+.nav-auth-login {
+  border: 1px solid #cbd5e1 !important;
+  color: var(--color-primary) !important;
+  background: #ffffff !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.02em !important;
+  font-size: 11px !important;
+  padding: 0 16px !important;
+  height: 38px !important;
+  border-radius: 8px !important;
+  transition: all 0.18s ease !important;
+}
+
+.nav-auth-login:hover {
+  background: #f1f5f9 !important;
+  border-color: #94a3b8 !important;
+  color: #062f78 !important;
+}
+
+.nav-auth-login.active {
+  background: var(--color-primary-light) !important;
+  border-color: var(--color-primary) !important;
+  color: var(--color-primary) !important;
+}
+
+.nav-auth-register {
+  background: linear-gradient(135deg, #062f78 0%, #0c4ea2 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid #d8aa3c !important;
+  box-shadow: 0 4px 14px rgba(6, 47, 120, 0.22) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.03em !important;
+  font-size: 11px !important;
+  padding: 0 18px !important;
+  height: 38px !important;
+  border-radius: 8px !important;
+  transition: all 0.18s ease !important;
+}
+
+.nav-auth-register:hover {
+  background: linear-gradient(135deg, #083b94 0%, #0e5dbf 100%) !important;
+  box-shadow: 0 6px 18px rgba(6, 47, 120, 0.32) !important;
+  transform: translateY(-1px);
+}
+
+.nav-auth-register.active {
+  outline: 2px solid #d8aa3c !important;
+  outline-offset: 2px !important;
+}
+
+/* Scrolled Header State */
 .navbar.scrolled {
   height: 66px;
 }
 
 .navbar.scrolled .brand-logo {
-  width: 37px;
-  height: 47px;
+  width: 38px;
+  height: 48px;
 }
 
-/* ==========================================================================
-   Mobile Responsive Styles
-   ========================================================================== */
+/* Mobile Responsive Styles */
 @media (max-width: 1050px) {
   .nav-links {
     position: absolute;
     z-index: 55;
-    top: 76px;
+    top: 78px;
     right: 0;
     left: 0;
     display: none;
-    max-height: calc(100vh - 76px);
+    max-height: calc(100vh - 78px);
     align-items: stretch;
     gap: 8px;
-    padding: 18px 24px 24px;
+    padding: 20px 24px 28px;
     overflow-y: auto;
-    border-top: 1px solid #e5ebf2;
+    border-top: 1px solid #e2e8f0;
     background: #ffffff;
     box-shadow: var(--shadow-md);
     flex-direction: column;
@@ -255,31 +322,41 @@ onBeforeUnmount(() => {
 
   .auth-actions {
     width: 100%;
-    margin: 8px 0 0;
+    margin: 14px 0 0;
+    padding-top: 14px;
+    border-top: 1px solid #e2e8f0;
+    flex-direction: column;
+    gap: 10px;
   }
 
   .auth-actions :deep(.site-button) {
-    flex: 1;
+    width: 100%;
+    justify-content: center;
+    min-height: 44px !important;
   }
 }
 
 @media (max-width: 720px) {
   .navbar {
-    height: 74px;
+    height: 70px;
   }
 
   .navbar.scrolled {
-    height: 66px;
+    height: 64px;
   }
 
   .brand-logo {
-    width: 42px;
-    height: 54px;
+    width: 36px;
+    height: 46px;
   }
 
-  .brand strong,
-  .brand span {
+  .brand-name {
     font-size: 13px;
+    white-space: normal;
+  }
+
+  .brand-sub {
+    font-size: 8px;
   }
 }
 </style>
