@@ -13,6 +13,9 @@ use App\Http\Controllers\ProfileCompletionController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\TimeSlotController;
+use App\Http\Controllers\Parishioner\MinistryController;
+use App\Http\Controllers\MinistryManagementController;
+use App\Http\Controllers\Admin\MinistryDirectoryManagementController;
 use App\Services\FacebookLiveService;
 use Illuminate\Support\Facades\Route;
 
@@ -57,7 +60,6 @@ Route::get('/portal', function () {
 })->middleware('auth')->name('portal');
 
 Route::prefix('parishioner')->name('parishioner.')->middleware('auth')->group(function () {
-    Route::view('/dashboard', 'parishioner.dashboard')->name('dashboard');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/mass-intentions', [MassIntentionController::class, 'index'])->name('mass-intentions');
     Route::get('/sacrament-requests', [SacramentRequestController::class, 'index'])->name('sacrament-requests');
@@ -67,12 +69,12 @@ Route::prefix('parishioner')->name('parishioner.')->middleware('auth')->group(fu
     Route::get('/request-sacrament', [SacramentRequestController::class, 'create'])->name('request-sacrament');
     Route::post('/sacrament-requests', [SacramentRequestController::class, 'store'])->name('sacrament-requests.store');
     Route::view('/other-requests', 'parishioner.other-requests')->name('other-requests');
-    Route::view('/events-schedule', 'parishioner.events-schedule')->name('events-schedule');
-    Route::view('/announcements', 'parishioner.announcements')->name('announcements');
-    Route::view('/donations', 'parishioner.donations')->name('donations');
-    Route::view('/ministries', 'parishioner.ministries')->name('ministries');
+    Route::redirect('/events-schedule', '/#/schedule')->name('events-schedule');
+    Route::redirect('/announcements', '/#/announcements')->name('announcements');
+    Route::redirect('/donations', '/#/donations')->name('donations');
+    Route::get('/ministries', [MinistryController::class, 'index'])->name('ministries');
+    Route::post('/ministries/{ministry}/join', [MinistryController::class, 'join'])->name('ministries.join');
     Route::view('/messages-inquiries', 'parishioner.messages-inquiries')->name('messages-inquiries');
-    Route::view('/profile-settings', 'parishioner.profile-settings')->name('profile-settings');
     Route::get('/profile-settings', [ProfileSettingsController::class, 'index'])->name('profile-settings');
     Route::put('/profile-settings', [ProfileSettingsController::class, 'update'])->name('profile-settings.update');
     Route::post('/logout', [AdminDashboardController::class, 'logout'])->name('logout');
@@ -91,6 +93,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/mass-schedules', [MassScheduleController::class, 'store'])->name('mass-schedules.store');
         Route::put('/mass-schedules/{massSchedule}', [MassScheduleController::class, 'update'])->name('mass-schedules.update');
         Route::delete('/mass-schedules/{massSchedule}', [MassScheduleController::class, 'destroy'])->name('mass-schedules.destroy');
+        Route::get('/ministries', [MinistryDirectoryManagementController::class, 'index'])->name('ministries');
+        Route::post('/ministries', [MinistryDirectoryManagementController::class, 'store'])->name('ministries.store');
+        Route::put('/ministries/{ministry}', [MinistryDirectoryManagementController::class, 'update'])->name('ministries.update');
+        Route::patch('/ministries/{ministry}/toggle', [MinistryDirectoryManagementController::class, 'toggle'])->name('ministries.toggle');
+        Route::delete('/ministries/{ministry}', [MinistryDirectoryManagementController::class, 'destroy'])->name('ministries.destroy');
+        Route::get('/ministry-requests', [MinistryManagementController::class, 'requests'])->name('ministry-requests');
+        Route::post('/ministry-requests/{membership}/approve', [MinistryManagementController::class, 'approve'])->name('ministry-requests.approve');
+        Route::post('/ministry-requests/{membership}/reject', [MinistryManagementController::class, 'reject'])->name('ministry-requests.reject');
     });
     Route::view('/appointments', 'admin.appointments')->name('appointments');
     Route::view('/sacramental-records', 'admin.sacramental-records')->name('sacramental-records');
@@ -116,6 +126,9 @@ Route::prefix('staff')->name('staff.')->group(function () {
         Route::post('/mass-schedules', [MassScheduleController::class, 'store'])->name('mass-schedules.store');
         Route::put('/mass-schedules/{massSchedule}', [MassScheduleController::class, 'update'])->name('mass-schedules.update');
         Route::delete('/mass-schedules/{massSchedule}', [MassScheduleController::class, 'destroy'])->name('mass-schedules.destroy');
+        Route::get('/ministry-requests', [MinistryManagementController::class, 'requests'])->name('ministry-requests');
+        Route::post('/ministry-requests/{membership}/approve', [MinistryManagementController::class, 'approve'])->name('ministry-requests.approve');
+        Route::post('/ministry-requests/{membership}/reject', [MinistryManagementController::class, 'reject'])->name('ministry-requests.reject');
     });
     Route::view('/sacrament-schedules', 'staff.sacrament-schedules')->name('sacrament-schedules');
     Route::view('/events-calendar', 'staff.events-calendar')->name('events-calendar');

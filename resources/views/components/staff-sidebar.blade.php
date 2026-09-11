@@ -27,6 +27,7 @@
       <a href="{{ route('staff.mass-intentions') }}" class="{{ request()->routeIs('staff.mass-intentions') ? 'active' : '' }}"><svg class="nav-icon"><use href="#i-heart"/></svg><span>Mass Intentions</span></a>
       <a href="{{ route('staff.sacrament-requests') }}" class="{{ request()->routeIs('staff.sacrament-requests') ? 'active' : '' }}"><svg class="nav-icon"><use href="#i-record"/></svg><span>Sacrament Requests</span></a>
       <a href="{{ route('staff.inquiries') }}" class="{{ request()->routeIs('staff.inquiries') ? 'active' : '' }}"><svg class="nav-icon"><use href="#i-form"/></svg><span>Inquiries</span></a>
+      <a href="{{ route('staff.ministry-requests') }}" class="{{ request()->routeIs('staff.ministry-requests*') ? 'active' : '' }}"><svg class="nav-icon"><use href="#i-users"/></svg><span>Ministry Requests</span></a>
     </div>
 
     <div class="nav-group">

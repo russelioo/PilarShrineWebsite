@@ -15,6 +15,7 @@ class ProfileSettingsController extends Controller
     public function index(Request $request): View
     {
         $user = $request->user();
+        $user->load(['ministryMemberships.ministry']);
 
         return view('parishioner.profile-settings', compact('user'));
     }

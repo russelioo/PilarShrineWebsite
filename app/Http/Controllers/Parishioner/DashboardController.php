@@ -58,6 +58,16 @@ class DashboardController extends Controller
             ->take(3)
             ->get();
 
+        // Ministry memberships for user
+        $userMinistryMemberships = $user->ministryMemberships()
+            ->with('ministry')
+            ->whereIn('status', ['approved', 'pending'])
+            ->latest('updated_at')
+            ->take(4)
+            ->get();
+        $activeMinistriesCount = $user->ministryMemberships()->where('status', 'approved')->count();
+        $pendingMinistriesCount = $user->ministryMemberships()->where('status', 'pending')->count();
+
         return view('parishioner.dashboard', compact(
             'user',
             'greeting',
@@ -66,7 +76,10 @@ class DashboardController extends Controller
             'totalActiveRequests',
             'upcomingMassCount',
             'recentIntentions',
-            'recentSacraments'
+            'recentSacraments',
+            'userMinistryMemberships',
+            'activeMinistriesCount',
+            'pendingMinistriesCount'
         ));
     }
 }

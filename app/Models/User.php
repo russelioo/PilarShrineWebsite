@@ -7,6 +7,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -61,6 +62,31 @@ class User extends Authenticatable
     public function formSubmissions(): HasMany
     {
         return $this->hasMany(FormSubmission::class);
+    }
+
+    public function ministryMemberships(): HasMany
+    {
+        return $this->hasMany(MinistryMembership::class);
+    }
+
+    public function ministries(): BelongsToMany
+    {
+        return $this->belongsToMany(Ministry::class, 'ministry_memberships')
+            ->withPivot('status', 'joined_at', 'reviewed_at')
+            ->withTimestamps();
+    }
+
+    public function activeMinistries(): BelongsToMany
+    {
+        return $this->belongsToMany(Ministry::class, 'ministry_memberships')
+            ->wherePivot('status', 'approved')
+            ->withPivot('joined_at', 'reviewed_at')
+            ->withTimestamps();
+    }
+
+    public function coordinatedMinistries(): HasMany
+    {
+        return $this->hasMany(Ministry::class, 'coordinator_user_id');
     }
 
     public function getInitialsAttribute(): string

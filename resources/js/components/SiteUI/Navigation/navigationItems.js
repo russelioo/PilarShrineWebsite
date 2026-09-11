@@ -5,7 +5,7 @@ export const serviceNavigation = [
   { key: 'ministries', label: 'Shrine Ministries', href: '#/ministries', description: 'Parish organizations and lay pastoral apostolates' },
   { key: 'novenas', aliases: ['novena-details'], label: 'Novenas & Devotions', href: '#/novenas', description: 'Devotions to Nuestra Señora del Pilar' },
   { key: 'news', aliases: ['events'], label: 'News & Announcements', href: '#/news', description: 'Parish bulletin, liturgical calendar, and updates' },
-  { key: 'store', label: 'Religious Store', href: '#/store', description: 'Religious articles, candles, and devotional items' },
+  { key: 'store', label: 'Religious Store', href: '#/store', description: 'Religious articles, candles, and devotional items', soon: true },
 ]
 
 export const primaryNavigation = [
@@ -14,7 +14,7 @@ export const primaryNavigation = [
     key: 'services',
     label: 'Parish Services',
     href: '#/schedule',
-    aliases: ['schedule', 'sacraments', 'forms', 'ministries', 'novenas', 'novena-details', 'news', 'events', 'store'],
+    aliases: ['schedule', 'sacraments', 'forms', 'ministries', 'novenas', 'novena-details', 'news', 'events'],
     children: serviceNavigation,
   },
   { key: 'about', label: 'About', href: '#/about' },

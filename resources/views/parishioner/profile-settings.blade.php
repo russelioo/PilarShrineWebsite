@@ -378,6 +378,68 @@
                     </div>
                 </div>
 
+                <!-- 5. PARISH MINISTRIES -->
+                <div class="card">
+                    <div class="card-head">
+                        <div class="head-icon">
+                            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h4>Parish Ministries</h4>
+                            <p>Your apostolates and volunteer service.</p>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        @if($user->ministryMemberships && $user->ministryMemberships->isNotEmpty())
+                            @foreach($user->ministryMemberships as $membership)
+                                <div class="spec-row">
+                                    <div class="spec-val-wrap">
+                                        <span class="spec-val" style="display:flex; align-items:center; gap:6px;">
+                                            <span>{{ $membership->ministry->icon ?: '✝' }}</span>
+                                            <span>{{ $membership->ministry->name }}</span>
+                                        </span>
+                                        @if($membership->status === 'approved')
+                                            <span class="pill pill-green">&check; Member</span>
+                                        @elseif($membership->status === 'pending')
+                                            <span class="pill pill-amber">Pending</span>
+                                        @elseif($membership->status === 'rejected')
+                                            <span class="pill pill-slate">Not Approved</span>
+                                        @else
+                                            <span class="pill pill-slate">{{ ucfirst($membership->status) }}</span>
+                                        @endif
+                                    </div>
+                                    <small class="spec-note">
+                                        @if($membership->status === 'approved' && $membership->reviewed_at)
+                                            Approved on {{ $membership->reviewed_at->format('M d, Y') }}
+                                        @elseif($membership->status === 'pending')
+                                            Application submitted on {{ $membership->created_at->format('M d, Y') }}
+                                        @else
+                                            Updated {{ $membership->updated_at->format('M d, Y') }}
+                                        @endif
+                                    </small>
+                                </div>
+                            @endforeach
+                        @else
+                            <div style="text-align: center; padding: 12px 0; color: #64748b;">
+                                <p style="margin: 0 0 6px; font-size: 11.5px; font-weight: 600; color: #334155;">No active ministry memberships</p>
+                                <small style="display: block; font-size: 10px; color: #94a3b8; margin-bottom: 6px;">Serve our Lord and community through parish apostolates.</small>
+                            </div>
+                        @endif
+
+                        <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid #f1f5f9; text-align: center;">
+                            <a href="{{ route('parishioner.ministries') }}" style="font-size: 11px; font-weight: 700; color: var(--navy); text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                                <span>Browse Ministry Directory</span> &rarr;
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </form>
