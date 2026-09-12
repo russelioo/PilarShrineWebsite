@@ -1,4 +1,6 @@
 <script setup>
+import { onMounted, ref } from 'vue'
+
 const parishAerial = '/images/pilar-shrine-aerial.png'
 const pillarOfficial = '/images/our-lady-of-the-pillar-official.jpg'
 
@@ -38,9 +40,10 @@ const pastoralHighlights = [
   },
 ]
 
-// Featured News from parish records
-const featuredNews = [
+// Fallback Featured News
+const defaultFeaturedNews = [
   {
+    id: 1,
     title: 'May Crowning Celebration 2026',
     category: 'Parish Life',
     date: 'May 10, 2026',
@@ -49,6 +52,7 @@ const featuredNews = [
     description: 'Join our parish community for this sacred floral offering, Marian hymns, and community fellowship.',
   },
   {
+    id: 2,
     title: 'Parish Fiesta Schedule 2026',
     category: 'Liturgical Feast',
     date: 'May 1, 2026',
@@ -57,6 +61,7 @@ const featuredNews = [
     description: 'Celebrate the vibrant patronal spirit of our shrine with solemn Masses, novenas, and thanksgiving celebrations.',
   },
   {
+    id: 3,
     title: 'Blessed Mother Statue Procession',
     category: 'Marian Devotion',
     date: 'October 12, 2026',
@@ -65,6 +70,54 @@ const featuredNews = [
     description: 'Annual Marian floral offering and solemn candlelight procession honoring Nuestra Señora del Pilar.',
   },
 ]
+
+const featuredNews = ref(defaultFeaturedNews)
+const activeNewsModal = ref(null)
+
+const fetchHomeNews = async () => {
+  try {
+    const res = await fetch('/api/announcements', { headers: { 'Accept': 'application/json' } })
+    if (res.ok) {
+      const data = await res.json()
+      const candidates = []
+
+      // Prioritize stories with photos/images
+      if (Array.isArray(data.news)) {
+        data.news.forEach(n => candidates.push(n))
+      }
+
+      // Then add announcements if needed to populate up to 3 cards
+      if (Array.isArray(data.announcements)) {
+        data.announcements.forEach(a => {
+          if (!candidates.some(c => c.id === a.id || c.title === a.title)) {
+            candidates.push(a)
+          }
+        })
+      }
+
+      if (candidates.length > 0) {
+        featuredNews.value = candidates.slice(0, 3).map(item => ({
+          id: item.id,
+          title: item.title,
+          category: item.category || item.badge || 'Parish News',
+          date: item.date,
+          place: item.place || 'Diocesan Shrine & Parish',
+          image: item.image || '/images/church-interior.png',
+          images: item.images || (item.image ? [item.image] : []),
+          description: item.description,
+          fullText: item.fullText || item.description,
+          is_pinned: Boolean(item.is_pinned),
+        }))
+      }
+    }
+  } catch (err) {
+    // Retains defaults seamlessly on error
+  }
+}
+
+onMounted(() => {
+  fetchHomeNews()
+})
 </script>
 
 <template>
@@ -299,17 +352,33 @@ const featuredNews = [
         <div class="gold-rule" aria-hidden="true">✣</div>
       </div>
 
-      <div class="home-news-grid">
-        <article v-for="item in featuredNews" :key="item.title" class="home-news-card">
+      <div
+        class="home-news-grid"
+        :class="{
+          'grid-two-cards': featuredNews.length === 2,
+          'grid-single-card': featuredNews.length === 1
+        }"
+      >
+        <article
+          v-for="item in featuredNews"
+          :key="item.id || item.title"
+          class="home-news-card"
+          tabindex="0"
+          role="button"
+          :aria-label="'Read announcement: ' + item.title"
+          @click="activeNewsModal = item"
+          @keydown.enter="activeNewsModal = item"
+          @keydown.space.prevent="activeNewsModal = item"
+        >
           <div class="news-img-wrap">
-            <img :src="item.image" :alt="item.title" loading="lazy">
+            <img :src="item.image" :alt="item.title" loading="lazy" onerror="this.src='/images/church-interior.png'">
             <div class="news-img-overlay" aria-hidden="true"></div>
             <span class="news-tag">
               <span class="tag-spark" aria-hidden="true">✦</span>
               <span>{{ item.category }}</span>
             </span>
           </div>
-          <div class="news-content-wrap">
+          <div class="home-news-body">
             <div class="news-meta-row">
               <span class="news-meta-item">
                 <svg class="news-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -330,7 +399,7 @@ const featuredNews = [
             <h3 class="news-item-title">{{ item.title }}</h3>
             <p class="news-item-desc">{{ item.description }}</p>
             <div class="news-item-footer">
-              <a class="news-more-link" href="#/news">
+              <div class="news-more-link">
                 <span class="link-label">Read Full Announcement</span>
                 <span class="link-arrow-circle" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -338,10 +407,17 @@ const featuredNews = [
                     <polyline points="12 5 19 12 12 19"></polyline>
                   </svg>
                 </span>
-              </a>
+              </div>
             </div>
           </div>
         </article>
+      </div>
+
+      <div class="home-news-footer-action">
+        <a href="#/news" class="button secondary view-all-news-btn">
+          <span>View All Announcements &amp; Parish Bulletin</span>
+          <span aria-hidden="true">&rarr;</span>
+        </a>
       </div>
     </section>
 
@@ -362,6 +438,44 @@ const featuredNews = [
         </div>
       </div>
     </section>
+
+    <!-- Article Detail Modal Dialog -->
+    <div
+      v-if="activeNewsModal"
+      class="news-modal-backdrop"
+      @click.self="activeNewsModal = null"
+      role="dialog"
+      aria-modal="true"
+      :aria-label="activeNewsModal.title"
+    >
+      <div class="news-modal-card">
+        <button class="modal-close-btn" type="button" @click="activeNewsModal = null" aria-label="Close article">✕</button>
+        <div v-if="activeNewsModal.images && activeNewsModal.images.length > 1" class="modal-gallery-wrap">
+          <img v-for="(img, idx) in activeNewsModal.images" :key="idx" :src="img" :alt="activeNewsModal.title">
+          <span class="modal-badge">{{ activeNewsModal.category || activeNewsModal.badge }}</span>
+        </div>
+        <div v-else-if="activeNewsModal.image" class="modal-image-wrap">
+          <img :src="activeNewsModal.image" :alt="activeNewsModal.title" onerror="this.style.display='none'">
+          <span class="modal-badge">{{ activeNewsModal.category || activeNewsModal.badge }}</span>
+        </div>
+        <div class="modal-body">
+          <div class="modal-meta">
+            <time>◷ {{ activeNewsModal.date }}</time>
+            <span>•</span>
+            <span>⌖ {{ activeNewsModal.place || 'Diocesan Shrine & Parish' }}</span>
+            <span v-if="activeNewsModal.is_pinned" class="pinned-tag" style="margin-left: 8px;">📌 Pinned</span>
+          </div>
+          <h2>{{ activeNewsModal.title }}</h2>
+          <div class="gold-rule left small">✣</div>
+          <p class="modal-lead">{{ activeNewsModal.description }}</p>
+          <p v-if="activeNewsModal.fullText && activeNewsModal.fullText !== activeNewsModal.description" class="modal-fulltext">{{ activeNewsModal.fullText }}</p>
+          <div class="modal-actions">
+            <a class="button" href="#/news" @click="activeNewsModal = null">Browse Full Bulletin</a>
+            <button class="button secondary" type="button" @click="activeNewsModal = null">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 

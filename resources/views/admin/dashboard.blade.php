@@ -82,16 +82,15 @@
             </div>
         </a>
 
-        <!-- Card 2: Pending Requests -->
-        <a href="{{ $stats[1]['route'] }}" class="kpi-card" aria-label="View Pending Requests">
+        <!-- Card 2: Parish Ministries -->
+        <a href="{{ $stats[1]['route'] }}" class="kpi-card" aria-label="View Parish Ministries">
             <div class="kpi-top">
-                <div class="kpi-icon-wrap icon-requests" aria-hidden="true">
+                <div class="kpi-icon-wrap icon-ministries" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                        <polyline points="14 2 14 8 20 8"></polyline>
-                        <line x1="16" y1="13" x2="8" y2="13"></line>
-                        <line x1="16" y1="17" x2="8" y2="17"></line>
-                        <polyline points="10 9 9 9 8 9"></polyline>
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                     </svg>
                 </div>
                 <span class="kpi-trend trend-amber">
@@ -110,21 +109,19 @@
                     <path d="M0 14 Q 20 18, 40 10 T 65 6 T 80 3" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round"/>
                 </svg>
                 <span class="kpi-action-link" aria-hidden="true">
-                    <span>Review</span>
+                    <span>Manage</span>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                 </span>
             </div>
         </a>
 
-        <!-- Card 3: Upcoming Events -->
-        <a href="{{ $stats[2]['route'] }}" class="kpi-card" aria-label="View Upcoming Events">
+        <!-- Card 3: Announcements -->
+        <a href="{{ $stats[2]['route'] }}" class="kpi-card" aria-label="View Announcements">
             <div class="kpi-top">
-                <div class="kpi-icon-wrap icon-events" aria-hidden="true">
+                <div class="kpi-icon-wrap icon-announcements" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="4" width="18" height="18" rx="2"></rect>
-                        <line x1="16" y1="2" x2="16" y2="6"></line>
-                        <line x1="8" y1="2" x2="8" y2="6"></line>
-                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                     </svg>
                 </div>
                 <span class="kpi-trend trend-blue">
@@ -143,7 +140,7 @@
                     <path d="M0 6 Q 20 4, 40 12 T 60 9 T 80 15" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"/>
                 </svg>
                 <span class="kpi-action-link" aria-hidden="true">
-                    <span>Schedule</span>
+                    <span>Bulletins</span>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                 </span>
             </div>
@@ -187,9 +184,9 @@
             <div class="card-header-bar">
                 <div>
                     <h2 class="card-title">Recent requests</h2>
-                    <p class="card-subtitle">Latest form submissions and service requests</p>
+                    <p class="card-subtitle">Parish ministry applications and volunteer requests</p>
                 </div>
-                <a href="{{ route('admin.mass-intentions') }}" class="view-all-link">
+                <a href="{{ route('admin.ministry-requests') }}" class="view-all-link">
                     <span>View all</span>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -222,6 +219,8 @@
                                             💍
                                         @elseif($req['type'] === 'Certificate')
                                             📜
+                                        @elseif($req['type'] === 'Ministry')
+                                            🤝
                                         @elseif($req['type'] === 'Appointment')
                                             📅
                                         @else
@@ -252,7 +251,7 @@
                                 </td>
                                 <td class="text-right">
                                     <div class="table-action-menu">
-                                        <a href="{{ route('admin.mass-intentions') }}" class="action-btn-sm" title="View details">
+                                        <a href="{{ route('admin.ministry-requests') }}" class="action-btn-sm" title="View details">
                                             View
                                         </a>
                                     </div>
@@ -281,85 +280,23 @@
                             <span>🕒 {{ $req['date'] }}</span>
                         </div>
                         <div class="mobile-req-footer">
-                            <a href="{{ route('admin.mass-intentions') }}" class="btn btn-outline btn-sm">Review Request →</a>
+                            <a href="{{ route('admin.ministry-requests') }}" class="btn btn-outline btn-sm">Review Request →</a>
                         </div>
                     </article>
                 @endforeach
             </div>
         </section>
 
-        <!-- RIGHT: Facebook Livestream & Upcoming Events -->
+        <!-- RIGHT: Active Liturgy & Notices -->
         <div class="dashboard-sidebar-column">
-            <!-- Facebook Livestream Card -->
-            <section class="dashboard-card livestream-card {{ $livestream->is_live ? 'state-live' : 'state-offline' }}" id="livestream-panel" aria-label="Facebook Livestream Broadcast Controller">
-                <div class="livestream-header">
-                    <div class="livestream-brand-badge">
-                        <svg viewBox="0 0 24 24" fill="currentColor" class="fb-icon" aria-hidden="true">
-                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                        </svg>
-                        <span>Facebook Broadcast</span>
-                    </div>
-
-                    @if($livestream->is_live)
-                        <span class="live-pill live-active">
-                            <span class="live-pulse" aria-hidden="true"></span>
-                            LIVE NOW
-                        </span>
-                    @else
-                        <span class="live-pill live-inactive">
-                            <span class="offline-dot" aria-hidden="true"></span>
-                            OFFLINE
-                        </span>
-                    @endif
-                </div>
-
-                <div class="livestream-info">
-                    <h3 class="livestream-title">Facebook Livestream</h3>
-                    <p class="livestream-desc">
-                        @if($livestream->is_live)
-                            The public live broadcast banner is currently <strong>ACTIVE</strong> on the homepage. Visitors are directed to the shrine's Facebook stream.
-                        @else
-                            Your live banner is currently <strong>OFF</strong>. Turn it on when the broadcast begins to alert parishioners.
-                        @endif
-                    </p>
-                </div>
-
-                <!-- Functional Livestream Toggle Form -->
-                <form method="POST" action="{{ route('admin.livestream.update') }}" class="livestream-form">
-                    @csrf
-                    <input type="hidden" name="is_live" value="{{ $livestream->is_live ? 0 : 1 }}">
-                    <input type="hidden" name="title" value="{{ $livestream->title }}">
-                    <input type="hidden" name="url" value="{{ $livestream->url }}">
-
-                    @if($livestream->is_live)
-                        <button type="submit" class="livestream-btn btn-turn-off">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <line x1="15" y1="9" x2="9" y2="15"></line>
-                                <line x1="9" y1="9" x2="15" y2="15"></line>
-                            </svg>
-                            <span>Turn livestream OFF</span>
-                        </button>
-                    @else
-                        <button type="submit" class="livestream-btn btn-turn-on">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <path d="M23 7l-7 5 7 5V7z"></path>
-                                <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
-                            </svg>
-                            <span>Turn livestream ON</span>
-                        </button>
-                    @endif
-                </form>
-            </section>
-
-            <!-- Upcoming Events Card -->
-            <section class="dashboard-card upcoming-events-card" aria-label="Upcoming Events Timeline">
+            <!-- Latest Announcements Card -->
+            <section class="dashboard-card announcements-card" aria-label="Latest Parish Announcements">
                 <div class="card-header-bar">
                     <div>
-                        <h2 class="card-title">Upcoming events</h2>
-                        <p class="card-subtitle">Parish calendar &amp; liturgical activities</p>
+                        <h2 class="card-title">Announcements</h2>
+                        <p class="card-subtitle">Published bulletins &amp; shrine notices</p>
                     </div>
-                    <a href="{{ route('admin.events') }}" class="view-all-link">
+                    <a href="{{ route('admin.announcements') }}" class="view-all-link">
                         <span>View all</span>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -368,29 +305,69 @@
                     </a>
                 </div>
 
+                <div class="announcements-summary-list">
+                    @forelse($latestAnnouncements as $announcement)
+                        <div class="announcement-summary-item">
+                            <div class="announcement-meta-top">
+                                <span class="badge-tag">{{ $announcement->category ?? 'General' }}</span>
+                                @if($announcement->is_pinned)
+                                    <span class="pinned-tag">📌 Pinned</span>
+                                @endif
+                                <span class="announcement-date">
+                                    {{ $announcement->published_at ? $announcement->published_at->format('M d, Y') : 'Recent' }}
+                                </span>
+                            </div>
+                            <strong class="announcement-headline">{{ $announcement->title }}</strong>
+                        </div>
+                    @empty
+                        <div class="empty-state-notice">
+                            <p>No published bulletins yet.</p>
+                            <a href="{{ route('admin.announcements') }}" class="btn btn-outline btn-sm">+ Post Notice</a>
+                        </div>
+                    @endforelse
+                </div>
+            </section>
+
+            <!-- Active Mass Schedules Card -->
+            <section class="dashboard-card mass-schedules-card" aria-label="Mass Schedules Timeline">
+                <div class="card-header-bar">
+                    <div>
+                        <h2 class="card-title">Mass schedules</h2>
+                        <p class="card-subtitle">Weekly liturgical calendar</p>
+                    </div>
+                    <a href="{{ route('admin.mass-schedules') }}" class="view-all-link">
+                        <span>Manage</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </a>
+                </div>
+
                 <div class="events-timeline">
-                    @foreach($upcomingEvents as $evt)
+                    @forelse($activeSchedules as $sched)
                         <div class="timeline-item">
                             <div class="date-block" aria-hidden="true">
-                                <span class="date-month">{{ $evt['month'] }}</span>
-                                <strong class="date-number">{{ $evt['day'] }}</strong>
+                                <span class="date-month">{{ strtoupper(substr($sched->day_of_week ?? 'SUN', 0, 3)) }}</span>
+                                <strong class="date-number">{{ date('g:i', strtotime($sched->start_time)) }}</strong>
                             </div>
                             <div class="timeline-details">
-                                <span class="event-category">{{ $evt['type'] }}</span>
-                                <strong class="event-title">{{ $evt['title'] }}</strong>
+                                <span class="event-category">{{ date('A', strtotime($sched->start_time)) }} &bull; {{ $sched->location ?? 'Main Church' }}</span>
+                                <strong class="event-title">{{ $sched->title }}</strong>
                                 <div class="event-submeta">
                                     <span>
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                                        {{ $evt['time'] }}
-                                    </span>
-                                    <span>
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                                        {{ $evt['location'] }}
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                                        {{ $sched->priest_in_charge ?? 'Parish Priest' }}
                                     </span>
                                 </div>
                             </div>
                         </div>
-                    @endforeach
+                    @empty
+                        <div class="empty-state-notice">
+                            <p>No active schedules configured.</p>
+                            <a href="{{ route('admin.mass-schedules') }}" class="btn btn-outline btn-sm">+ Add Schedule</a>
+                        </div>
+                    @endforelse
                 </div>
             </section>
         </div>
@@ -403,16 +380,18 @@
             <span class="quick-actions-hint">Fast shortcuts to common parish management tasks</span>
         </div>
         <div class="quick-actions-grid">
-            <a href="{{ route('admin.events') }}" class="quick-action-card">
+            <a href="{{ route('admin.ministries') }}" class="quick-action-card">
                 <div class="qa-icon" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                     </svg>
                 </div>
                 <div class="qa-text">
-                    <strong>+ Add event</strong>
-                    <small>Schedule celebrations</small>
+                    <strong>+ Manage Ministries</strong>
+                    <small>Apostolates &amp; leaders</small>
                 </div>
             </a>
 
@@ -633,6 +612,8 @@
     }
 
     .icon-parishioners { background: #eff6ff; color: #1d4ed8; }
+    .icon-ministries { background: #fef3c7; color: #b45309; }
+    .icon-announcements { background: #eff6ff; color: #1e40af; }
     .icon-requests { background: #fef3c7; color: #b45309; }
     .icon-events { background: #f0fdf4; color: #15803d; }
     .icon-donations { background: #fdf2f8; color: #be185d; }
@@ -956,138 +937,80 @@
         gap: 24px;
     }
 
-    /* Facebook Livestream Card */
-    .livestream-card {
-        border-left: 4px solid #718096;
-        transition: border-color 0.25s ease;
-    }
-
-    .livestream-card.state-live {
-        border-left-color: #dc2626;
-        background: linear-gradient(180deg, #fffafa 0%, #ffffff 100%);
-    }
-
-    .livestream-card.state-offline {
-        border-left-color: #64748b;
-    }
-
-    .livestream-header {
+    /* Announcements Summary Card */
+    .announcements-summary-list {
         display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 14px;
+        flex-direction: column;
+        gap: 14px;
     }
 
-    .livestream-brand-badge {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 11px;
-        font-weight: 700;
-        color: #1877f2;
-    }
-
-    .fb-icon {
-        width: 18px;
-        height: 18px;
-    }
-
-    .live-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 3px 10px;
-        border-radius: 20px;
-        font-size: 10px;
-        font-weight: 800;
-        letter-spacing: 0.08em;
-    }
-
-    .live-active {
-        background: #fee2e2;
-        color: #b91c1c;
-    }
-
-    .live-pulse {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: #dc2626;
-        box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7);
-        animation: pulseLive 1.6s infinite;
-    }
-
-    @keyframes pulseLive {
-        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
-        70% { transform: scale(1); box-shadow: 0 0 0 7px rgba(220, 38, 38, 0); }
-        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
-    }
-
-    .live-inactive {
-        background: #f1f5f9;
-        color: #475569;
-    }
-
-    .offline-dot {
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        background: #64748b;
-    }
-
-    .livestream-title {
-        margin: 0 0 6px;
-        font: 700 17px 'Libre Baskerville', Georgia, serif;
-        color: var(--navy);
-    }
-
-    .livestream-desc {
-        margin: 0 0 18px;
-        color: var(--muted);
-        font-size: 12px;
-        line-height: 1.5;
-    }
-
-    .livestream-btn {
-        width: 100%;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 9px;
-        padding: 11px 18px;
+    .announcement-summary-item {
+        padding: 12px 14px;
+        background: #f8fafc;
+        border: 1px solid var(--border);
         border-radius: var(--radius);
-        font-size: 12.5px;
-        font-weight: 700;
-        cursor: pointer;
         transition: all 0.2s ease;
     }
 
-    .btn-turn-on {
-        background: #dc2626;
-        color: #ffffff;
-        border: 1px solid #b91c1c;
-        box-shadow: 0 4px 14px rgba(220, 38, 38, 0.25);
-    }
-
-    .btn-turn-on:hover {
-        background: #b91c1c;
-        box-shadow: 0 6px 18px rgba(220, 38, 38, 0.35);
-    }
-
-    .btn-turn-off {
+    .announcement-summary-item:hover {
         background: #ffffff;
-        color: #991b1b;
-        border: 1px solid #f87171;
+        border-color: #cbd5e1;
+        box-shadow: var(--shadow-sm);
     }
 
-    .btn-turn-off:hover {
-        background: #fef2f2;
-        border-color: #ef4444;
+    .announcement-meta-top {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 6px;
     }
 
-    .livestream-btn svg {
-        width: 17px;
-        height: 17px;
+    .badge-tag {
+        font-size: 9.5px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 2px 8px;
+        border-radius: 4px;
+        background: #eff6ff;
+        color: #1e40af;
+    }
+
+    .pinned-tag {
+        font-size: 9.5px;
+        font-weight: 700;
+        color: #b45309;
+        background: #fef3c7;
+        padding: 2px 6px;
+        border-radius: 4px;
+    }
+
+    .announcement-date {
+        font-size: 10.5px;
+        color: var(--muted);
+        margin-left: auto;
+    }
+
+    .announcement-headline {
+        display: block;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--ink);
+        line-height: 1.4;
+    }
+
+    .empty-state-notice {
+        padding: 24px;
+        text-align: center;
+        color: var(--muted);
+        font-size: 12px;
+        background: #f8fafc;
+        border: 1px dashed var(--border);
+        border-radius: var(--radius);
+    }
+
+    .empty-state-notice p {
+        margin: 0 0 10px;
     }
 
     /* Upcoming Events Timeline */

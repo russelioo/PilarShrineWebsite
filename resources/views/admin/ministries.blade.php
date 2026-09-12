@@ -536,14 +536,24 @@ th { background: #f8fafc; color: var(--muted); font-size: 9.5px; font-weight: 70
 /* Modals */
 .modal-backdrop { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.65); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 20px; }
 .modal-dialog { background: #ffffff; border-radius: 12px; max-width: 480px; width: 100%; box-shadow: 0 15px 35px rgba(0,0,0,0.25); overflow: hidden; display: flex; flex-direction: column; max-height: 90vh; }
+.modal-backdrop { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.65); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 20px; box-sizing: border-box; }
+.modal-dialog { background: #ffffff; border-radius: 12px; max-width: 480px; width: 100%; box-shadow: 0 15px 35px rgba(0,0,0,0.25); overflow: hidden; display: flex; flex-direction: column; max-height: calc(100vh - 40px); }
 .modal-dialog-lg { max-width: 640px; }
 .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 22px; border-bottom: 1px solid #f1f5f9; background: #fafcff; }
+.modal-dialog form { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: hidden; }
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 22px; border-bottom: 1px solid #f1f5f9; background: #fafcff; flex-shrink: 0; }
 .modal-header h4 { margin: 0; font-size: 15px; color: var(--navy); font-weight: 700; font-family: Georgia, serif; }
 .modal-close { background: none; border: none; font-size: 22px; cursor: pointer; color: #64748b; line-height: 1; }
 .modal-close:hover { color: #0f172a; }
 .modal-body { padding: 20px 22px; }
 .modal-scroll { overflow-y: auto; }
 .modal-footer { padding: 14px 22px; background: #f8fafc; border-top: 1px solid #f1f5f9; display: flex; justify-content: flex-end; gap: 8px; }
+.modal-scroll { overflow-y: auto; flex: 1; min-height: 0; scrollbar-width: thin; scrollbar-color: #cbd5e1 #f1f5f9; }
+.modal-scroll::-webkit-scrollbar { width: 6px; }
+.modal-scroll::-webkit-scrollbar-track { background: #f1f5f9; }
+.modal-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+.modal-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+.modal-footer { padding: 14px 22px; background: #f8fafc; border-top: 1px solid #f1f5f9; display: flex; justify-content: flex-end; gap: 8px; flex-shrink: 0; }
 
 /* Forms */
 .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }

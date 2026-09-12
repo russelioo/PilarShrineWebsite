@@ -9,6 +9,7 @@ import MinistriesPage from './Pages/Public/MinistriesPage.vue'
 import StorePage from './Pages/Public/StorePage.vue'
 import ContactPage from './Pages/Public/ContactPage.vue'
 import FormsPage from './Pages/Public/FormsPage.vue'
+import DonationPage from './Pages/Public/DonationPage.vue'
 
 export const publicPages = {
   home: {
@@ -47,8 +48,7 @@ export const publicPages = {
     description: 'Join our parish community in the celebration of the Holy Eucharist and the Sacrament of Reconciliation at the Diocesan Shrine of Our Lady of the Pillar.',
     hasRule: true,
     heroActions: [
-      { label: '✍ Request Mass Intention', href: '#/forms', variant: 'primary' },
-      { label: '♙ Sacrament Services', href: '#/sacraments', variant: 'secondary' },
+      { label: '♙ Sacrament Services', href: '#/sacraments', variant: 'primary' },
     ],
   },
   sacraments: {
@@ -61,7 +61,6 @@ export const publicPages = {
     hasRule: true,
     heroActions: [
       { label: '▣ View Mass Schedule', href: '#/schedule', variant: 'primary' },
-      { label: '✍ Mass Intention Request', href: '#/forms', variant: 'secondary' },
     ],
   },
   news: {
@@ -135,7 +134,7 @@ export const publicPages = {
     hasRule: true,
     heroActions: [
       { label: '▣ Mass Schedule', href: '#/schedule', variant: 'primary' },
-      { label: '✍ Mass Intentions', href: '#/forms', variant: 'secondary' },
+      { label: '♙ Sacrament Services', href: '#/sacraments', variant: 'secondary' },
     ],
   },
   forms: {
@@ -151,11 +150,26 @@ export const publicPages = {
       { label: '✉ Contact Office', href: '#/contact', variant: 'secondary' },
     ],
   },
+  donations: {
+    component: DonationPage,
+    heroType: 'image',
+    image: '/images/pilar-shrine-sanctuary.jpg',
+    eyebrow: 'Parish Stewardship & Generosity',
+    title: 'Support the Shrine',
+    description: 'Your generosity helps support the mission, ministries, programs, and digital evangelization of the Diocesan Shrine and Parish of Our Lady of the Pillar.',
+    hasRule: true,
+    heroActions: [
+      { label: '♥ Support the Shrine', href: '#/donations#donation-methods', variant: 'primary' },
+      { label: '▣ View Mass Schedule', href: '#/schedule', variant: 'secondary' },
+    ],
+  },
 }
 
 // Route aliases
 export const routeAliases = {
   events: 'news',
+  support: 'donations',
+  donate: 'donations',
 }
 
 export function getPublicPage(routeKey) {

@@ -12,16 +12,20 @@ use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\ProfileCompletionController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\UserManagementController;
-use App\Http\Controllers\TimeSlotController;
 use App\Http\Controllers\Parishioner\MinistryController;
 use App\Http\Controllers\MinistryManagementController;
 use App\Http\Controllers\Admin\MinistryDirectoryManagementController;
+use App\Http\Controllers\AnnouncementController;
 use App\Services\FacebookLiveService;
+use App\Http\Controllers\Parishioner\DonationController as ParishionerDonationController;
+use App\Http\Controllers\Admin\DonationManagementController as AdminDonationManagementController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('parish');
 });
+
+Route::get('/api/announcements', [AnnouncementController::class, 'publicIndex'])->name('api.announcements');
 
 Route::get('/api/livestream-status', function (FacebookLiveService $facebookLive) {
     return response()->json($facebookLive->status());
@@ -71,7 +75,9 @@ Route::prefix('parishioner')->name('parishioner.')->middleware('auth')->group(fu
     Route::view('/other-requests', 'parishioner.other-requests')->name('other-requests');
     Route::redirect('/events-schedule', '/#/schedule')->name('events-schedule');
     Route::redirect('/announcements', '/#/announcements')->name('announcements');
-    Route::redirect('/donations', '/#/donations')->name('donations');
+    Route::get('/donations', [ParishionerDonationController::class, 'index'])->name('donations');
+    Route::get('/donations/request', [ParishionerDonationController::class, 'create'])->name('donations.request');
+    Route::post('/donations', [ParishionerDonationController::class, 'store'])->name('donations.store');
     Route::get('/ministries', [MinistryController::class, 'index'])->name('ministries');
     Route::post('/ministries/{ministry}/join', [MinistryController::class, 'join'])->name('ministries.join');
     Route::view('/messages-inquiries', 'parishioner.messages-inquiries')->name('messages-inquiries');
@@ -86,10 +92,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/mass-intentions', [MassIntentionManagementController::class, 'index'])->name('mass-intentions');
         Route::patch('/mass-intentions/{massIntention}/status', [MassIntentionManagementController::class, 'updateStatus'])->name('mass-intentions.status');
         Route::get('/mass-schedules', [MassScheduleController::class, 'index'])->name('mass-schedules');
-        Route::get('/time-slots', [TimeSlotController::class, 'index'])->name('time-slots');
-        Route::post('/time-slots', [TimeSlotController::class, 'store'])->name('time-slots.store');
-        Route::put('/time-slots/{timeSlot}', [TimeSlotController::class, 'update'])->name('time-slots.update');
-        Route::delete('/time-slots/{timeSlot}', [TimeSlotController::class, 'destroy'])->name('time-slots.destroy');
         Route::post('/mass-schedules', [MassScheduleController::class, 'store'])->name('mass-schedules.store');
         Route::put('/mass-schedules/{massSchedule}', [MassScheduleController::class, 'update'])->name('mass-schedules.update');
         Route::delete('/mass-schedules/{massSchedule}', [MassScheduleController::class, 'destroy'])->name('mass-schedules.destroy');
@@ -101,14 +103,17 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/ministry-requests', [MinistryManagementController::class, 'requests'])->name('ministry-requests');
         Route::post('/ministry-requests/{membership}/approve', [MinistryManagementController::class, 'approve'])->name('ministry-requests.approve');
         Route::post('/ministry-requests/{membership}/reject', [MinistryManagementController::class, 'reject'])->name('ministry-requests.reject');
+        Route::get('/announcements', [AnnouncementController::class, 'index'])->name('announcements');
+        Route::post('/announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
+        Route::put('/announcements/{announcement}', [AnnouncementController::class, 'update'])->name('announcements.update');
+        Route::patch('/announcements/{announcement}/toggle-pin', [AnnouncementController::class, 'togglePin'])->name('announcements.toggle-pin');
+        Route::delete('/announcements/{announcement}', [AnnouncementController::class, 'destroy'])->name('announcements.destroy');
+        Route::get('/donations', [AdminDonationManagementController::class, 'index'])->name('donations');
+        Route::patch('/donations/{donation}/status', [AdminDonationManagementController::class, 'updateStatus'])->name('donations.status');
+        Route::get('/donations/{donation}/history', [AdminDonationManagementController::class, 'donorHistory'])->name('donations.history');
     });
     Route::view('/appointments', 'admin.appointments')->name('appointments');
     Route::view('/sacramental-records', 'admin.sacramental-records')->name('sacramental-records');
-    Route::view('/events', 'admin.events')->name('events');
-    Route::view('/announcements', 'admin.announcements')->name('announcements');
-    Route::view('/donations', 'admin.donations')->name('donations');
-    Route::view('/forms', 'admin.forms')->name('forms');
-    Route::view('/form-fields', 'admin.form-fields')->name('form-fields');
     Route::view('/form-submissions', 'admin.form-submissions')->name('form-submissions');
     Route::view('/notifications', 'admin.notifications')->name('notifications');
 });
@@ -152,7 +157,3 @@ Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])
 
 Route::post('/admin/logout', [AdminDashboardController::class, 'logout'])
     ->name('admin.logout');
-
-Route::post('/admin/livestream', [AdminDashboardController::class, 'updateLivestream'])
-    ->middleware('auth')
-    ->name('admin.livestream.update');

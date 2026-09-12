@@ -671,8 +671,22 @@ body .home-hero::before {
 
 .home-news-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 28px;
+}
+
+.home-news-grid.grid-two-cards {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.home-news-grid.grid-single-card {
+  grid-template-columns: minmax(0, 520px);
+  justify-content: center;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .home-news-card {
@@ -685,17 +699,21 @@ body .home-hero::before {
   flex-direction: column;
   transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s ease;
   position: relative;
+  cursor: pointer;
+  height: 100%;
+  outline: none;
 }
 
-.home-news-card:hover {
+.home-news-card:hover,
+.home-news-card:focus-visible {
   transform: translateY(-6px);
   box-shadow: 0 16px 36px rgba(6, 47, 120, 0.12);
-  border-color: rgba(216, 170, 60, 0.45);
+  border-color: rgba(216, 170, 60, 0.55);
 }
 
 .news-img-wrap {
   position: relative;
-  height: 210px;
+  height: 220px;
   overflow: hidden;
   background: #062f78;
 }
@@ -707,7 +725,8 @@ body .home-hero::before {
   transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.home-news-card:hover .news-img-wrap img {
+.home-news-card:hover .news-img-wrap img,
+.home-news-card:focus-visible .news-img-wrap img {
   transform: scale(1.06);
 }
 
@@ -725,7 +744,7 @@ body .home-hero::before {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: rgba(5, 29, 69, 0.85);
+  background: rgba(5, 29, 69, 0.88);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgba(247, 210, 126, 0.4);
@@ -746,11 +765,12 @@ body .home-hero::before {
   font-size: 8.5px;
 }
 
-.news-content-wrap {
-  padding: 24px 24px 20px;
+.home-news-body {
+  padding: 26px 30px 22px;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
+  text-align: center;
 }
 
 .news-meta-row {
@@ -759,9 +779,10 @@ body .home-hero::before {
   color: #64748b;
   display: flex;
   align-items: center;
+  justify-content: center;
   flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .news-meta-item {
@@ -784,12 +805,13 @@ body .home-hero::before {
 
 .news-item-title {
   font-family: 'Libre Baskerville', Georgia, serif;
-  font-size: 17.5px;
+  font-size: 1.15rem;
   font-weight: 700;
   color: #062f78;
   margin: 0 0 10px;
-  line-height: 1.35;
-  min-height: 48px;
+  line-height: 1.4;
+  min-height: 2.8em;
+  text-align: center;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -797,15 +819,18 @@ body .home-hero::before {
   transition: color 0.2s ease;
 }
 
-.home-news-card:hover .news-item-title {
+.home-news-card:hover .news-item-title,
+.home-news-card:focus-visible .news-item-title {
   color: #0b58b5;
 }
 
 .news-item-desc {
-  font-size: 13px;
+  font-size: 13.5px;
   line-height: 1.6;
   color: #475569;
-  margin: 0 0 20px;
+  margin: 0 0 18px;
+  min-height: 4.8em;
+  text-align: center;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
@@ -818,17 +843,17 @@ body .home-hero::before {
   border-top: 1px solid #f1f5f9;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
 }
 
 .news-more-link {
   display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  width: 100%;
+  justify-content: center;
+  gap: 10px;
   text-decoration: none;
   color: #062f78;
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.01em;
   transition: color 0.18s ease;
@@ -838,7 +863,8 @@ body .home-hero::before {
   transition: color 0.18s ease;
 }
 
-.home-news-card:hover .link-label {
+.home-news-card:hover .link-label,
+.home-news-card:focus-visible .link-label {
   color: #0b58b5;
 }
 
@@ -860,11 +886,28 @@ body .home-hero::before {
   transition: transform 0.22s ease;
 }
 
-.home-news-card:hover .link-arrow-circle {
+.home-news-card:hover .link-arrow-circle,
+.home-news-card:focus-visible .link-arrow-circle {
   background: #062f78;
   color: #ffffff;
   transform: translateX(4px);
   box-shadow: 0 2px 8px rgba(6, 47, 120, 0.25);
+}
+
+.home-news-footer-action {
+  margin-top: 36px;
+  display: flex;
+  justify-content: center;
+}
+
+.view-all-news-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  font-weight: 700;
+  padding: 12px 28px;
+  border-radius: 30px;
 }
 
 /* 5. Pilgrimage & Sacred Welcome Banner */
@@ -949,8 +992,10 @@ body .home-hero::before {
     max-height: 400px;
   }
 
-  .home-news-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .home-news-grid,
+  .home-news-grid.grid-two-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: 100%;
   }
 
   .home-cta-banner {
@@ -995,8 +1040,11 @@ body .home-hero::before {
     gap: 10px;
   }
 
-  .home-news-grid {
+  .home-news-grid,
+  .home-news-grid.grid-two-cards,
+  .home-news-grid.grid-single-card {
     grid-template-columns: 1fr;
+    max-width: 100%;
   }
 
   .home-cta-banner {
@@ -3008,20 +3056,21 @@ body .news-hero::before {
 
 .news-announcement-card {
   padding: 24px 26px;
-  border-radius: 16px;
-  background: #f0f6fc;
-  border: 1px solid #d4e5f7;
-  border-left: 4px solid var(--blue);
+  border-radius: 14px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-top: 3px solid var(--blue);
   box-shadow: 0 4px 18px rgba(10, 55, 127, .05);
   display: flex;
   flex-direction: column;
-  transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
 }
 
 .news-announcement-card:hover {
-  transform: translateY(-2px);
-  background: #ebf3fb;
-  box-shadow: 0 8px 26px rgba(10, 55, 127, .1);
+  transform: translateY(-3px);
+  background: #ffffff;
+  border-color: #cbd5e1;
+  box-shadow: 0 10px 28px rgba(10, 55, 127, .1);
 }
 
 .announcement-header {
@@ -3035,8 +3084,8 @@ body .news-hero::before {
 .announcement-badge {
   padding: 3px 9px;
   border-radius: 20px;
-  background: #fff;
-  border: 1px solid #c9dcf0;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
   color: var(--blue);
   font-size: 10px;
   font-weight: 700;
@@ -3070,13 +3119,17 @@ body .news-hero::before {
 
 .announcement-meta {
   margin-top: auto;
-  padding-top: 12px;
+  padding-top: 14px;
   border-top: 1px solid rgba(185, 208, 230, .6);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .announcement-place {
   color: #6a8097;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 600;
   display: inline-flex;
   align-items: center;
@@ -3426,6 +3479,23 @@ body .news-hero::before {
 .modal-image-wrap img {
   width: 100%;
   height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.modal-gallery-wrap {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  position: relative;
+  max-height: 280px;
+  overflow: hidden;
+  background: #0f172a;
+}
+
+.modal-gallery-wrap img {
+  width: 100%;
+  height: 280px;
   object-fit: cover;
   display: block;
 }

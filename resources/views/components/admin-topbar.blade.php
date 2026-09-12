@@ -57,13 +57,13 @@
             </div>
             <span class="palette-tag">Scheduling</span>
           </a>
-          <a href="{{ route('admin.events') }}" class="palette-item">
-            <span class="palette-icon">📅</span>
+          <a href="{{ route('admin.ministries') }}" class="palette-item">
+            <span class="palette-icon">👥</span>
             <div>
-              <strong>Parish Events</strong>
-              <small>Upcoming celebrations &amp; formation</small>
+              <strong>Parish Ministries</strong>
+              <small>Apostolates, organizations &amp; groups</small>
             </div>
-            <span class="palette-tag">Calendar</span>
+            <span class="palette-tag">Ministries</span>
           </a>
           <a href="{{ route('admin.announcements') }}" class="palette-item">
             <span class="palette-icon">📢</span>

@@ -30,10 +30,18 @@ class LoginController extends Controller
         $request->session()->regenerate();
         $user = $request->user();
 
+        $customRedirect = null;
+        if ($request->filled('redirect')) {
+            $candidate = $request->string('redirect')->trim()->toString();
+            if (str_starts_with($candidate, '/') && !str_starts_with($candidate, '//')) {
+                $customRedirect = $candidate;
+            }
+        }
+
         $redirect = match ($user->role) {
             'admin' => route('admin.dashboard'),
             'staff' => route('staff.dashboard'),
-            default => '/?login=success',
+            default => $customRedirect ?: '/?login=success',
         };
 
         return response()->json(['redirect' => $redirect]);

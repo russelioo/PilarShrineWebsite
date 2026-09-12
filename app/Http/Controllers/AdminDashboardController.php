@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\LivestreamSetting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,9 +13,8 @@ class AdminDashboardController extends Controller
     public function index(): View
     {
         $dbParishioners = \App\Models\User::query()->where('role', 'user')->count();
-        $dbPendingRequests = \App\Models\MassIntention::query()->where('status', 'pending')->count()
-            + \App\Models\Appointment::query()->where('status', 'pending')->count();
-        $dbUpcomingEvents = \App\Models\Event::query()->where('event_date', '>=', now()->toDateString())->count();
+        $dbMinistries = \App\Models\Ministry::query()->count();
+        $dbAnnouncements = \App\Models\Announcement::query()->count();
         $dbDonationsSum = (float) \App\Models\Donation::query()->where('payment_status', 'completed')->sum('amount');
 
         // Dynamic stats with graceful fallbacks
@@ -25,100 +23,105 @@ class AdminDashboardController extends Controller
                 'icon' => 'parishioners',
                 'value' => $dbParishioners > 0 ? number_format($dbParishioners) : '1,234',
                 'label' => 'Parishioners',
-                'change' => '↑ 12 this month',
+                'change' => 'Active members',
                 'trend' => 'up',
                 'route' => route('admin.parishioners'),
             ],
             [
-                'icon' => 'requests',
-                'value' => $dbPendingRequests > 0 ? (string) $dbPendingRequests : '47',
-                'label' => 'Pending Requests',
-                'change' => '↑ 3 since yesterday',
+                'icon' => 'ministries',
+                'value' => $dbMinistries > 0 ? (string) $dbMinistries : '8',
+                'label' => 'Parish Ministries',
+                'change' => 'Apostolates & groups',
                 'trend' => 'up',
-                'route' => route('admin.mass-intentions'),
+                'route' => route('admin.ministries'),
             ],
             [
-                'icon' => 'events',
-                'value' => $dbUpcomingEvents > 0 ? (string) $dbUpcomingEvents : '28',
-                'label' => 'Upcoming Events',
-                'change' => '↓ 4 next week',
-                'trend' => 'down',
-                'route' => route('admin.events'),
+                'icon' => 'announcements',
+                'value' => $dbAnnouncements > 0 ? (string) $dbAnnouncements : '4',
+                'label' => 'Announcements',
+                'change' => 'Published bulletins',
+                'trend' => 'up',
+                'route' => route('admin.announcements'),
             ],
             [
                 'icon' => 'donations',
                 'value' => $dbDonationsSum > 0 ? '₱' . number_format($dbDonationsSum, 2) : '₱45,230',
                 'label' => 'Donations',
-                'change' => '↑ ₱2,800 this week',
+                'change' => 'Total offerings',
                 'trend' => 'up',
                 'route' => route('admin.donations'),
             ],
         ];
 
-        // Recent requests (from DB if present, supplemented by standard parish requests)
-        $dbIntentions = \App\Models\MassIntention::query()->with('user')->latest()->take(3)->get();
+        // Recent ministry membership requests from DB
+        $dbMinistryRequests = \App\Models\MinistryMembership::query()
+            ->with(['user', 'ministry'])
+            ->latest()
+            ->take(5)
+            ->get();
+
         $recentRequests = collect();
 
-        foreach ($dbIntentions as $intention) {
+        foreach ($dbMinistryRequests as $mem) {
             $recentRequests->push([
-                'title' => 'Mass Intention (' . str($intention->intention_type)->headline() . ')',
-                'requester' => $intention->requested_by,
-                'email' => $intention->user?->email,
-                'type' => 'Mass Intention',
-                'type_class' => 'type-intention',
-                'date' => $intention->created_at ? $intention->created_at->diffForHumans() : 'Recently',
-                'status' => ucfirst($intention->status ?? 'pending'),
-                'status_class' => 'status-' . ($intention->status ?? 'pending'),
+                'title' => 'Ministry Application (' . ($mem->ministry?->name ?? 'Parish Ministry') . ')',
+                'requester' => $mem->user?->name ?? 'Applicant',
+                'email' => $mem->user?->email ?? 'Parishioner',
+                'type' => 'Ministry',
+                'type_class' => 'type-ministry',
+                'date' => $mem->created_at ? $mem->created_at->diffForHumans() : 'Recently',
+                'status' => ucfirst($mem->status ?? 'pending'),
+                'status_class' => 'status-' . ($mem->status ?? 'pending'),
             ]);
         }
 
         $defaultRequests = [
             [
-                'title' => 'Baptism Request',
+                'title' => 'Music Ministry Application',
                 'requester' => 'Maria Santos',
                 'email' => 'maria.santos@gmail.com',
-                'type' => 'Baptism',
-                'type_class' => 'type-baptism',
+                'type' => 'Ministry',
+                'type_class' => 'type-ministry',
                 'date' => 'Today, 9:30 AM',
                 'status' => 'Pending',
                 'status_class' => 'status-pending',
             ],
             [
-                'title' => 'Mass Intention',
+                'title' => 'Lectors & Commentators',
                 'requester' => 'Roberto Cruz',
                 'email' => 'roberto.cruz@yahoo.com',
-                'type' => 'Mass Intention',
-                'type_class' => 'type-intention',
+                'type' => 'Ministry',
+                'type_class' => 'type-ministry',
                 'date' => 'Yesterday',
                 'status' => 'Pending',
                 'status_class' => 'status-pending',
             ],
             [
-                'title' => 'Wedding Request',
+                'title' => 'Youth Apostolate Volunteer',
                 'requester' => 'Ana & Miguel',
                 'email' => 'ana.miguel2026@gmail.com',
-                'type' => 'Wedding',
-                'type_class' => 'type-wedding',
+                'type' => 'Ministry',
+                'type_class' => 'type-ministry',
                 'date' => 'August 20',
-                'status' => 'Pending',
-                'status_class' => 'status-pending',
+                'status' => 'Approved',
+                'status_class' => 'status-approved',
             ],
             [
-                'title' => 'Certificate Request',
+                'title' => 'Extraordinary Ministers of HC',
                 'requester' => 'Juan Dela Cruz',
                 'email' => 'juan.delacruz@outlook.com',
-                'type' => 'Certificate',
-                'type_class' => 'type-certificate',
+                'type' => 'Ministry',
+                'type_class' => 'type-ministry',
                 'date' => 'August 18',
                 'status' => 'Approved',
                 'status_class' => 'status-approved',
             ],
             [
-                'title' => 'Appointment',
+                'title' => 'Altar Servers Guild',
                 'requester' => 'Carmen Reyes',
                 'email' => 'carmen.reyes@gmail.com',
-                'type' => 'Appointment',
-                'type_class' => 'type-appointment',
+                'type' => 'Ministry',
+                'type_class' => 'type-ministry',
                 'date' => 'August 17',
                 'status' => 'Processing',
                 'status_class' => 'status-processing',
@@ -132,73 +135,22 @@ class AdminDashboardController extends Controller
             }
         }
 
-        // Upcoming Events
-        $upcomingEvents = [
-            [
-                'month' => 'SEP',
-                'day' => '15',
-                'title' => 'Simbang Gabi (Day 1)',
-                'time' => '6:30 PM',
-                'location' => 'Parish Church',
-                'type' => 'Liturgical',
-            ],
-            [
-                'month' => 'SEP',
-                'day' => '18',
-                'title' => 'Parish Youth Gathering',
-                'time' => '4:00 PM',
-                'location' => 'Parish Hall',
-                'type' => 'Youth',
-            ],
-            [
-                'month' => 'SEP',
-                'day' => '20',
-                'title' => 'Marriage Preparation Seminar',
-                'time' => '8:00 AM',
-                'location' => 'Parish Conference Room',
-                'type' => 'Formation',
-            ],
-        ];
+        $latestAnnouncements = \App\Models\Announcement::query()
+            ->latest('published_at')
+            ->take(3)
+            ->get();
+
+        $activeSchedules = \App\Models\MassSchedule::query()
+            ->where('is_active', true)
+            ->take(4)
+            ->get();
 
         return view('admin.dashboard', [
-            'livestream' => LivestreamSetting::query()->firstOrCreate([], [
-                'is_live' => false,
-                'title' => 'Pilar Shrine is live',
-                'url' => config('services.facebook.page_url'),
-            ]),
-            'stats' => [
-                ['label' => 'Parishioners', 'value' => '1,248', 'change' => '+18 this month', 'icon' => 'people'],
-                ['label' => 'Pending Requests', 'value' => '24', 'change' => '8 need attention', 'icon' => 'requests'],
-                ['label' => 'Upcoming Events', 'value' => '7', 'change' => 'Next: Sunday Mass', 'icon' => 'calendar'],
-                ['label' => 'Mass Intentions', 'value' => '36', 'change' => '12 this week', 'icon' => 'prayer'],
-            ],
             'stats' => $stats,
             'recentRequests' => $recentRequests,
-            'upcomingEvents' => $upcomingEvents,
+            'latestAnnouncements' => $latestAnnouncements,
+            'activeSchedules' => $activeSchedules,
         ]);
-    }
-
-    public function updateLivestream(Request $request): RedirectResponse
-    {
-        abort_unless($request->user()?->role === 'admin', 403);
-
-        $validated = $request->validate([
-            'is_live' => ['required', 'boolean'],
-            'title' => ['required', 'string', 'max:120'],
-            'url' => ['required', 'url:http,https', 'max:500'],
-        ]);
-
-        LivestreamSetting::query()->firstOrCreate()->update([
-            ...$validated,
-            'updated_by' => $request->user()->id,
-        ]);
-
-        Cache::forget('facebook-live-status');
-
-        return back()->with(
-            'status',
-            $validated['is_live'] ? 'The LIVE NOW banner is visible.' : 'The livestream banner is now hidden.'
-        );
     }
 
     public function logout(Request $request): RedirectResponse

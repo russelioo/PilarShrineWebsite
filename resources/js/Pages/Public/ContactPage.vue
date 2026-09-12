@@ -344,7 +344,6 @@ const copyEmail = async () => {
               <span class="quick-title">Quick Services:</span>
               <div class="quick-tags">
                 <a href="#/schedule" class="quick-tag">📅 Mass Schedule</a>
-                <a href="#/forms" class="quick-tag">✍ Mass Intentions</a>
                 <a href="#/sacraments" class="quick-tag">🕊 Sacraments</a>
               </div>
             </div>

@@ -69,20 +69,9 @@
       </a>
     </div>
 
-    <!-- REQUESTS -->
+    <!-- PARISH MINISTRIES -->
     <div class="nav-section">
-      <span class="nav-section-title">REQUESTS</span>
-      <a href="{{ route('admin.mass-intentions') }}" 
-         class="admin-nav-item {{ request()->routeIs('admin.mass-intentions') ? 'active' : '' }}"
-         data-title="Mass Intentions">
-        <span class="nav-icon-box">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-          </svg>
-        </span>
-        <span class="nav-label">Mass Intentions</span>
-        <span class="nav-badge-pill">Requests</span>
-      </a>
+      <span class="nav-section-title">PARISH MINISTRIES</span>
       <a href="{{ route('admin.ministries') }}" 
          class="admin-nav-item {{ request()->routeIs('admin.ministries*') ? 'active' : '' }}"
          data-title="Manage Ministries">
@@ -108,38 +97,11 @@
         </span>
         <span class="nav-label">Ministry Requests</span>
       </a>
-      <a href="{{ route('admin.appointments') }}" 
-         class="admin-nav-item {{ request()->routeIs('admin.appointments') ? 'active' : '' }}"
-         data-title="Appointments">
-        <span class="nav-icon-box">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-            <line x1="16" y1="2" x2="16" y2="6"></line>
-            <line x1="8" y1="2" x2="8" y2="6"></line>
-            <line x1="3" y1="10" x2="21" y2="10"></line>
-          </svg>
-        </span>
-        <span class="nav-label">Appointments</span>
-      </a>
-      <a href="{{ route('admin.form-submissions') }}" 
-         class="admin-nav-item {{ request()->routeIs('admin.form-submissions') ? 'active' : '' }}"
-         data-title="Form Submissions">
-        <span class="nav-icon-box">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-            <polyline points="14 2 14 8 20 8"></polyline>
-            <line x1="16" y1="13" x2="8" y2="13"></line>
-            <line x1="16" y1="17" x2="8" y2="17"></line>
-            <polyline points="10 9 9 9 8 9"></polyline>
-          </svg>
-        </span>
-        <span class="nav-label">Form Submissions</span>
-      </a>
     </div>
 
-    <!-- SCHEDULING SYSTEM -->
+    <!-- LITURGY & RECORDS -->
     <div class="nav-section">
-      <span class="nav-section-title">SCHEDULING SYSTEM</span>
+      <span class="nav-section-title">LITURGY &amp; RECORDS</span>
       <a href="{{ route('admin.mass-schedules') }}" 
          class="admin-nav-item {{ request()->routeIs('admin.mass-schedules') ? 'active' : '' }}"
          data-title="Mass Schedules">
@@ -151,38 +113,6 @@
         </span>
         <span class="nav-label">Mass Schedules</span>
       </a>
-      <a href="{{ route('admin.time-slots') }}" 
-         class="admin-nav-item {{ request()->routeIs('admin.time-slots') ? 'active' : '' }}"
-         data-title="Time Slots">
-        <span class="nav-icon-box">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
-          </svg>
-        </span>
-        <span class="nav-label">Time Slots</span>
-      </a>
-      <a href="{{ route('admin.events') }}" 
-         class="admin-nav-item {{ request()->routeIs('admin.events') ? 'active' : '' }}"
-         data-title="Events">
-        <span class="nav-icon-box">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <rect x="3" y="4" width="18" height="18" rx="2"></rect>
-            <line x1="16" y1="2" x2="16" y2="6"></line>
-            <line x1="8" y1="2" x2="8" y2="6"></line>
-            <line x1="3" y1="10" x2="21" y2="10"></line>
-            <circle cx="8" cy="14" r="1"></circle>
-            <circle cx="12" cy="14" r="1"></circle>
-            <circle cx="16" cy="14" r="1"></circle>
-          </svg>
-        </span>
-        <span class="nav-label">Events</span>
-      </a>
-    </div>
-
-    <!-- CONTENT MANAGEMENT -->
-    <div class="nav-section">
-      <span class="nav-section-title">CONTENT MANAGEMENT</span>
       <a href="{{ route('admin.announcements') }}" 
          class="admin-nav-item {{ request()->routeIs('admin.announcements') ? 'active' : '' }}"
          data-title="Announcements">
@@ -194,29 +124,16 @@
         </span>
         <span class="nav-label">Announcements</span>
       </a>
-      <a href="{{ route('admin.forms') }}" 
-         class="admin-nav-item {{ request()->routeIs('admin.forms*') ? 'active' : '' }}"
-         data-title="Forms">
+      <a href="{{ route('admin.sacramental-records') }}" 
+         class="admin-nav-item {{ request()->routeIs('admin.sacramental-records') ? 'active' : '' }}"
+         data-title="Sacramental Records">
         <span class="nav-icon-box">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-            <polyline points="14 2 14 8 20 8"></polyline>
-            <line x1="12" y1="18" x2="12" y2="12"></line>
-            <line x1="9" y1="15" x2="15" y2="15"></line>
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
           </svg>
         </span>
-        <span class="nav-label">Forms</span>
-      </a>
-      <a href="{{ route('admin.dashboard') }}#livestream-panel" 
-         class="admin-nav-item"
-         data-title="Media / Livestream">
-        <span class="nav-icon-box">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <polygon points="23 7 16 12 23 17 23 7"></polygon>
-            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
-          </svg>
-        </span>
-        <span class="nav-label">Media / Livestream</span>
+        <span class="nav-label">Sacramental Records</span>
       </a>
       <a href="{{ route('admin.donations') }}" 
          class="admin-nav-item {{ request()->routeIs('admin.donations') ? 'active' : '' }}"
@@ -228,22 +145,6 @@
           </svg>
         </span>
         <span class="nav-label">Donations</span>
-      </a>
-    </div>
-
-    <!-- RECORDS -->
-    <div class="nav-section">
-      <span class="nav-section-title">RECORDS</span>
-      <a href="{{ route('admin.sacramental-records') }}" 
-         class="admin-nav-item {{ request()->routeIs('admin.sacramental-records') ? 'active' : '' }}"
-         data-title="Sacramental Records">
-        <span class="nav-icon-box">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-          </svg>
-        </span>
-        <span class="nav-label">Sacramental Records</span>
       </a>
     </div>
 
@@ -261,6 +162,59 @@
         </span>
         <span class="nav-label">Settings</span>
       </a>
+    </div>
+
+    <!-- UPCOMING SERVICES (COMING SOON AT THE BOTTOM) -->
+    <div class="nav-section nav-section-soon">
+      <span class="nav-section-title">UPCOMING SERVICES</span>
+      <div class="admin-nav-item nav-item-disabled" data-title="Mass Intentions (Available Soon)" title="Feature Available Soon">
+        <span class="nav-icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+          </svg>
+        </span>
+        <span class="nav-label">Mass Intentions</span>
+        <span class="nav-badge-soon">Soon</span>
+      </div>
+
+      <div class="admin-nav-item nav-item-disabled" data-title="Appointments (Available Soon)" title="Feature Available Soon">
+        <span class="nav-icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+        </span>
+        <span class="nav-label">Appointments</span>
+        <span class="nav-badge-soon">Soon</span>
+      </div>
+
+      <div class="admin-nav-item nav-item-disabled" data-title="Form Submissions (Available Soon)" title="Feature Available Soon">
+        <span class="nav-icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+        </span>
+        <span class="nav-label">Form Submissions</span>
+        <span class="nav-badge-soon">Soon</span>
+      </div>
+
+      <div class="admin-nav-item nav-item-disabled" data-title="Sacramental Schedule (Available Soon)" title="Feature Available Soon">
+        <span class="nav-icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+            <path d="M2 17l10 5 10-5"></path>
+            <path d="M2 12l10 5 10-5"></path>
+          </svg>
+        </span>
+        <span class="nav-label">Sacramental Schedule</span>
+        <span class="nav-badge-soon">Soon</span>
+      </div>
     </div>
   </nav>
 
@@ -499,6 +453,39 @@
     padding: 1px 6px;
     border-radius: 10px;
     text-transform: uppercase;
+  }
+
+  /* Disabled Upcoming Services */
+  .admin-nav-item.nav-item-disabled {
+    opacity: 0.5;
+    cursor: not-allowed !important;
+    pointer-events: none;
+    color: #8daed5;
+    user-select: none;
+  }
+
+  .admin-nav-item.nav-item-disabled:hover {
+    background: transparent !important;
+    transform: none !important;
+  }
+
+  .nav-badge-soon {
+    margin-left: auto;
+    font-size: 8.5px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    color: #f7d27e;
+    background: rgba(216, 170, 60, 0.15);
+    border: 1px solid rgba(216, 170, 60, 0.35);
+    padding: 1.5px 7px;
+    border-radius: 10px;
+    text-transform: uppercase;
+  }
+
+  .nav-section-soon {
+    padding-top: 10px;
+    margin-top: 6px;
+    border-top: 1px dashed rgba(255, 255, 255, 0.1);
   }
 
   /* Footer Status Card */

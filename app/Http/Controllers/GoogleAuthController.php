@@ -33,6 +33,13 @@ class GoogleAuthController extends Controller
 
         session(['google_oauth_intent' => $intent]);
 
+        if ($request->filled('redirect')) {
+            $candidate = $request->string('redirect')->trim()->toString();
+            if (str_starts_with($candidate, '/') && !str_starts_with($candidate, '//')) {
+                session(['google_oauth_redirect' => $candidate]);
+            }
+        }
+
         return Socialite::driver('google')->redirect();
     }
 
@@ -94,10 +101,11 @@ class GoogleAuthController extends Controller
 
             // Redirect to appropriate destination based on role
             // Parishioners return to the Official Public Website homepage
+            $targetRedirect = session()->pull('google_oauth_redirect');
             return match ($existingUser->role) {
                 'admin' => redirect()->route('admin.dashboard'),
                 'staff' => redirect()->route('staff.dashboard'),
-                default => redirect('/?login=success'),
+                default => redirect($targetRedirect ?: '/?login=success'),
             };
         }
 

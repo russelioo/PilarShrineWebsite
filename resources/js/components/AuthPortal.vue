@@ -549,6 +549,27 @@ const passwordsMatch = computed(() => {
   return regPassword.value === regConfirmPassword.value
 })
 
+// Redirect target calculation
+const redirectTarget = computed(() => {
+  if (typeof window === 'undefined') return ''
+  const hash = window.location.hash || ''
+  const searchPart = hash.includes('?') ? hash.split('?')[1] : window.location.search.replace(/^\?/, '')
+  const params = new URLSearchParams(searchPart)
+  const target = params.get('redirect')
+  if (target && target.startsWith('/') && !target.startsWith('//')) {
+    return target
+  }
+  return ''
+})
+
+const googleLoginUrl = computed(() => {
+  let url = '/auth/google?intent=login'
+  if (redirectTarget.value) {
+    url += '&redirect=' + encodeURIComponent(redirectTarget.value)
+  }
+  return url
+})
+
 // Sign in handler
 const login = async () => {
   error.value = ''
@@ -567,6 +588,7 @@ const login = async () => {
         email: email.value.trim(),
         password: password.value,
         remember: remember.value,
+        redirect: redirectTarget.value || undefined,
       }),
     })
 
@@ -840,7 +862,7 @@ const register = async () => {
 
           <!-- Google Sign In Button -->
           <a
-            href="/auth/google?intent=login"
+            :href="googleLoginUrl"
             class="btn-google-auth"
             aria-label="Continue with Google"
           >
@@ -1841,7 +1863,7 @@ const register = async () => {
                 </div>
                 <div class="contact-row">
                   <strong>Office Hours:</strong>
-                  <span>Tuesday &ndash; Sunday: 8:00 AM &ndash; 5:00 PM (Closed Mondays)</span>
+                  <span>Mon, Wed&ndash;Sat: 8:00 AM &ndash; 11:30 AM | 1:00 PM &ndash; 5:00 PM; Sun: 8:30 AM &ndash; 12:00 NN (Closed Tuesdays &amp; Holidays)</span>
                 </div>
               </div>
 

@@ -12,7 +12,7 @@ return new class extends Migration {
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
             $table->string('donor_name');
             $table->decimal('amount', 10, 2);
-            $table->enum('method', ['GCash', 'Bank', 'Card', 'Cash']);
+            $table->string('method', 50)->default('GCash');
             $table->string('payment_reference')->nullable();
             $table->enum('payment_status', ['pending', 'paid', 'failed'])->default('pending');
             $table->string('transaction_id')->nullable()->unique();

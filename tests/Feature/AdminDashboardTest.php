@@ -25,12 +25,11 @@ class AdminDashboardTest extends TestCase
         $response->assertSee('Welcome back, Admin!');
         $response->assertSee('Matthew 18:20');
         $response->assertSee('Parishioners');
-        $response->assertSee('Pending Requests');
-        $response->assertSee('Upcoming Events');
+        $response->assertSee('Parish Ministries');
+        $response->assertSee('Announcements');
         $response->assertSee('Donations');
         $response->assertSee('Recent requests');
-        $response->assertSee('Facebook Broadcast');
-        $response->assertSee('Upcoming events');
+        $response->assertSee('Mass schedules');
         $response->assertSee('Quick Administrative Actions');
     }
 }

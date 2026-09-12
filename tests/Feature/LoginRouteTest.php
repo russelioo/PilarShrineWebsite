@@ -11,8 +11,8 @@ class LoginRouteTest extends TestCase
         $this->get('/login')->assertRedirect('/#/login');
     }
 
-    public function test_an_unauthenticated_livestream_update_redirects_to_login(): void
+    public function test_an_unauthenticated_admin_action_redirects_to_login(): void
     {
-        $this->post('/admin/livestream')->assertRedirect('/login');
+        $this->post('/admin/announcements')->assertRedirect('/login');
     }
 }
