@@ -18,7 +18,6 @@ export const primaryNavigation = [
     children: serviceNavigation,
   },
   { key: 'about', label: 'About', href: '#/about' },
-  { key: 'donations', aliases: ['support', 'donate'], label: 'Support the Shrine', href: '#/donations' },
   { key: 'contact', label: 'Contact', href: '#/contact' },
 ]
 

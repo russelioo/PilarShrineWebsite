@@ -138,7 +138,7 @@
                             @endif
                             <div>
                                 <strong class="item-title">{{ $a->title }}</strong>
-                                <p class="item-snippet">{{ Str::limit($a->content, 95) }}</p>
+                                <p class="item-snippet">{{ \Illuminate\Support\Str::limit($a->content, 95) }}</p>
                             </div>
                         </div>
                     </td>
@@ -219,8 +219,8 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="add-published">Publish Date</label>
-                        <input type="date" id="add-published" name="published_at" value="{{ date('Y-m-d') }}" class="form-input">
+                        <label for="add-published">Publish date</label>
+                        <input type="date" id="add-published" name="published_at" value="{{ now()->format('Y-m-d') }}" class="form-input">
                     </div>
                 </div>
 
@@ -295,7 +295,7 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="edit-published">Publish Date</label>
+                        <label for="edit-published">Publish date</label>
                         <input type="date" id="edit-published" name="published_at" class="form-input">
                     </div>
                 </div>
@@ -501,12 +501,64 @@
 
 @push('scripts')
 <script>
-function previewPhotos(input, containerId) {
+async function compressImageIfNeeded(file) {
+    // If already small (under 1.5MB), or SVG/GIF, return as-is
+    if (file.size <= 1.5 * 1024 * 1024 || file.type === 'image/gif') {
+        return file;
+    }
+
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+                const maxDim = 1920;
+
+                if (width > maxDim || height > maxDim) {
+                    if (width > height) {
+                        height = Math.round((height * maxDim) / width);
+                        width = maxDim;
+                    } else {
+                        width = Math.round((width * maxDim) / height);
+                        height = maxDim;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                canvas.toBlob((blob) => {
+                    if (blob && blob.size < file.size) {
+                        const newName = file.name.replace(/\.[^/.]+$/, "") + ".jpg";
+                        const compressedFile = new File([blob], newName, {
+                            type: 'image/jpeg',
+                            lastModified: Date.now(),
+                        });
+                        resolve(compressedFile);
+                    } else {
+                        resolve(file);
+                    }
+                }, 'image/jpeg', 0.85);
+            };
+            img.onerror = () => resolve(file);
+            img.src = e.target.result;
+        };
+        reader.onerror = () => resolve(file);
+        reader.readAsDataURL(file);
+    });
+}
+
+async function previewPhotos(input, containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
     container.innerHTML = '';
 
-    const files = Array.from(input.files || []);
+    let files = Array.from(input.files || []);
     if (files.length === 0) {
         container.style.display = 'none';
         return;
@@ -520,19 +572,40 @@ function previewPhotos(input, containerId) {
         return;
     }
 
-    // 2. Check max 10MB per file
-    const MAX_BYTES = 10 * 1024 * 1024;
+    // 2. Check max 15MB limit
+    const MAX_BYTES = 15 * 1024 * 1024;
     for (const file of files) {
         if (file.size > MAX_BYTES) {
             const mb = (file.size / (1024 * 1024)).toFixed(1);
-            alert(`The photo "${file.name}" is ${mb}MB, which exceeds the 10MB limit. Please choose a smaller photo.`);
+            alert(`The photo "${file.name}" is ${mb}MB, which exceeds the limit. Please choose a smaller photo.`);
             input.value = '';
             container.style.display = 'none';
             return;
         }
     }
 
+    // 3. Show loading indicator while preparing preview
     container.style.display = 'grid';
+    container.innerHTML = '<div style="grid-column: 1/-1; padding: 10px; color: var(--navy); font-size: 11px; text-align: center;">Processing and optimizing photo(s)...</div>';
+
+    // 4. Compress large images client-side for smooth uploads
+    const optimizedFiles = [];
+    for (const file of files) {
+        const opt = await compressImageIfNeeded(file);
+        optimizedFiles.push(opt);
+    }
+
+    // Update input.files with optimized files via DataTransfer if supported
+    try {
+        const dt = new DataTransfer();
+        optimizedFiles.forEach(f => dt.items.add(f));
+        input.files = dt.files;
+        files = Array.from(input.files);
+    } catch (e) {
+        files = optimizedFiles;
+    }
+
+    container.innerHTML = '';
     files.forEach((file, index) => {
         const card = document.createElement('div');
         card.className = 'photo-preview-card';
@@ -549,7 +622,9 @@ function previewPhotos(input, containerId) {
 
         const size = document.createElement('span');
         size.className = 'photo-preview-size';
-        size.innerText = (file.size / (1024 * 1024)).toFixed(2) + ' MB (Photo ' + (index + 1) + ' of ' + files.length + ')';
+        const sizeKb = Math.round(file.size / 1024);
+        const sizeText = sizeKb > 1024 ? (file.size / (1024 * 1024)).toFixed(2) + ' MB' : sizeKb + ' KB';
+        size.innerText = `${sizeText} (Ready to upload)`;
 
         info.appendChild(name);
         info.appendChild(size);

@@ -127,7 +127,7 @@
                     <td>
                         <span class="purpose-badge">{{ $donation->purpose ?: 'General Parish Support' }}</span>
                         @if($donation->notes)
-                            <small class="notes-preview" title="{{ $donation->notes }}">📝 {{ Str::limit($donation->notes, 30) }}</small>
+                            <small class="notes-preview" title="{{ $donation->notes }}">📝 {{ \Illuminate\Support\Str::limit($donation->notes, 30) }}</small>
                         @endif
                     </td>
                     <td>
@@ -157,7 +157,7 @@
                             @endif
                         </span>
                         @if($donation->admin_notes)
-                            <small class="admin-remark-preview" title="{{ $donation->admin_notes }}">Remarks: {{ Str::limit($donation->admin_notes, 25) }}</small>
+                            <small class="admin-remark-preview" title="{{ $donation->admin_notes }}">Remarks: {{ \Illuminate\Support\Str::limit($donation->admin_notes, 25) }}</small>
                         @endif
                     </td>
                     <td>

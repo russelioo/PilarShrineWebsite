@@ -8,7 +8,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class AnnouncementController extends Controller
@@ -167,6 +166,11 @@ class AnnouncementController extends Controller
             'photos.*.image' => 'Each uploaded file must be a valid image.',
             'photos.*.mimes' => 'Images must be in JPEG, PNG, JPG, WEBP, or GIF format.',
             'photos.*.max' => 'Each photo must not exceed 10MB in size.',
+            'photos.*.uploaded' => 'The photo could not be uploaded. Please choose an image under 10MB.',
+            'photos.uploaded' => 'The photos could not be uploaded. Please choose images under 10MB.',
+        ], [
+            'photos.0' => 'first photo',
+            'photos.1' => 'second photo',
         ]);
 
         $storedUrls = [];
@@ -218,6 +222,11 @@ class AnnouncementController extends Controller
             'photos.*.image' => 'Each uploaded file must be a valid image.',
             'photos.*.mimes' => 'Images must be in JPEG, PNG, JPG, WEBP, or GIF format.',
             'photos.*.max' => 'Each photo must not exceed 10MB in size.',
+            'photos.*.uploaded' => 'The photo could not be uploaded. Please choose an image under 10MB.',
+            'photos.uploaded' => 'The photos could not be uploaded. Please choose images under 10MB.',
+        ], [
+            'photos.0' => 'first photo',
+            'photos.1' => 'second photo',
         ]);
 
         if ($request->boolean('remove_photos')) {

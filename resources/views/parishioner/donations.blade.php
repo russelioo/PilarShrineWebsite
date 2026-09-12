@@ -83,7 +83,7 @@
                                 @endif
                             </span>
                             @if($donation->status === 'rejected' && $donation->admin_notes)
-                                <small class="rejection-hint" title="{{ $donation->admin_notes }}">Note: {{ Str::limit($donation->admin_notes, 36) }}</small>
+                                <small class="rejection-hint" title="{{ $donation->admin_notes }}">Note: {{ \Illuminate\Support\Str::limit($donation->admin_notes, 36) }}</small>
                             @endif
                         </td>
                         <td>

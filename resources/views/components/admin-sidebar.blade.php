@@ -104,14 +104,14 @@
       <span class="nav-section-title">LITURGY &amp; RECORDS</span>
       <a href="{{ route('admin.mass-schedules') }}" 
          class="admin-nav-item {{ request()->routeIs('admin.mass-schedules') ? 'active' : '' }}"
-         data-title="Mass Schedules">
+         data-title="Mass &amp; Confession Schedule">
         <span class="nav-icon-box">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <circle cx="12" cy="12" r="10"></circle>
             <polyline points="12 6 12 12 16 14"></polyline>
           </svg>
         </span>
-        <span class="nav-label">Mass Schedules</span>
+        <span class="nav-label">Mass &amp; Confession Schedule</span>
       </a>
       <a href="{{ route('admin.announcements') }}" 
          class="admin-nav-item {{ request()->routeIs('admin.announcements') ? 'active' : '' }}"
@@ -123,17 +123,6 @@
           </svg>
         </span>
         <span class="nav-label">Announcements</span>
-      </a>
-      <a href="{{ route('admin.sacramental-records') }}" 
-         class="admin-nav-item {{ request()->routeIs('admin.sacramental-records') ? 'active' : '' }}"
-         data-title="Sacramental Records">
-        <span class="nav-icon-box">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-          </svg>
-        </span>
-        <span class="nav-label">Sacramental Records</span>
       </a>
       <a href="{{ route('admin.donations') }}" 
          class="admin-nav-item {{ request()->routeIs('admin.donations') ? 'active' : '' }}"
@@ -213,6 +202,17 @@
           </svg>
         </span>
         <span class="nav-label">Sacramental Schedule</span>
+        <span class="nav-badge-soon">Soon</span>
+      </div>
+
+      <div class="admin-nav-item nav-item-disabled" data-title="Sacramental Records (Available Soon)" title="Feature Available Soon">
+        <span class="nav-icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+          </svg>
+        </span>
+        <span class="nav-label">Sacramental Records</span>
         <span class="nav-badge-soon">Soon</span>
       </div>
     </div>

@@ -66,7 +66,7 @@ export const publicPages = {
   news: {
     component: NewsPage,
     heroType: 'image',
-    image: 'https://images.unsplash.com/photo-1515169067868-5387ec356754?auto=format&fit=crop&w=1400&q=80',
+    image: '/images/pilar-shrine-sanctuary.jpg',
     eyebrow: 'Parish Bulletin & Events',
     title: 'News & Announcements',
     description: 'Stay updated with liturgical celebrations, shrine activities, parish news, and pastoral announcements from the Diocesan Shrine of Our Lady of the Pillar.',

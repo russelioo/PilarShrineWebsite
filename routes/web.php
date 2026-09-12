@@ -26,6 +26,7 @@ Route::get('/', function () {
 });
 
 Route::get('/api/announcements', [AnnouncementController::class, 'publicIndex'])->name('api.announcements');
+Route::get('/api/mass-schedules', [MassScheduleController::class, 'publicIndex'])->name('api.mass-schedules');
 
 Route::get('/api/livestream-status', function (FacebookLiveService $facebookLive) {
     return response()->json($facebookLive->status());

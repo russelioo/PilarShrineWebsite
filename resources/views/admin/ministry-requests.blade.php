@@ -94,11 +94,11 @@
                 <td style="max-width: 280px;">
                     <div class="detail-block">
                         <b>Motivation:</b>
-                        <p>{{ Str::limit($req->application_message, 120) }}</p>
+                        <p>{{ \Illuminate\Support\Str::limit($req->application_message, 120) }}</p>
                     </div>
                     @if($req->experience)
                     <div class="detail-block" style="margin-top: 4px;">
-                        <small><b>Experience:</b> {{ Str::limit($req->experience, 80) }}</small>
+                        <small><b>Experience:</b> {{ \Illuminate\Support\Str::limit($req->experience, 80) }}</small>
                     </div>
                     @endif
                     @if($req->reviewer_notes)
