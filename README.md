@@ -1,5 +1,20 @@
 # PilarShrineWebsite
 
+## Inquiries
+
+Authenticated users can find registered users by name and exchange private
+church-related messages at `/inquiries` (also linked from the parishioner and
+staff Inquiries pages). Use Refresh messages to check for replies. Only the
+sender and recipient can download attachments, stored on the private local disk.
+Each sender may upload 3 images and 3 documents per Philippine calendar day
+across all conversations, at most 10 MB each.
+
+Run `php artisan migrate` when deploying. PHP must allow `upload_max_filesize=10M`,
+`post_max_size=65M`, and `max_file_uploads=6` or higher. `public/.user.ini` provides
+these values for CGI/FPM; for `artisan serve`, use
+`php -d upload_max_filesize=10M -d post_max_size=65M artisan serve`.
+Configure the web server request body limit to at least 65 MB as well.
+
 ## Facebook livestream indicator
 
 The public website checks `/api/livestream-status` once per minute. When the

@@ -1,25 +1,34 @@
 <?php
 
+use App\Http\Controllers\Admin\MinistryDirectoryManagementController;
 use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\GoogleAuthController;
+use App\Http\Controllers\InquiryController;
 use App\Http\Controllers\LoginController;
-use App\Http\Controllers\MassScheduleController;
 use App\Http\Controllers\MassIntentionManagementController;
+use App\Http\Controllers\MassScheduleController;
+use App\Http\Controllers\MinistryManagementController;
 use App\Http\Controllers\Parishioner\DashboardController;
 use App\Http\Controllers\Parishioner\MassIntentionController;
+use App\Http\Controllers\Parishioner\MinistryController;
 use App\Http\Controllers\Parishioner\ProfileSettingsController;
 use App\Http\Controllers\Parishioner\SacramentRequestController;
-use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\ProfileCompletionController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\UserManagementController;
-use App\Http\Controllers\Parishioner\MinistryController;
-use App\Http\Controllers\MinistryManagementController;
-use App\Http\Controllers\Admin\MinistryDirectoryManagementController;
 use App\Http\Controllers\AnnouncementController;
+use App\Http\Controllers\TimeSlotController;
 use App\Services\FacebookLiveService;
 use App\Http\Controllers\Parishioner\DonationController as ParishionerDonationController;
 use App\Http\Controllers\Admin\DonationManagementController as AdminDonationManagementController;
 use Illuminate\Support\Facades\Route;
+
+Route::middleware('auth')->group(function () {
+    Route::get('/inquiries', [InquiryController::class, 'index'])->name('inquiries.index');
+    Route::post('/inquiries', [InquiryController::class, 'store'])->middleware('throttle:30,1')->name('inquiries.store');
+    Route::get('/inquiries/attachments/{attachment}', [InquiryController::class, 'download'])->name('inquiries.download');
+    Route::get('/admin/inquiries', [InquiryController::class, 'index'])->name('admin.inquiries');
+});
 
 Route::get('/', function () {
     return view('parish');
@@ -59,7 +68,6 @@ Route::post('/api/parishioner/complete-profile', [ProfileCompletionController::c
     ->middleware('auth')
     ->name('parishioner.complete-profile');
 
-
 Route::get('/portal', function () {
     return redirect()->route('parishioner.dashboard');
 })->middleware('auth')->name('portal');
@@ -68,7 +76,7 @@ Route::prefix('parishioner')->name('parishioner.')->middleware('auth')->group(fu
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/mass-intentions', [MassIntentionController::class, 'index'])->name('mass-intentions');
     Route::get('/sacrament-requests', [SacramentRequestController::class, 'index'])->name('sacrament-requests');
-    Route::view('/inquiries', 'parishioner.inquiries')->name('inquiries');
+    Route::get('/inquiries', [InquiryController::class, 'index'])->name('inquiries');
     Route::get('/request-mass-intention', [MassIntentionController::class, 'create'])->name('request-mass-intention');
     Route::post('/mass-intentions', [MassIntentionController::class, 'store'])->name('mass-intentions.store');
     Route::get('/request-sacrament', [SacramentRequestController::class, 'create'])->name('request-sacrament');
@@ -81,7 +89,7 @@ Route::prefix('parishioner')->name('parishioner.')->middleware('auth')->group(fu
     Route::post('/donations', [ParishionerDonationController::class, 'store'])->name('donations.store');
     Route::get('/ministries', [MinistryController::class, 'index'])->name('ministries');
     Route::post('/ministries/{ministry}/join', [MinistryController::class, 'join'])->name('ministries.join');
-    Route::view('/messages-inquiries', 'parishioner.messages-inquiries')->name('messages-inquiries');
+    Route::get('/messages-inquiries', [InquiryController::class, 'index'])->name('messages-inquiries');
     Route::get('/profile-settings', [ProfileSettingsController::class, 'index'])->name('profile-settings');
     Route::put('/profile-settings', [ProfileSettingsController::class, 'update'])->name('profile-settings.update');
     Route::post('/logout', [AdminDashboardController::class, 'logout'])->name('logout');
@@ -125,7 +133,7 @@ Route::prefix('staff')->name('staff.')->group(function () {
 
     Route::view('/mass-intentions', 'staff.mass-intentions')->name('mass-intentions');
     Route::view('/sacrament-requests', 'staff.sacrament-requests')->name('sacrament-requests');
-    Route::view('/inquiries', 'staff.inquiries')->name('inquiries');
+    Route::get('/inquiries', [InquiryController::class, 'index'])->middleware('auth')->name('inquiries');
 
     Route::middleware('auth')->group(function () {
         Route::get('/mass-schedules', [MassScheduleController::class, 'index'])->name('mass-schedules');
