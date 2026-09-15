@@ -53,7 +53,12 @@
         .topbar{height:78px;display:flex;align-items:center;justify-content:space-between;padding:0 36px;border-bottom:1px solid var(--line);background:#fff}
         .topbar h1{margin:0;color:var(--navy);font-size:22px;font-family:Georgia,serif}
         .profile{display:flex;align-items:center;gap:11px;font-size:11px}
-        .avatar{width:36px;height:36px;display:grid;place-items:center;border-radius:50%;background:#eaf2fb;color:var(--navy);font-weight:800}
+        .avatar{width:38px;height:38px;min-width:38px;min-height:38px;display:grid;place-items:center;border-radius:50%;background:#eaf2fb;color:var(--navy);font-weight:800;overflow:hidden;border:1.5px solid var(--line);flex-shrink:0}
+        .avatar img, .avatar-img{width:100%;height:100%;object-fit:cover;display:block;border-radius:50%}
+        .avatar-initials{font-size:13px;font-weight:800;color:var(--navy);line-height:1}
+        .profile-info{display:flex;flex-direction:column;text-align:left;line-height:1.3}
+        .profile-info b{font-size:12px;font-weight:700;color:var(--ink)}
+        .profile-info small{font-size:11px;color:var(--muted)}
         .profile-actions{display:flex;align-items:center;gap:14px}
         .logout-button{padding:9px 13px;border:1px solid #d5dfe9;border-radius:6px;background:#fff;color:#8b2635;font-size:9px;font-weight:700;text-transform:uppercase;cursor:pointer}
         .logout-button:hover{border-color:#b64555;background:#fff7f8}

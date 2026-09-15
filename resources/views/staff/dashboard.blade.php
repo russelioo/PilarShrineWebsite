@@ -15,7 +15,7 @@
 
     <section class="welcome">
         <div>
-            <h2>Good day, Staff</h2>
+            <h2>Good day, {{ auth()->user()?->first_name ?: (auth()->user()?->name ?: 'Staff') }}</h2>
             <p>Here is what is happening in the parish today.</p>
         </div>
         <div class="date">{{ now()->format('l, F j, Y') }}</div>

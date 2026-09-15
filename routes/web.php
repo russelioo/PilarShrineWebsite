@@ -98,6 +98,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware('auth')->group(function () {
         Route::get('/parishioners', [UserManagementController::class, 'parishioners'])->name('parishioners');
         Route::get('/staff', [UserManagementController::class, 'staff'])->name('staff');
+        Route::post('/staff', [UserManagementController::class, 'storeStaff'])->name('staff.store');
         Route::get('/mass-intentions', [MassIntentionManagementController::class, 'index'])->name('mass-intentions');
         Route::patch('/mass-intentions/{massIntention}/status', [MassIntentionManagementController::class, 'updateStatus'])->name('mass-intentions.status');
         Route::get('/mass-schedules', [MassScheduleController::class, 'index'])->name('mass-schedules');

@@ -40,8 +40,8 @@
                 </svg>
             </div>
             <div class="date-meta">
-                <span class="date-day">{{ now()->format('l') }}</span>
-                <strong class="date-full">{{ now()->format('F j, Y') }}</strong>
+                <span class="date-day">{{ now()->timezone('Asia/Manila')->format('l') }}</span>
+                <strong class="date-full">{{ now()->timezone('Asia/Manila')->format('F j, Y') }}</strong>
                 <small class="date-liturgical">Diocese of Sorsogon</small>
             </div>
         </div>
@@ -223,13 +223,15 @@
                                             🤝
                                         @elseif($req['type'] === 'Appointment')
                                             📅
+                                        @elseif($req['type'] === 'Donation')
+                                            ₱
                                         @else
                                             🕯
                                         @endif
                                     </div>
                                     <div>
                                         <strong class="request-name">{{ $req['title'] }}</strong>
-                                        <small class="request-code">Ref: #REQ-{{ rand(1040, 9999) }}</small>
+                                        <small class="request-code">{{ $req['ref'] }}</small>
                                     </div>
                                 </td>
                                 <td>
@@ -251,7 +253,7 @@
                                 </td>
                                 <td class="text-right">
                                     <div class="table-action-menu">
-                                        <a href="{{ route('admin.ministry-requests') }}" class="action-btn-sm" title="View details">
+                                        <a href="{{ $req['url'] }}" class="action-btn-sm" title="View details">
                                             View
                                         </a>
                                     </div>
@@ -268,7 +270,7 @@
 
             <!-- Mobile Requests Cards (Mobile View) -->
             <div class="requests-mobile-list">
-                @foreach($recentRequests as $req)
+                @forelse($recentRequests as $req)
                     <article class="mobile-request-card">
                         <div class="mobile-req-header">
                             <span class="type-pill {{ $req['type_class'] }}">{{ $req['type'] }}</span>
@@ -280,10 +282,14 @@
                             <span>🕒 {{ $req['date'] }}</span>
                         </div>
                         <div class="mobile-req-footer">
-                            <a href="{{ route('admin.ministry-requests') }}" class="btn btn-outline btn-sm">Review Request →</a>
+                            <a href="{{ $req['url'] }}" class="btn btn-outline btn-sm">Review Request →</a>
                         </div>
                     </article>
-                @endforeach
+                @empty
+                    <div class="empty-state-notice">
+                        <p>No recent requests recorded yet.</p>
+                    </div>
+                @endforelse
             </div>
         </section>
 

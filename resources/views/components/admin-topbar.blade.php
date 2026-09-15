@@ -1,4 +1,98 @@
 <!-- resources/views/components/admin-topbar.blade.php -->
+@props(['title' => null])
+
+@php
+  $routeName = request()->route()?->getName() ?? '';
+
+  // Clean, standard module titles based on admin routes
+  $routeTitles = [
+    'admin.dashboard'           => 'Dashboard',
+    'admin.parishioners'        => 'Parishioners',
+    'admin.staff'               => 'Users',
+    'admin.inquiries'           => 'Inquiries',
+    'inquiries.index'           => 'Inquiries',
+    'admin.ministries'          => 'Ministries',
+    'admin.ministry-requests'   => 'Ministry Requests',
+    'admin.mass-schedules'      => 'Mass Schedules',
+    'admin.mass-intentions'     => 'Mass Intentions',
+    'admin.announcements'       => 'Announcements',
+    'admin.donations'           => 'Donations',
+    'admin.donations.history'   => 'Donations',
+    'admin.appointments'        => 'Appointments',
+    'admin.sacramental-records' => 'Sacramental Records',
+    'admin.form-submissions'    => 'Form Submissions',
+    'admin.notifications'       => 'Settings',
+    'admin.events'              => 'Events',
+    'admin.reports'             => 'Reports',
+  ];
+
+  if (isset($routeTitles[$routeName])) {
+    $pageTitle = $routeTitles[$routeName];
+  } elseif (str_starts_with($routeName, 'admin.')) {
+    $sub = explode('.', substr($routeName, 6))[0];
+    $pageTitle = match ($sub) {
+      'dashboard'                 => 'Dashboard',
+      'parishioners'              => 'Parishioners',
+      'staff', 'users'            => 'Users',
+      'donations'                 => 'Donations',
+      'ministries'                => 'Ministries',
+      'ministry-requests'         => 'Ministry Requests',
+      'announcements'             => 'Announcements',
+      'mass-schedules'            => 'Mass Schedules',
+      'mass-intentions'           => 'Mass Intentions',
+      'appointments'              => 'Appointments',
+      'sacramental-records'       => 'Sacramental Records',
+      'form-submissions'          => 'Form Submissions',
+      'notifications', 'settings' => 'Settings',
+      'inquiries'                 => 'Inquiries',
+      'events'                    => 'Events',
+      'reports'                   => 'Reports',
+      default                     => str($sub)->headline()->toString(),
+    };
+  } elseif (!empty($title) && !in_array($title, ['Admin Portal', 'Pilar Shrine', 'Dashboard'])) {
+    $pageTitle = $title;
+  } elseif (request()->is('admin/*')) {
+    $segment = request()->segment(2);
+    $pageTitle = str($segment)->headline()->toString();
+  } else {
+    $pageTitle = !empty($title) ? $title : 'Dashboard';
+  }
+
+  // Live notification counters and items with defensive checks
+  $pendingMinistryCount = 0;
+  $pendingDonationsCount = 0;
+  $pendingIntentionsCount = 0;
+  $unreadInquiriesCount = 0;
+  $recentSystemNotifs = collect();
+
+  try {
+    if (\Illuminate\Support\Facades\Schema::hasTable('ministry_memberships')) {
+      $pendingMinistryCount = \App\Models\MinistryMembership::query()->where('status', 'pending')->count();
+    }
+    if (\Illuminate\Support\Facades\Schema::hasTable('donations')) {
+      $pendingDonationsCount = \App\Models\Donation::query()->where('status', 'pending_verification')->count();
+    }
+    if (\Illuminate\Support\Facades\Schema::hasTable('mass_intentions')) {
+      $pendingIntentionsCount = \App\Models\MassIntention::query()->where('status', 'pending')->count();
+    }
+    if (auth()->check() && \Illuminate\Support\Facades\Schema::hasTable('inquiry_messages')) {
+      $unreadInquiriesCount = \App\Models\InquiryMessage::query()->where('recipient_id', auth()->id())->whereNull('read_at')->count();
+    }
+    if (auth()->check() && \Illuminate\Support\Facades\Schema::hasTable('notifications')) {
+      $recentSystemNotifs = \App\Models\Notification::query()->where('user_id', auth()->id())->latest()->take(4)->get();
+    }
+  } catch (\Throwable $e) {
+    // Graceful fallback if any query fails
+  }
+
+  $totalNotificationCount = $pendingMinistryCount + $pendingDonationsCount + $pendingIntentionsCount + $unreadInquiriesCount;
+  
+  $authName = auth()->user()?->name ?? 'Parish Administrator';
+  $authEmail = auth()->user()?->email ?? 'admin@pilarshrine.test';
+  $authRole = ucfirst(auth()->user()?->role ?? 'Administrator');
+  $authInitials = strtoupper(substr(trim($authName), 0, 2));
+@endphp
+
 <header class="admin-topbar">
   <div class="topbar-left">
     <!-- Mobile Drawer Hamburger Toggle -->
@@ -10,6 +104,14 @@
       </svg>
     </button>
 
+    <!-- Dynamic Page / Module Title directly to the left of the search bar -->
+    <div class="topbar-title-section">
+      <h1 class="topbar-page-title">{{ $pageTitle }}</h1>
+    </div>
+
+    <!-- Visual separation divider -->
+    <div class="topbar-title-divider" aria-hidden="true"></div>
+
     <!-- Global Search -->
     <div class="global-search-wrap" id="global-search-wrap">
       <div class="search-input-box">
@@ -20,7 +122,7 @@
         <input 
           type="search" 
           id="global-search-input" 
-          placeholder="Search parishioners, requests, or events..." 
+          placeholder="Search modules... (Ctrl+K)" 
           aria-label="Global search across parish records"
           autocomplete="off"
         >
@@ -86,7 +188,9 @@
           <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
           <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
         </svg>
-        <span class="notification-badge">3</span>
+        @if($totalNotificationCount > 0)
+          <span class="notification-badge">{{ $totalNotificationCount }}</span>
+        @endif
       </button>
 
       <!-- Notification Popover -->
@@ -94,32 +198,68 @@
         <div class="popover-header">
           <div>
             <strong>Notifications</strong>
-            <span class="unread-count">3 unread</span>
+            @if($totalNotificationCount > 0)
+              <span class="unread-count">{{ $totalNotificationCount }} unread</span>
+            @endif
           </div>
           <a href="{{ route('admin.notifications') }}" class="mark-read-btn">View all</a>
         </div>
         <div class="notification-list">
-          <a href="{{ route('admin.mass-intentions') }}" class="notification-item unread">
-            <span class="notif-dot"></span>
-            <div>
-              <p><strong>New Mass Intention</strong> submitted by Maria Santos for Thanksgiving.</p>
-              <small>15 minutes ago</small>
-            </div>
-          </a>
-          <a href="{{ route('admin.appointments') }}" class="notification-item unread">
-            <span class="notif-dot"></span>
-            <div>
-              <p><strong>Baptism Interview Request</strong> scheduled for Sept 12.</p>
-              <small>1 hour ago</small>
-            </div>
-          </a>
-          <a href="{{ route('admin.dashboard') }}#livestream-panel" class="notification-item unread">
-            <span class="notif-dot"></span>
-            <div>
-              <p><strong>Sunday Mass Livestream</strong> status is currently offline.</p>
-              <small>3 hours ago</small>
-            </div>
-          </a>
+          @if($pendingMinistryCount > 0)
+            <a href="{{ route('admin.ministry-requests') }}" class="notification-item unread">
+              <span class="notif-dot"></span>
+              <div>
+                <p><strong>{{ $pendingMinistryCount }} Ministry {{ str('Application')->plural($pendingMinistryCount) }}</strong> pending review.</p>
+                <small>Requires administrative action</small>
+              </div>
+            </a>
+          @endif
+
+          @if($pendingDonationsCount > 0)
+            <a href="{{ route('admin.donations') }}" class="notification-item unread">
+              <span class="notif-dot"></span>
+              <div>
+                <p><strong>{{ $pendingDonationsCount }} Donation {{ str('Submission')->plural($pendingDonationsCount) }}</strong> awaiting verification.</p>
+                <small>Payment verification queue</small>
+              </div>
+            </a>
+          @endif
+
+          @if($pendingIntentionsCount > 0)
+            <a href="{{ route('admin.mass-intentions') }}" class="notification-item unread">
+              <span class="notif-dot"></span>
+              <div>
+                <p><strong>{{ $pendingIntentionsCount }} Mass {{ str('Intention')->plural($pendingIntentionsCount) }}</strong> pending scheduling.</p>
+                <small>Liturgical intentions</small>
+              </div>
+            </a>
+          @endif
+
+          @if($unreadInquiriesCount > 0)
+            <a href="{{ route('admin.inquiries') }}" class="notification-item unread">
+              <span class="notif-dot"></span>
+              <div>
+                <p><strong>{{ $unreadInquiriesCount }} Unread {{ str('Message')->plural($unreadInquiriesCount) }}</strong> from parishioners.</p>
+                <small>Communication inbox</small>
+              </div>
+            </a>
+          @endif
+
+          @forelse($recentSystemNotifs as $sNotif)
+            <a href="{{ route('admin.notifications') }}" class="notification-item {{ $sNotif->status === 'unread' ? 'unread' : '' }}">
+              <span class="notif-dot"></span>
+              <div>
+                <p><strong>{{ $sNotif->subject }}</strong></p>
+                <small>{{ $sNotif->created_at ? $sNotif->created_at->diffForHumans() : 'Recently' }}</small>
+              </div>
+            </a>
+          @empty
+            @if($totalNotificationCount === 0)
+              <div class="notification-empty" style="padding: 16px; text-align: center; color: var(--muted); font-size: 11px;">
+                No unread notifications at this time.
+              </div>
+            @endif
+          @endforelse
         </div>
       </div>
     </div>
@@ -127,10 +267,16 @@
     <!-- Admin Profile Dropdown -->
     <div class="topbar-dropdown-wrap" id="profile-dropdown-wrap">
       <button class="profile-trigger-btn" id="profile-trigger-btn" type="button" aria-label="Admin account menu" aria-expanded="false" aria-haspopup="true">
-        <div class="admin-avatar">PA</div>
+        <div class="admin-avatar">
+          @if(!empty($authAvatar))
+            <img src="{{ $authAvatar }}" alt="{{ $authName }}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;" />
+          @else
+            {{ $authInitials }}
+          @endif
+        </div>
         <div class="admin-meta">
-          <span class="admin-name">Parish Administrator</span>
-          <span class="admin-role">Administrator</span>
+          <span class="admin-name">{{ $authName }}</span>
+          <span class="admin-role">{{ $authRole }}</span>
         </div>
         <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <polyline points="6 9 12 15 18 9"></polyline>
@@ -140,9 +286,9 @@
       <!-- Profile Dropdown Menu -->
       <div class="dropdown-popover profile-popover" id="profile-popover" role="menu">
         <div class="profile-popover-header">
-          <strong>Parish Administrator</strong>
-          <small>admin@pilarshrine.test</small>
-          <span class="role-chip">System Admin</span>
+          <strong>{{ $authName }}</strong>
+          <small>{{ $authEmail }}</small>
+          <span class="role-chip">{{ $authRole }}</span>
         </div>
         <div class="profile-popover-links">
           <a href="{{ route('admin.staff') }}" class="popover-link">
@@ -191,14 +337,40 @@
     top: 0;
     z-index: 100;
     box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+    gap: 20px;
   }
 
   .topbar-left {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 18px;
     flex: 1;
-    max-width: 580px;
+    min-width: 0;
+    max-width: 760px;
+  }
+
+  .topbar-title-section {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .topbar-page-title {
+    margin: 0;
+    font-family: 'Libre Baskerville', Georgia, serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--navy);
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+
+  .topbar-title-divider {
+    width: 1px;
+    height: 24px;
+    background-color: var(--border);
+    flex-shrink: 0;
   }
 
   .mobile-menu-btn {
@@ -212,6 +384,7 @@
     cursor: pointer;
     place-items: center;
     padding: 0;
+    flex-shrink: 0;
   }
 
   .mobile-menu-btn svg {
@@ -221,7 +394,9 @@
 
   .global-search-wrap {
     position: relative;
-    width: 100%;
+    flex: 1;
+    min-width: 180px;
+    max-width: 440px;
   }
 
   .search-input-box {
@@ -438,6 +613,7 @@
     display: grid;
     place-items: center;
     box-shadow: 0 2px 6px rgba(6, 47, 120, 0.2);
+    overflow: hidden;
   }
 
   .admin-meta {
@@ -675,6 +851,26 @@
   }
 
   /* Responsive Adjustments */
+  @media (max-width: 1024px) {
+    .admin-topbar {
+      padding: 0 24px;
+      gap: 16px;
+    }
+
+    .topbar-left {
+      gap: 14px;
+      max-width: 620px;
+    }
+
+    .topbar-page-title {
+      font-size: 19px;
+    }
+
+    .global-search-wrap {
+      min-width: 160px;
+    }
+  }
+
   @media (max-width: 900px) {
     .mobile-menu-btn {
       display: grid;
@@ -683,9 +879,40 @@
     .admin-topbar {
       padding: 0 20px;
     }
+
+    .topbar-left {
+      max-width: 100%;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .topbar-page-title {
+      font-size: 18px;
+    }
+
+    .topbar-left {
+      gap: 12px;
+    }
   }
 
   @media (max-width: 640px) {
+    .admin-topbar {
+      padding: 0 16px;
+      gap: 10px;
+    }
+
+    .topbar-left {
+      gap: 10px;
+    }
+
+    .topbar-page-title {
+      font-size: 16px;
+    }
+
+    .topbar-title-divider {
+      height: 18px;
+    }
+
     .search-shortcut {
       display: none;
     }
@@ -701,6 +928,33 @@
 
     .chevron-icon {
       display: none;
+    }
+
+    .global-search-wrap {
+      min-width: 110px;
+    }
+
+    .search-input-box input {
+      padding: 0 12px 0 34px;
+      font-size: 12px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .admin-topbar {
+      padding: 0 12px;
+    }
+
+    .topbar-page-title {
+      font-size: 15px;
+    }
+
+    .topbar-title-divider {
+      display: none;
+    }
+
+    .topbar-left {
+      gap: 8px;
     }
   }
 </style>

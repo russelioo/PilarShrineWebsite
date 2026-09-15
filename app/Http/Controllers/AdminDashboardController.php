@@ -12,59 +12,78 @@ class AdminDashboardController extends Controller
 {
     public function index(): View
     {
+        // 1. Live Parishioner Counts
         $dbParishioners = \App\Models\User::query()->where('role', 'user')->count();
-        $dbMinistries = \App\Models\Ministry::query()->count();
-        $dbAnnouncements = \App\Models\Announcement::query()->count();
-        $dbDonationsSum = (float) \App\Models\Donation::query()->where('payment_status', 'completed')->sum('amount');
+        $verifiedParishioners = \App\Models\User::query()->where('role', 'user')->where('is_verified', true)->count();
+        $newThisMonth = \App\Models\User::query()->where('role', 'user')->where('created_at', '>=', now()->startOfMonth())->count();
 
-        // Dynamic stats with graceful fallbacks
+        // 2. Live Ministry Counts
+        $dbMinistries = \App\Models\Ministry::query()->count();
+        $acceptingMinistries = \App\Models\Ministry::query()->where('is_accepting_members', true)->count();
+
+        // 3. Live Announcement Counts
+        $dbAnnouncements = \App\Models\Announcement::query()->count();
+        $pinnedAnnouncements = \App\Models\Announcement::query()->where('is_pinned', true)->count();
+
+        // 4. Live Donations Sum & Verification Counts
+        $dbDonationsSum = (float) \App\Models\Donation::query()
+            ->where(function ($q) {
+                $q->whereIn('status', ['verified', 'receipt_ready'])
+                  ->orWhere('payment_status', 'completed');
+            })
+            ->sum('amount');
+        $pendingDonations = \App\Models\Donation::query()->where('status', 'pending_verification')->count();
+        $verifiedDonations = \App\Models\Donation::query()->whereIn('status', ['verified', 'receipt_ready'])->count();
+
+        // 5. Accurate, Live KPI Cards
         $stats = [
             [
                 'icon' => 'parishioners',
-                'value' => $dbParishioners > 0 ? number_format($dbParishioners) : '1,234',
+                'value' => number_format($dbParishioners),
                 'label' => 'Parishioners',
-                'change' => 'Active members',
+                'change' => $newThisMonth > 0 ? "+{$newThisMonth} this month" : ($dbParishioners > 0 ? "{$verifiedParishioners} active" : "0 registered"),
                 'trend' => 'up',
                 'route' => route('admin.parishioners'),
             ],
             [
                 'icon' => 'ministries',
-                'value' => $dbMinistries > 0 ? (string) $dbMinistries : '8',
+                'value' => (string) $dbMinistries,
                 'label' => 'Parish Ministries',
-                'change' => 'Apostolates & groups',
+                'change' => $acceptingMinistries > 0 ? "{$acceptingMinistries} open for join" : "Apostolates & groups",
                 'trend' => 'up',
                 'route' => route('admin.ministries'),
             ],
             [
                 'icon' => 'announcements',
-                'value' => $dbAnnouncements > 0 ? (string) $dbAnnouncements : '4',
+                'value' => (string) $dbAnnouncements,
                 'label' => 'Announcements',
-                'change' => 'Published bulletins',
-                'trend' => 'up',
+                'change' => $pinnedAnnouncements > 0 ? "{$pinnedAnnouncements} pinned" : "Published bulletins",
+                'trend' => 'blue',
                 'route' => route('admin.announcements'),
             ],
             [
                 'icon' => 'donations',
-                'value' => $dbDonationsSum > 0 ? '₱' . number_format($dbDonationsSum, 2) : '₱45,230',
+                'value' => '₱' . number_format($dbDonationsSum, 2),
                 'label' => 'Donations',
-                'change' => 'Total offerings',
-                'trend' => 'up',
+                'change' => $pendingDonations > 0 ? "{$pendingDonations} pending review" : ($verifiedDonations > 0 ? "{$verifiedDonations} verified" : "Total offerings"),
+                'trend' => $pendingDonations > 0 ? 'amber' : 'up',
                 'route' => route('admin.donations'),
             ],
         ];
 
-        // Recent ministry membership requests from DB
-        $dbMinistryRequests = \App\Models\MinistryMembership::query()
-            ->with(['user', 'ministry'])
-            ->latest()
-            ->take(5)
-            ->get();
-
+        // 6. Real Live Recent Requests (Ministry Applications, Mass Intentions, Donations)
         $recentRequests = collect();
 
-        foreach ($dbMinistryRequests as $mem) {
+        // Ministry Applications
+        $ministryRequests = \App\Models\MinistryMembership::query()
+            ->with(['user', 'ministry'])
+            ->latest()
+            ->take(6)
+            ->get();
+
+        foreach ($ministryRequests as $mem) {
             $recentRequests->push([
-                'title' => 'Ministry Application (' . ($mem->ministry?->name ?? 'Parish Ministry') . ')',
+                'title' => 'Ministry Application (' . ($mem->ministry?->name ?? 'Ministry') . ')',
                 'requester' => $mem->user?->name ?? 'Applicant',
                 'email' => $mem->user?->email ?? 'Parishioner',
                 'type' => 'Ministry',
@@ -72,74 +91,68 @@ class AdminDashboardController extends Controller
                 'date' => $mem->created_at ? $mem->created_at->diffForHumans() : 'Recently',
                 'status' => ucfirst($mem->status ?? 'pending'),
                 'status_class' => 'status-' . ($mem->status ?? 'pending'),
+                'ref' => '#MEM-' . str_pad((string) $mem->id, 4, '0', STR_PAD_LEFT),
+                'url' => route('admin.ministry-requests'),
+                'created_at' => $mem->created_at ?? now(),
             ]);
         }
 
-        $defaultRequests = [
-            [
-                'title' => 'Music Ministry Application',
-                'requester' => 'Maria Santos',
-                'email' => 'maria.santos@gmail.com',
-                'type' => 'Ministry',
-                'type_class' => 'type-ministry',
-                'date' => 'Today, 9:30 AM',
-                'status' => 'Pending',
-                'status_class' => 'status-pending',
-            ],
-            [
-                'title' => 'Lectors & Commentators',
-                'requester' => 'Roberto Cruz',
-                'email' => 'roberto.cruz@yahoo.com',
-                'type' => 'Ministry',
-                'type_class' => 'type-ministry',
-                'date' => 'Yesterday',
-                'status' => 'Pending',
-                'status_class' => 'status-pending',
-            ],
-            [
-                'title' => 'Youth Apostolate Volunteer',
-                'requester' => 'Ana & Miguel',
-                'email' => 'ana.miguel2026@gmail.com',
-                'type' => 'Ministry',
-                'type_class' => 'type-ministry',
-                'date' => 'August 20',
-                'status' => 'Approved',
-                'status_class' => 'status-approved',
-            ],
-            [
-                'title' => 'Extraordinary Ministers of HC',
-                'requester' => 'Juan Dela Cruz',
-                'email' => 'juan.delacruz@outlook.com',
-                'type' => 'Ministry',
-                'type_class' => 'type-ministry',
-                'date' => 'August 18',
-                'status' => 'Approved',
-                'status_class' => 'status-approved',
-            ],
-            [
-                'title' => 'Altar Servers Guild',
-                'requester' => 'Carmen Reyes',
-                'email' => 'carmen.reyes@gmail.com',
-                'type' => 'Ministry',
-                'type_class' => 'type-ministry',
-                'date' => 'August 17',
-                'status' => 'Processing',
-                'status_class' => 'status-processing',
-            ],
-        ];
+        // Mass Intentions
+        $massIntentions = \App\Models\MassIntention::query()
+            ->with(['user'])
+            ->latest()
+            ->take(6)
+            ->get();
 
-        // Fill up to 5 items
-        foreach ($defaultRequests as $req) {
-            if ($recentRequests->count() < 5) {
-                $recentRequests->push($req);
-            }
+        foreach ($massIntentions as $intention) {
+            $recentRequests->push([
+                'title' => 'Mass Intention (' . str($intention->intention_type)->headline() . ')',
+                'requester' => $intention->requested_by ?: ($intention->user?->name ?? 'Requester'),
+                'email' => $intention->user?->email ?? 'Parishioner',
+                'type' => 'Intention',
+                'type_class' => 'type-intention',
+                'date' => $intention->created_at ? $intention->created_at->diffForHumans() : 'Recently',
+                'status' => ucfirst($intention->status ?? 'pending'),
+                'status_class' => 'status-' . ($intention->status ?? 'pending'),
+                'ref' => '#INT-' . str_pad((string) $intention->id, 4, '0', STR_PAD_LEFT),
+                'url' => route('admin.mass-intentions'),
+                'created_at' => $intention->created_at ?? now(),
+            ]);
         }
 
+        // Donations / Offerings
+        $donations = \App\Models\Donation::query()
+            ->with(['user'])
+            ->latest()
+            ->take(6)
+            ->get();
+
+        foreach ($donations as $don) {
+            $recentRequests->push([
+                'title' => 'Offering (₱' . number_format($don->amount, 2) . ' - ' . ($don->purpose ?? 'General') . ')',
+                'requester' => $don->donor_name ?: ($don->user?->name ?? 'Donor'),
+                'email' => $don->email ?: ($don->user?->email ?? 'Parishioner'),
+                'type' => 'Donation',
+                'type_class' => 'type-donation',
+                'date' => $don->created_at ? $don->created_at->diffForHumans() : 'Recently',
+                'status' => ucfirst(str_replace('_', ' ', $don->status ?? 'pending')),
+                'status_class' => 'status-' . ($don->status ?? 'pending'),
+                'ref' => '#DON-' . str_pad((string) $don->id, 4, '0', STR_PAD_LEFT),
+                'url' => route('admin.donations'),
+                'created_at' => $don->created_at ?? now(),
+            ]);
+        }
+
+        // Sort combined requests by created_at descending and take top 5
+        $recentRequests = $recentRequests->sortByDesc('created_at')->values()->take(5);
+
+        // 7. Live Announcements
         $latestAnnouncements = \App\Models\Announcement::query()
             ->latest('published_at')
             ->take(3)
             ->get();
 
+        // 8. Live Active Mass Schedules
         $activeSchedules = \App\Models\MassSchedule::query()
             ->where('is_active', true)
             ->take(4)

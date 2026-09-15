@@ -180,17 +180,28 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 22px;
+            gap: 16px;
         }
 
-        .page-header h2 {
-            margin: 0;
-            color: var(--navy);
-            font: 700 22px 'Libre Baskerville', Georgia, serif;
+        /* The page/module title is now rendered dynamically in the top navbar */
+        .page-header h2,
+        .inq > h2 {
+            display: none !important;
         }
 
-        .page-header .actions {
+        .page-header .actions,
+        .page-header > .btn {
             display: flex;
             gap: 10px;
+            margin-left: auto;
+        }
+
+        /* If page-header has no other content besides the title, collapse cleanly */
+        .page-header:empty,
+        .page-header:has(> h2:only-child),
+        .page-header:has(> div:only-child > h2:only-child:not(:has(~ *))) {
+            margin-bottom: 0;
+            display: none;
         }
 
         /* ===== Responsive Breakpoints ===== */
@@ -230,7 +241,7 @@
         <!-- Main Workspace -->
         <main class="main-content" id="main-content">
             <!-- Modern Topbar -->
-            <x-admin-topbar :title="$title ?? 'Dashboard'" />
+            <x-admin-topbar :title="$title ?? (trim($__env->yieldContent('title')) ?: null)" />
 
             <!-- Content Area -->
             <div class="content-body">
