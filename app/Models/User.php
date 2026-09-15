@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'first_name', 'last_name', 'date_of_birth', 'country', 'region', 'province', 'municipality_city', 'barangay', 'email', 'password_hash', 'role', 'phone', 'is_verified', 'email_verified_at', 'google_id', 'avatar'])]
+#[Fillable(['name', 'first_name', 'last_name', 'date_of_birth', 'country', 'region', 'province', 'municipality_city', 'barangay', 'email', 'password_hash', 'role', 'commission_id', 'phone', 'is_verified', 'email_verified_at', 'google_id', 'avatar'])]
 #[Hidden(['password_hash', 'remember_token', 'reset_token'])]
 class User extends Authenticatable
 {
@@ -114,5 +114,90 @@ class User extends Authenticatable
     public function getAuthProviderAttribute(): string
     {
         return !empty($this->google_id) ? 'google' : 'password';
+    }
+
+    public function commission(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Commission::class);
+    }
+
+    public function commissions(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Commission::class, 'commission_memberships')
+            ->withPivot('role', 'status', 'joined_at')
+            ->withTimestamps();
+    }
+
+    public function auditLogs(): HasMany
+    {
+        return $this->hasMany(AuditLog::class);
+    }
+
+    public function targetedAuditLogs(): HasMany
+    {
+        return $this->hasMany(AuditLog::class, 'target_id')
+            ->where('target_type', 'User');
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return in_array($this->role, ['super_admin', 'admin'], true);
+    }
+
+    public function isParishPriest(): bool
+    {
+        return $this->role === 'parish_priest';
+    }
+
+    public function isParochialVicar(): bool
+    {
+        return $this->role === 'parochial_vicar';
+    }
+
+    public function isParishSecretary(): bool
+    {
+        return $this->role === 'parish_secretary';
+    }
+
+    public function hasParishWideAccess(): bool
+    {
+        return in_array($this->role, ['super_admin', 'admin', 'parish_priest', 'parochial_vicar', 'parish_secretary'], true);
+    }
+
+    public function isCommissionAdmin(): bool
+    {
+        return $this->role === 'commission_admin';
+    }
+
+    public function isCommissionMember(): bool
+    {
+        return in_array($this->role, ['commission_admin', 'commission_member', 'staff'], true);
+    }
+
+    public function canAccessCommission(?int $commissionId): bool
+    {
+        if ($this->hasParishWideAccess()) {
+            return true;
+        }
+
+        if (! $commissionId) {
+            return false;
+        }
+
+        return (int) $this->commission_id === (int) $commissionId;
+    }
+
+    public function getRoleBadgeLabelAttribute(): string
+    {
+        return match ($this->role) {
+            'super_admin', 'admin' => 'Super Admin',
+            'parish_priest' => 'Parish Priest',
+            'parochial_vicar' => 'Parochial Vicar',
+            'parish_secretary' => 'Parish Secretary',
+            'commission_admin' => 'Commission Admin',
+            'commission_member' => 'Commission Member',
+            'staff' => 'Staff',
+            default => ucfirst(str_replace('_', ' ', $this->role)),
+        };
     }
 }

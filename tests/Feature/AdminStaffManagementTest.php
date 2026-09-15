@@ -172,7 +172,7 @@ class AdminStaffManagementTest extends TestCase
         $response->assertCreated();
         $response->assertJson([
             'user' => [
-                'role' => 'Admin',
+                'role'     => 'Super Admin', // admin role maps to "Super Admin" via role_badge_label
                 'role_raw' => 'admin',
             ],
         ]);

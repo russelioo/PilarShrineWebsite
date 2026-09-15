@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             StaffUserSeeder::class,
             ParishionerUserSeeder::class,
             MinistrySeeder::class,
+            CommissionSeeder::class,
         ]);
     }
 }

@@ -23,14 +23,39 @@
         <input type="search" name="search" value="{{ request('search') }}" placeholder="Search by name, email, or phone...">
         <select name="role">
             <option value="">All Roles</option>
-            <option value="admin" @selected(request('role') === 'admin')>Admin</option>
-            <option value="staff" @selected(request('role') === 'staff')>Staff</option>
+            @if($actor->hasParishWideAccess())
+                <option value="admin" @selected(request('role') === 'admin')>Super Admin</option>
+                <option value="parish_priest" @selected(request('role') === 'parish_priest')>Parish Priest</option>
+                <option value="parochial_vicar" @selected(request('role') === 'parochial_vicar')>Parochial Vicar</option>
+                <option value="parish_secretary" @selected(request('role') === 'parish_secretary')>Parish Secretary</option>
+                <option value="commission_admin" @selected(request('role') === 'commission_admin')>Commission Admin</option>
+                <option value="commission_member" @selected(request('role') === 'commission_member')>Commission Member</option>
+                <option value="staff" @selected(request('role') === 'staff')>Staff</option>
+            @else
+                <option value="commission_admin" @selected(request('role') === 'commission_admin')>Commission Admin</option>
+                <option value="commission_member" @selected(request('role') === 'commission_member')>Commission Member</option>
+                <option value="staff" @selected(request('role') === 'staff')>Staff</option>
+            @endif
         </select>
         <select name="status">
             <option value="">All Status</option>
             <option value="active" @selected(request('status') === 'active')>Active</option>
             <option value="inactive" @selected(request('status') === 'inactive')>Inactive</option>
         </select>
+        @if($actor->hasParishWideAccess())
+        <select name="commission_id">
+            <option value="">All Commissions</option>
+            @foreach($commissions as $commission)
+                <option value="{{ $commission->id }}" @selected(request('commission_id') == $commission->id)>{{ $commission->name }}</option>
+            @endforeach
+        </select>
+        @elseif($actor->commission_id)
+        <select name="commission_id" disabled title="Locked to your assigned commission">
+            @foreach($commissions as $commission)
+                <option value="{{ $commission->id }}" selected>{{ $commission->name }}</option>
+            @endforeach
+        </select>
+        @endif
         <select name="sort">
             <option value="">Sort by</option>
             <option value="name" @selected(request('sort') === 'name')>Name</option>
@@ -50,6 +75,7 @@
                     <th>Email</th>
                     <th>Phone</th>
                     <th>Role</th>
+                    <th>Commission</th>
                     <th>Status</th>
                     <th>Last Login</th>
                     <th>Actions</th>
@@ -72,8 +98,17 @@
                     <td>{{ $s->phone ?: '—' }}</td>
                     <td>
                         <span class="role-badge role-{{ $s->role }}">
-                            {{ ucfirst($s->role) }}
+                            {{ $s->role_badge_label }}
                         </span>
+                    </td>
+                    <td>
+                        @if($s->hasParishWideAccess())
+                            <span class="commission-badge commission-all">All Commissions</span>
+                        @elseif($s->commission)
+                            <span class="commission-badge commission-specific">{{ $s->commission->name }}</span>
+                        @else
+                            <span class="commission-badge commission-none">—</span>
+                        @endif
                     </td>
                     <td>
                         <span class="status-badge status-{{ strtolower($status) }}">
@@ -82,14 +117,17 @@
                     </td>
                     <td>{{ $s->last_login?->format('M d, Y h:i A') ?? 'Never' }}</td>
                     <td class="action-icons">
-                        <a href="#" title="View">👁</a>
+                        <a href="#" title="View Activity" class="action-view-activity"
+                           data-user-id="{{ $s->id }}"
+                           data-user-name="{{ $s->name }}"
+                           onclick="openActivityModal(event, {{ $s->id }}, '{{ addslashes($s->name) }}')">👁</a>
                         <a href="#" title="Edit">✎</a>
                         <a href="#" title="Reset Password">🔑</a>
                         <a href="#" title="Delete" style="color:#c0392b">✕</a>
                     </td>
                 </tr>
                 @empty
-                <tr id="empty-staff-row"><td colspan="8" class="empty-cell">No staff members found.</td></tr>
+                <tr id="empty-staff-row"><td colspan="9" class="empty-cell">No staff members found.</td></tr>
                 @endforelse
             </tbody>
         </table>
@@ -186,9 +224,19 @@
                 <div class="form-grid-2">
                     <div class="form-group">
                         <label for="staff_role" class="field-label">Role <span class="required-star">*</span></label>
-                        <select id="staff_role" name="role" class="form-control" required>
-                            <option value="staff" selected>Staff</option>
-                            <option value="admin">Admin</option>
+                        <select id="staff_role" name="role" class="form-control" required onchange="handleRoleChange(this.value)">
+                            @if($actor->hasParishWideAccess())
+                                <option value="staff" selected>Staff</option>
+                                <option value="commission_member">Commission Member</option>
+                                <option value="commission_admin">Commission Admin</option>
+                                <option value="parish_secretary">Parish Secretary</option>
+                                <option value="parochial_vicar">Parochial Vicar</option>
+                                <option value="parish_priest">Parish Priest</option>
+                                <option value="admin">Admin (Super Admin)</option>
+                            @else
+                                <option value="staff" selected>Staff</option>
+                                <option value="commission_member">Commission Member</option>
+                            @endif
                         </select>
                         <div class="field-error-text" id="error-role"></div>
                     </div>
@@ -201,6 +249,33 @@
                         </select>
                         <div class="field-error-text" id="error-status"></div>
                     </div>
+                </div>
+
+                <!-- Commission Assignment -->
+                <div class="form-group" id="commission-field-wrap">
+                    <label for="staff_commission" class="field-label">Commission <span class="required-star" id="commission-required-star">*</span></label>
+                    @if($actor->hasParishWideAccess())
+                        <select id="staff_commission" name="commission_id" class="form-control">
+                            <option value="">— Select Commission —</option>
+                            @foreach($commissions as $commission)
+                                <option value="{{ $commission->id }}">{{ $commission->name }}</option>
+                            @endforeach
+                        </select>
+                        <span class="field-hint" id="commission-hint">Required for Staff, Commission Member, and Commission Admin roles.</span>
+                    @elseif($actor->commission_id)
+                        <select id="staff_commission" name="commission_id" class="form-control" disabled data-locked="true">
+                            @foreach($commissions as $commission)
+                                <option value="{{ $commission->id }}" selected>{{ $commission->name }}</option>
+                            @endforeach
+                        </select>
+                        <input type="hidden" name="commission_id" value="{{ $actor->commission_id }}">
+                        <span class="field-hint">Locked to your assigned commission.</span>
+                    @else
+                        <select id="staff_commission" name="commission_id" class="form-control" disabled data-locked="true">
+                            <option value="">No commission assigned</option>
+                        </select>
+                    @endif
+                    <div class="field-error-text" id="error-commission_id"></div>
                 </div>
 
                 <!-- Password -->
@@ -281,6 +356,31 @@
         <button type="button" class="toast-close-btn" onclick="hideToast()" aria-label="Close notification">&times;</button>
     </div>
 
+    <!-- ============================================== -->
+    <!-- ACTIVITY HISTORY MODAL -->
+    <!-- ============================================== -->
+    <div id="activity-modal-backdrop" class="activity-modal-backdrop" onclick="closeActivityModal()" style="display:none;" aria-hidden="true"></div>
+    <div id="activity-modal" class="activity-modal" role="dialog" aria-modal="true" aria-labelledby="activity-modal-title" style="display:none;" aria-hidden="true">
+        <div class="activity-modal-header">
+            <div>
+                <h3 id="activity-modal-title" class="activity-modal-title">Activity History</h3>
+                <p id="activity-modal-subtitle" class="activity-modal-subtitle">Recent account actions</p>
+            </div>
+            <button type="button" class="drawer-close-btn" onclick="closeActivityModal()" aria-label="Close">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <div class="activity-modal-body" id="activity-modal-body">
+            <div class="activity-loading" id="activity-loading">
+                <svg class="spinner-svg" viewBox="0 0 24 24" width="30" height="30"><circle class="spinner-path" cx="12" cy="12" r="10" fill="none" stroke-width="3"></circle></svg>
+                <span>Loading activity...</span>
+            </div>
+            <div id="activity-timeline" class="activity-timeline" style="display:none;"></div>
+            <div id="activity-empty" class="activity-empty-state" style="display:none;">No activity records found for this staff member.</div>
+            <div id="activity-error" class="activity-error-state" style="display:none;"></div>
+        </div>
+    </div>
+
 @endsection
 
 @push('styles')
@@ -299,14 +399,46 @@
         .status-badge{padding:4px 12px;border-radius:20px;font-size:9px;font-weight:700;display:inline-block}
         .status-active{background:#e2f5e2;color:#1a7a1a}
         .status-inactive{background:#fee2e2;color:#b91c1c}
-        .role-badge{padding:4px 12px;border-radius:20px;font-size:9px;font-weight:700;display:inline-block}
-        .role-admin{background:#dbeafe;color:#1e40af}
-        .role-staff{background:#e0e7ff;color:#4338ca}
+        .role-badge{padding:4px 10px;border-radius:20px;font-size:9px;font-weight:700;display:inline-block;white-space:nowrap}
+        .role-admin,.role-super_admin{background:#dbeafe;color:#1e40af}
+        .role-staff,.role-commission_member{background:#e0e7ff;color:#4338ca}
+        .role-commission_admin{background:#fef9c3;color:#854d0e}
+        .role-parish_priest,.role-parochial_vicar,.role-parish_secretary{background:#fce7f3;color:#9d174d}
+        .commission-badge{padding:3px 10px;border-radius:20px;font-size:9px;font-weight:600;display:inline-block;white-space:nowrap}
+        .commission-all{background:#f0f9ff;color:#0369a1;border:1px solid #bae6fd}
+        .commission-specific{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0}
+        .commission-none{color:var(--muted)}
         .action-icons{display:flex;gap:10px}
-        .action-icons a{color:var(--muted);text-decoration:none;font-size:14px;transition:color 0.15s ease}
+        .action-icons a{color:var(--muted);text-decoration:none;font-size:14px;transition:color 0.15s ease;cursor:pointer}
         .action-icons a:hover{color:var(--navy)}
         @media(max-width:620px){.toolbar input{min-width:100%}}
         .empty-cell{text-align:center;padding:28px;color:var(--muted)}
+
+        /* Activity History Modal */
+        .activity-modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,0.55);backdrop-filter:blur(2px);z-index:1050}
+        .activity-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:min(620px,95vw);max-height:80vh;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.25);z-index:1051;display:flex;flex-direction:column;overflow:hidden}
+        .activity-modal-header{display:flex;justify-content:space-between;align-items:flex-start;padding:22px 24px 16px;border-bottom:1px solid var(--border)}
+        .activity-modal-title{font-size:16px;font-weight:700;color:var(--navy);margin:0}
+        .activity-modal-subtitle{font-size:12px;color:var(--muted);margin:3px 0 0}
+        .activity-modal-body{flex:1;overflow-y:auto;padding:20px 24px}
+        .activity-loading{display:flex;align-items:center;gap:12px;justify-content:center;padding:30px;color:var(--muted)}
+        .activity-timeline{display:flex;flex-direction:column;gap:0}
+        .activity-item{display:flex;gap:14px;position:relative;padding-bottom:18px}
+        .activity-item:last-child{padding-bottom:0}
+        .activity-item:not(:last-child)::before{content:'';position:absolute;left:13px;top:28px;bottom:0;width:1px;background:#e2e8f0}
+        .activity-dot{width:28px;height:28px;border-radius:50%;background:#f1f5f9;border:2px solid #e2e8f0;display:grid;place-items:center;flex-shrink:0;font-size:12px;position:relative}
+        .activity-dot.dot-created{background:#dbeafe;border-color:#93c5fd;color:#1e40af}
+        .activity-dot.dot-updated{background:#fef9c3;border-color:#fde047;color:#854d0e}
+        .activity-dot.dot-deactivated,.activity-dot.dot-deleted{background:#fee2e2;border-color:#fca5a5;color:#b91c1c}
+        .activity-dot.dot-login{background:#dcfce7;border-color:#86efac;color:#15803d}
+        .activity-content{flex:1;min-width:0}
+        .activity-action-row{display:flex;align-items:center;gap:8px;margin-bottom:3px}
+        .activity-action-badge{padding:2px 8px;border-radius:12px;font-size:9px;font-weight:700;display:inline-block;background:#e0e7ff;color:#4338ca}
+        .activity-time{font-size:10px;color:var(--muted);margin-left:auto}
+        .activity-desc{font-size:12px;color:#475569;line-height:1.5}
+        .activity-meta{font-size:10px;color:#94a3b8;margin-top:4px}
+        .activity-empty-state,.activity-error-state{text-align:center;padding:30px;font-size:13px;color:var(--muted)}
+        .activity-error-state{color:#b91c1c}
 
         /* Highlight animation for newly created row */
         @keyframes highlightRow {
@@ -470,6 +602,13 @@
             outline: none;
             border-color: var(--blue);
             box-shadow: 0 0 0 3px rgba(21, 92, 180, 0.12);
+        }
+        .form-control:disabled {
+            background-color: #f1f5f9;
+            color: #94a3b8;
+            cursor: not-allowed;
+            border-color: #e2e8f0;
+            opacity: 0.85;
         }
         .form-control.is-invalid {
             border-color: #dc2626 !important;
@@ -774,6 +913,10 @@
             // --- Drawer Open / Close ---
             window.openStaffDrawer = function() {
                 resetForm();
+                const roleSelect = document.getElementById('staff_role');
+                if (roleSelect && typeof window.handleRoleChange === 'function') {
+                    window.handleRoleChange(roleSelect.value);
+                }
                 drawer.classList.add('open');
                 drawer.setAttribute('aria-hidden', 'false');
                 backdrop.classList.add('active');
@@ -808,6 +951,10 @@
                 document.getElementById('strength-meter-box').style.display = 'none';
                 document.getElementById('password-match-tag').style.display = 'none';
                 setSubmitting(false);
+                const roleSelect = document.getElementById('staff_role');
+                if (roleSelect && typeof window.handleRoleChange === 'function') {
+                    window.handleRoleChange(roleSelect.value);
+                }
             }
 
             function clearAllErrors() {
@@ -1042,6 +1189,15 @@
                     hasClientError = true;
                 }
 
+                // Commission validation: required for commission-level roles
+                const commissionSelect = document.getElementById('staff_commission');
+                const commissionVal = commissionSelect ? commissionSelect.value : '';
+                const isCommissionRole = ['staff', 'commission_member', 'commission_admin'].includes(roleVal);
+                if (isCommissionRole && commissionSelect && !commissionSelect.disabled && !commissionVal) {
+                    setFieldError('commission_id', 'Commission is required for this role.');
+                    hasClientError = true;
+                }
+
                 if (!passwordVal) {
                     setFieldError('password', 'Password is required.');
                     hasClientError = true;
@@ -1135,6 +1291,19 @@
                     ? `<img src="${escapeHtml(user.avatar)}" alt="" class="staff-mini-avatar" />`
                     : '';
 
+                // Build commission badge
+                let commissionHtml = '';
+                if (!user.commission_id) {
+                    commissionHtml = `<span class="commission-badge commission-all">All Commissions</span>`;
+                } else if (user.commission) {
+                    commissionHtml = `<span class="commission-badge commission-specific">${escapeHtml(user.commission)}</span>`;
+                } else {
+                    commissionHtml = `<span class="commission-badge commission-none">—</span>`;
+                }
+
+                const userId = user.id;
+                const userName = user.name.replace(/'/g, "\\'");
+
                 tr.innerHTML = `
                     <td class="row-index">1</td>
                     <td>
@@ -1150,6 +1319,7 @@
                             ${escapeHtml(user.role)}
                         </span>
                     </td>
+                    <td>${commissionHtml}</td>
                     <td>
                         <span class="status-badge status-${escapeHtml(user.status_raw)}">
                             ${escapeHtml(user.status)}
@@ -1157,7 +1327,8 @@
                     </td>
                     <td>${escapeHtml(user.last_login)}</td>
                     <td class="action-icons">
-                        <a href="#" title="View">👁</a>
+                        <a href="#" title="View Activity" class="action-view-activity"
+                           onclick="openActivityModal(event, ${userId}, '${userName}')">👁</a>
                         <a href="#" title="Edit">✎</a>
                         <a href="#" title="Reset Password">🔑</a>
                         <a href="#" title="Delete" style="color:#c0392b">✕</a>
@@ -1173,6 +1344,176 @@
                     if (idxCell) idxCell.textContent = idx + 1;
                 });
             }
+        })();
+
+        // --- Role Change Handler: disable commission selection for parish-wide roles ---
+        window.handleRoleChange = function(roleVal) {
+            const wrap = document.getElementById('commission-field-wrap');
+            const star = document.getElementById('commission-required-star');
+            const hint = document.getElementById('commission-hint');
+            const commissionSelect = document.getElementById('staff_commission');
+            if (!wrap || !commissionSelect) return;
+
+            // If actor is commission-scoped, commission is locked to their own commission
+            if (commissionSelect.getAttribute('data-locked') === 'true') {
+                return;
+            }
+
+            const parishWideRoles = ['parish_priest', 'parochial_vicar', 'admin', 'super_admin', 'parish_secretary'];
+            const isParishWide = parishWideRoles.includes(roleVal);
+
+            if (isParishWide) {
+                commissionSelect.disabled = true;
+                commissionSelect.value = '';
+                if (star) star.style.display = 'none';
+                if (hint) {
+                    hint.textContent = 'Commission selection is disabled for Parish Priest, Parochial Vicar, Parish Secretary, and Super Admin (Parish-wide access).';
+                }
+                const errorBox = document.getElementById('error-commission_id');
+                if (errorBox) {
+                    errorBox.textContent = '';
+                    errorBox.classList.remove('has-error');
+                }
+                commissionSelect.classList.remove('is-invalid');
+            } else {
+                commissionSelect.disabled = false;
+                if (star) star.style.display = 'inline';
+                if (hint) {
+                    hint.textContent = 'Required for Staff, Commission Member, and Commission Admin roles.';
+                }
+            }
+        };
+
+        // --- Activity History Modal ---
+        window.openActivityModal = async function(event, userId, userName) {
+            event.preventDefault();
+            const modal = document.getElementById('activity-modal');
+            const backdrop = document.getElementById('activity-modal-backdrop');
+            const titleEl = document.getElementById('activity-modal-title');
+            const subtitleEl = document.getElementById('activity-modal-subtitle');
+            const loading = document.getElementById('activity-loading');
+            const timeline = document.getElementById('activity-timeline');
+            const empty = document.getElementById('activity-empty');
+            const errorEl = document.getElementById('activity-error');
+
+            // Reset
+            titleEl.textContent = `Activity — ${userName}`;
+            subtitleEl.textContent = 'Loading recent account activity...';
+            loading.style.display = 'flex';
+            timeline.style.display = 'none';
+            empty.style.display = 'none';
+            errorEl.style.display = 'none';
+            timeline.innerHTML = '';
+
+            modal.style.display = 'flex';
+            modal.setAttribute('aria-hidden', 'false');
+            backdrop.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+
+            try {
+                const res = await fetch(`/admin/staff/${userId}/activity`, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+                });
+
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}`);
+                }
+
+                const data = await res.json();
+                loading.style.display = 'none';
+
+                if (!data.activities || data.activities.length === 0) {
+                    subtitleEl.textContent = 'No activity records found.';
+                    empty.style.display = 'block';
+                    return;
+                }
+
+                subtitleEl.textContent = `${data.activities.length} event(s) recorded`;
+
+                const actionDotMap = {
+                    'user_created': 'dot-created',
+                    'user_updated': 'dot-updated',
+                    'user_activated': 'dot-login',
+                    'user_deactivated': 'dot-deactivated',
+                    'user_deleted': 'dot-deleted',
+                    'login': 'dot-login',
+                    'password_reset': 'dot-updated',
+                    'role_changed': 'dot-updated',
+                    'commission_assigned': 'dot-created',
+                    'commission_changed': 'dot-updated',
+                };
+
+                const actionIconMap = {
+                    'user_created': '✚',
+                    'user_updated': '✎',
+                    'user_activated': '✔',
+                    'user_deactivated': '⏸',
+                    'user_deleted': '✕',
+                    'login': '↗',
+                    'password_reset': '🔑',
+                    'role_changed': '⇄',
+                    'commission_assigned': '◎',
+                    'commission_changed': '⇄',
+                };
+
+                data.activities.forEach(act => {
+                    const dotClass = actionDotMap[act.action] || '';
+                    const icon = actionIconMap[act.action] || '·';
+
+                    let metaText = '';
+                    if (act.actor_name) metaText += `By: ${act.actor_name}`;
+                    if (act.commission_name) metaText += ` · ${act.commission_name}`;
+                    if (act.ip_address) metaText += ` · IP: ${act.ip_address}`;
+
+                    const item = document.createElement('div');
+                    item.className = 'activity-item';
+                    item.innerHTML = `
+                        <div class="activity-dot ${dotClass}">${icon}</div>
+                        <div class="activity-content">
+                            <div class="activity-action-row">
+                                <span class="activity-action-badge">${act.action_label || act.action}</span>
+                                <span class="activity-time">${act.created_at || ''}</span>
+                            </div>
+                            <div class="activity-desc">${act.description || ''}</div>
+                            ${metaText ? `<div class="activity-meta">${metaText}</div>` : ''}
+                        </div>
+                    `;
+                    timeline.appendChild(item);
+                });
+
+                timeline.style.display = 'flex';
+
+            } catch (err) {
+                loading.style.display = 'none';
+                subtitleEl.textContent = 'Failed to load activity.';
+                errorEl.textContent = 'Could not load activity history. You may not have permission or a server error occurred.';
+                errorEl.style.display = 'block';
+            }
+        };
+
+        window.closeActivityModal = function() {
+            const modal = document.getElementById('activity-modal');
+            const backdrop = document.getElementById('activity-modal-backdrop');
+            modal.style.display = 'none';
+            modal.setAttribute('aria-hidden', 'true');
+            backdrop.style.display = 'none';
+            document.body.style.overflow = '';
+        };
+
+        // ESC to close activity modal
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('activity-modal');
+                if (modal && modal.style.display !== 'none') {
+                    closeActivityModal();
+                }
+            }
+        });
+
+        // Initialize commission field visibility on page load
+        (function() {
+            const roleSelect = document.getElementById('staff_role');
+            if (roleSelect) handleRoleChange(roleSelect.value);
         })();
     </script>
 @endpush

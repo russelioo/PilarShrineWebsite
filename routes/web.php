@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\MinistryDirectoryManagementController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\GoogleAuthController;
@@ -99,6 +100,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/parishioners', [UserManagementController::class, 'parishioners'])->name('parishioners');
         Route::get('/staff', [UserManagementController::class, 'staff'])->name('staff');
         Route::post('/staff', [UserManagementController::class, 'storeStaff'])->name('staff.store');
+        Route::get('/staff/{user}/activity', [UserManagementController::class, 'activity'])->name('staff.activity');
+        Route::get('/commissions/{commission}/members', [UserManagementController::class, 'commissionMembers'])->name('commissions.members');
+        Route::get('/audit-logs', [AuditLogController::class, 'index'])->name('audit-logs');
         Route::get('/mass-intentions', [MassIntentionManagementController::class, 'index'])->name('mass-intentions');
         Route::patch('/mass-intentions/{massIntention}/status', [MassIntentionManagementController::class, 'updateStatus'])->name('mass-intentions.status');
         Route::get('/mass-schedules', [MassScheduleController::class, 'index'])->name('mass-schedules');
