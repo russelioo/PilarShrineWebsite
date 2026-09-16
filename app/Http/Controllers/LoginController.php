@@ -30,6 +30,12 @@ class LoginController extends Controller
         $request->session()->regenerate();
         $user = $request->user();
 
+        // Track login timestamps (previously only GoogleAuthController did this)
+        $user->forceFill([
+            'last_login' => now(),
+            'last_active_at' => now(),
+        ])->saveQuietly();
+
         $customRedirect = null;
         if ($request->filled('redirect')) {
             $candidate = $request->string('redirect')->trim()->toString();
@@ -39,9 +45,8 @@ class LoginController extends Controller
         }
 
         $redirect = match ($user->role) {
-            'admin' => route('admin.dashboard'),
-            'staff' => route('staff.dashboard'),
-            default => $customRedirect ?: '/?login=success',
+            'admin', 'super_admin', 'parish_priest', 'parochial_vicar', 'parish_secretary', 'commission_admin', 'commission_member', 'staff' => route('admin.dashboard'),
+            default => $customRedirect ?: route('parishioner.dashboard'),
         };
 
         return response()->json(['redirect' => $redirect]);

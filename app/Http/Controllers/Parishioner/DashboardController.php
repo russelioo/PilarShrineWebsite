@@ -4,14 +4,19 @@ namespace App\Http\Controllers\Parishioner;
 
 use App\Http\Controllers\Controller;
 use App\Models\MassSchedule;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request): View|RedirectResponse
     {
         $user = $request->user();
+
+        if ($user && in_array($user->role, ['admin', 'super_admin', 'parish_priest', 'parochial_vicar', 'parish_secretary', 'commission_admin', 'commission_member', 'staff'], true)) {
+            return redirect()->route('admin.dashboard');
+        }
 
         // Extract first name for personalized greeting
         $firstName = $user->first_name;

@@ -18,7 +18,6 @@ use App\Http\Controllers\ProfileCompletionController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\AnnouncementController;
-use App\Http\Controllers\TimeSlotController;
 use App\Services\FacebookLiveService;
 use App\Http\Controllers\Parishioner\DonationController as ParishionerDonationController;
 use App\Http\Controllers\Admin\DonationManagementController as AdminDonationManagementController;
@@ -29,6 +28,19 @@ Route::middleware('auth')->group(function () {
     Route::post('/inquiries', [InquiryController::class, 'store'])->middleware('throttle:30,1')->name('inquiries.store');
     Route::get('/inquiries/attachments/{attachment}', [InquiryController::class, 'download'])->name('inquiries.download');
     Route::get('/admin/inquiries', [InquiryController::class, 'index'])->name('admin.inquiries');
+
+    // Real-time Messaging API
+    Route::prefix('api/messages')->name('api.messages.')->group(function () {
+        Route::get('/conversations', [InquiryController::class, 'apiConversations'])->name('conversations');
+        Route::post('/conversations', [InquiryController::class, 'apiStartConversation'])->name('start');
+        Route::get('/conversations/{conversation}', [InquiryController::class, 'apiConversationDetails'])->name('details');
+        Route::get('/conversations/{conversation}/messages', [InquiryController::class, 'apiMessages'])->name('messages');
+        Route::post('/conversations/{conversation}/messages', [InquiryController::class, 'apiSendMessage'])->middleware('throttle:60,1')->name('send');
+        Route::post('/conversations/{conversation}/read', [InquiryController::class, 'apiMarkAsRead'])->name('read');
+        Route::post('/conversations/{conversation}/archive', [InquiryController::class, 'apiToggleArchive'])->name('archive');
+        Route::get('/sync', [InquiryController::class, 'apiSync'])->name('sync');
+        Route::get('/directory', [InquiryController::class, 'apiDirectory'])->name('directory');
+    });
 });
 
 Route::get('/', function () {
@@ -69,7 +81,11 @@ Route::post('/api/parishioner/complete-profile', [ProfileCompletionController::c
     ->middleware('auth')
     ->name('parishioner.complete-profile');
 
-Route::get('/portal', function () {
+Route::get('/portal', function (\Illuminate\Http\Request $request) {
+    $user = $request->user();
+    if ($user && in_array($user->role, ['admin', 'super_admin', 'parish_priest', 'parochial_vicar', 'parish_secretary', 'commission_admin', 'commission_member', 'staff'], true)) {
+        return redirect()->route('admin.dashboard');
+    }
     return redirect()->route('parishioner.dashboard');
 })->middleware('auth')->name('portal');
 

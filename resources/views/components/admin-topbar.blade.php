@@ -2,6 +2,13 @@
 @props(['title' => null])
 
 @php
+  use App\Models\Donation;
+  use App\Models\InquiryMessage;
+  use App\Models\MassIntention;
+  use App\Models\MinistryMembership;
+  use App\Models\Notification;
+  use Illuminate\Support\Facades\Schema;
+
   $routeName = request()->route()?->getName() ?? '';
 
   // Clean, standard module titles based on admin routes
@@ -58,6 +65,11 @@
     $pageTitle = !empty($title) ? $title : 'Dashboard';
   }
 
+  $isMessagesPage = str_contains($routeName, 'inquiries')
+    || str_contains($routeName, 'messages')
+    || request()->is('admin/inquiries*', 'inquiries*', 'staff/inquiries*')
+    || in_array($pageTitle, ['Inquiries', 'Messages', 'Messages & Inquiries'], true);
+
   // Live notification counters and items with defensive checks
   $pendingMinistryCount = 0;
   $pendingDonationsCount = 0;
@@ -66,20 +78,20 @@
   $recentSystemNotifs = collect();
 
   try {
-    if (\Illuminate\Support\Facades\Schema::hasTable('ministry_memberships')) {
-      $pendingMinistryCount = \App\Models\MinistryMembership::query()->where('status', 'pending')->count();
+    if (Schema::hasTable('ministry_memberships')) {
+      $pendingMinistryCount = MinistryMembership::query()->where('status', 'pending')->count();
     }
-    if (\Illuminate\Support\Facades\Schema::hasTable('donations')) {
-      $pendingDonationsCount = \App\Models\Donation::query()->where('status', 'pending_verification')->count();
+    if (Schema::hasTable('donations')) {
+      $pendingDonationsCount = Donation::query()->where('status', 'pending_verification')->count();
     }
-    if (\Illuminate\Support\Facades\Schema::hasTable('mass_intentions')) {
-      $pendingIntentionsCount = \App\Models\MassIntention::query()->where('status', 'pending')->count();
+    if (Schema::hasTable('mass_intentions')) {
+      $pendingIntentionsCount = MassIntention::query()->where('status', 'pending')->count();
     }
-    if (auth()->check() && \Illuminate\Support\Facades\Schema::hasTable('inquiry_messages')) {
-      $unreadInquiriesCount = \App\Models\InquiryMessage::query()->where('recipient_id', auth()->id())->whereNull('read_at')->count();
+    if (auth()->check() && Schema::hasTable('inquiry_messages')) {
+      $unreadInquiriesCount = InquiryMessage::query()->where('recipient_id', auth()->id())->whereNull('read_at')->count();
     }
-    if (auth()->check() && \Illuminate\Support\Facades\Schema::hasTable('notifications')) {
-      $recentSystemNotifs = \App\Models\Notification::query()->where('user_id', auth()->id())->latest()->take(4)->get();
+    if (auth()->check() && Schema::hasTable('notifications')) {
+      $recentSystemNotifs = Notification::query()->where('user_id', auth()->id())->latest()->take(4)->get();
     }
   } catch (\Throwable $e) {
     // Graceful fallback if any query fails
@@ -87,9 +99,17 @@
 
   $totalNotificationCount = $pendingMinistryCount + $pendingDonationsCount + $pendingIntentionsCount + $unreadInquiriesCount;
   
-  $authName = auth()->user()?->name ?? 'Parish Administrator';
-  $authEmail = auth()->user()?->email ?? 'admin@pilarshrine.test';
-  $authRole = ucfirst(auth()->user()?->role ?? 'Administrator');
+  $user = auth()->user();
+  if ($user) {
+    $user->loadMissing(['commissions', 'ministries']);
+  }
+  $authName = $user?->name ?? 'Parish Administrator';
+  $authEmail = $user?->email ?? 'admin@pilarshrine.test';
+  $authRole = $user?->role_badge_label ?? ucfirst($user?->role ?? 'Administrator');
+  $authPosition = $user?->position ?: $authRole;
+  $authOrganization = $user?->organization_label ?? 'Parish Administration';
+  $authResponsibilities = $user?->responsibilities_label ?? '';
+  $authAvatar = $user?->avatar;
   $authInitials = strtoupper(substr(trim($authName), 0, 2));
 @endphp
 
@@ -109,75 +129,77 @@
       <h1 class="topbar-page-title">{{ $pageTitle }}</h1>
     </div>
 
-    <!-- Visual separation divider -->
-    <div class="topbar-title-divider" aria-hidden="true"></div>
+    @unless($isMessagesPage)
+      <!-- Visual separation divider -->
+      <div class="topbar-title-divider" aria-hidden="true"></div>
 
-    <!-- Global Search -->
-    <div class="global-search-wrap" id="global-search-wrap">
-      <div class="search-input-box">
-        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <circle cx="11" cy="11" r="8"></circle>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-        </svg>
-        <input 
-          type="search" 
-          id="global-search-input" 
-          placeholder="Search modules... (Ctrl+K)" 
-          aria-label="Global search across parish records"
-          autocomplete="off"
-        >
-        <div class="search-shortcut" aria-hidden="true">
-          <kbd>Ctrl</kbd> + <kbd>K</kbd>
+      <!-- Global Search -->
+      <div class="global-search-wrap" id="global-search-wrap">
+        <div class="search-input-box">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input 
+            type="search" 
+            id="global-search-input" 
+            placeholder="Search modules... (Ctrl+K)" 
+            aria-label="Global search across parish records"
+            autocomplete="off"
+          >
+          <div class="search-shortcut" aria-hidden="true">
+            <kbd>Ctrl</kbd> + <kbd>K</kbd>
+          </div>
+        </div>
+
+        <!-- Quick Search Dropdown / Palette -->
+        <div class="search-dropdown-palette" id="search-dropdown-palette">
+          <div class="search-palette-group">
+            <span class="palette-label">Quick Jump to Modules</span>
+            <a href="{{ route('admin.parishioners') }}" class="palette-item">
+              <span class="palette-icon">👤</span>
+              <div>
+                <strong>Parishioners Directory</strong>
+                <small>Manage registered church members</small>
+              </div>
+              <span class="palette-tag">User Management</span>
+            </a>
+            <a href="{{ route('admin.mass-intentions') }}" class="palette-item">
+              <span class="palette-icon">🕯</span>
+              <div>
+                <strong>Mass Intentions</strong>
+                <small>Review offerings &amp; liturgical intentions</small>
+              </div>
+              <span class="palette-tag">Requests</span>
+            </a>
+            <a href="{{ route('admin.mass-schedules') }}" class="palette-item">
+              <span class="palette-icon">⛪</span>
+              <div>
+                <strong>Mass Schedules</strong>
+                <small>Sunday and weekday liturgical times</small>
+              </div>
+              <span class="palette-tag">Scheduling</span>
+            </a>
+            <a href="{{ route('admin.ministries') }}" class="palette-item">
+              <span class="palette-icon">👥</span>
+              <div>
+                <strong>Parish Ministries</strong>
+                <small>Apostolates, organizations &amp; groups</small>
+              </div>
+              <span class="palette-tag">Ministries</span>
+            </a>
+            <a href="{{ route('admin.announcements') }}" class="palette-item">
+              <span class="palette-icon">📢</span>
+              <div>
+                <strong>Announcements</strong>
+                <small>Bulletin &amp; portal notices</small>
+              </div>
+              <span class="palette-tag">Content</span>
+            </a>
+          </div>
         </div>
       </div>
-
-      <!-- Quick Search Dropdown / Palette -->
-      <div class="search-dropdown-palette" id="search-dropdown-palette">
-        <div class="search-palette-group">
-          <span class="palette-label">Quick Jump to Modules</span>
-          <a href="{{ route('admin.parishioners') }}" class="palette-item">
-            <span class="palette-icon">👤</span>
-            <div>
-              <strong>Parishioners Directory</strong>
-              <small>Manage registered church members</small>
-            </div>
-            <span class="palette-tag">User Management</span>
-          </a>
-          <a href="{{ route('admin.mass-intentions') }}" class="palette-item">
-            <span class="palette-icon">🕯</span>
-            <div>
-              <strong>Mass Intentions</strong>
-              <small>Review offerings &amp; liturgical intentions</small>
-            </div>
-            <span class="palette-tag">Requests</span>
-          </a>
-          <a href="{{ route('admin.mass-schedules') }}" class="palette-item">
-            <span class="palette-icon">⛪</span>
-            <div>
-              <strong>Mass Schedules</strong>
-              <small>Sunday and weekday liturgical times</small>
-            </div>
-            <span class="palette-tag">Scheduling</span>
-          </a>
-          <a href="{{ route('admin.ministries') }}" class="palette-item">
-            <span class="palette-icon">👥</span>
-            <div>
-              <strong>Parish Ministries</strong>
-              <small>Apostolates, organizations &amp; groups</small>
-            </div>
-            <span class="palette-tag">Ministries</span>
-          </a>
-          <a href="{{ route('admin.announcements') }}" class="palette-item">
-            <span class="palette-icon">📢</span>
-            <div>
-              <strong>Announcements</strong>
-              <small>Bulletin &amp; portal notices</small>
-            </div>
-            <span class="palette-tag">Content</span>
-          </a>
-        </div>
-      </div>
-    </div>
+    @endunless
   </div>
 
   <div class="topbar-right">
@@ -276,7 +298,7 @@
         </div>
         <div class="admin-meta">
           <span class="admin-name">{{ $authName }}</span>
-          <span class="admin-role">{{ $authRole }}</span>
+          <span class="admin-role">{{ $authPosition }}</span>
         </div>
         <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <polyline points="6 9 12 15 18 9"></polyline>
@@ -288,8 +310,36 @@
         <div class="profile-popover-header">
           <strong>{{ $authName }}</strong>
           <small>{{ $authEmail }}</small>
-          <span class="role-chip">{{ $authRole }}</span>
+          <div class="profile-chips-wrap">
+            <span class="role-chip">{{ $authPosition }}</span>
+            <span class="org-chip">{{ $authOrganization }}</span>
+          </div>
+          @if(!empty($authResponsibilities) && $authResponsibilities !== '—')
+            <div class="profile-resp-row">
+              <span class="resp-label">Responsibilities:</span>
+              <span class="resp-val">{{ $authResponsibilities }}</span>
+            </div>
+          @endif
         </div>
+        @if($user && ($user->commissions->isNotEmpty() || $user->ministries->isNotEmpty()))
+          <div class="profile-connections-section">
+            <span class="connections-heading">Connected Organizations</span>
+            @foreach($user->commissions as $uComm)
+              <div class="connection-row">
+                <span class="connection-dot dot-commission"></span>
+                <span class="connection-name">{{ $uComm->name }}</span>
+                <span class="connection-role">{{ ucfirst($uComm->pivot->role ?? 'member') }}</span>
+              </div>
+            @endforeach
+            @foreach($user->ministries as $uMin)
+              <div class="connection-row">
+                <span class="connection-dot dot-ministry"></span>
+                <span class="connection-name">{{ $uMin->name }}</span>
+                <span class="connection-role">{{ ucfirst($uMin->pivot->role ?? 'member') }}</span>
+              </div>
+            @endforeach
+          </div>
+        @endif
         <div class="profile-popover-links">
           <a href="{{ route('admin.staff') }}" class="popover-link">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -777,6 +827,13 @@
     margin-top: 2px;
   }
 
+  .profile-chips-wrap {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+
   .role-chip {
     display: inline-block;
     background: #fef3c7;
@@ -787,7 +844,93 @@
     letter-spacing: 0.06em;
     padding: 2px 7px;
     border-radius: 4px;
+  }
+
+  .org-chip {
+    display: inline-block;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 2px 7px;
+    border-radius: 4px;
+  }
+
+  .profile-resp-row {
     margin-top: 8px;
+    font-size: 11px;
+    color: #475569;
+    line-height: 1.35;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 4px 8px;
+  }
+
+  .resp-label {
+    font-weight: 600;
+    color: #64748b;
+  }
+
+  .resp-val {
+    color: #1e293b;
+    font-weight: 500;
+  }
+
+  .profile-connections-section {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    background: #fcfdfe;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 160px;
+    overflow-y: auto;
+  }
+
+  .connections-heading {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #94a3b8;
+    margin-bottom: 2px;
+  }
+
+  .connection-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+  }
+
+  .connection-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot-commission { background: #2563eb; }
+  .dot-ministry { background: #16a34a; }
+
+  .connection-name {
+    color: #1e293b;
+    font-weight: 500;
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .connection-role {
+    font-size: 10px;
+    color: #64748b;
+    background: #f1f5f9;
+    padding: 1px 6px;
+    border-radius: 10px;
   }
 
   .profile-popover-links {

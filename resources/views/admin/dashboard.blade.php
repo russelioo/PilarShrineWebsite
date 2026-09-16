@@ -19,6 +19,13 @@
         <div class="banner-content">
             <span class="banner-eyebrow">DIOCESAN SHRINE AND PARISH OF OUR LADY OF THE PILLAR</span>
             <h1 class="banner-heading">Welcome back, Admin!</h1>
+            @if(auth()->check())
+                <div class="banner-user-meta">
+                    <span class="banner-user-name">{{ auth()->user()->name }}</span>
+                    <span class="banner-user-pill">{{ auth()->user()->position ?: auth()->user()->role_badge_label }}</span>
+                    <span class="banner-user-pill pill-org">{{ auth()->user()->organization_label }}</span>
+                </div>
+            @endif
             <p class="banner-lead">Let us continue to serve with faith, hope, and love.</p>
             <blockquote class="banner-scripture">
                 “For where two or three are gathered in my name, there am I with them.”
@@ -46,6 +53,42 @@
             </div>
         </div>
     </section>
+
+    <!-- 1.5 MY ORGANIZATIONS SWITCHER -->
+    @if(isset($userOrganizations) && count($userOrganizations) > 0)
+    <section class="org-switcher-section" aria-label="My Organizations Switcher">
+        <div class="org-switcher-card">
+            <div class="org-switcher-header">
+                <div class="org-switcher-title-group">
+                    <span class="org-switcher-badge">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                        MY ORGANIZATIONS
+                    </span>
+                    <span class="org-switcher-hint">Switch between your connected commissions, ministries, and parish roles:</span>
+                </div>
+                @if(isset($currentOrgDetails) && $currentOrgDetails)
+                    <div class="current-context-tag">
+                        Viewing: <strong>{{ $currentOrgDetails['name'] }}</strong> <span class="tag-role">({{ $currentOrgDetails['role'] }})</span>
+                    </div>
+                @endif
+            </div>
+            <div class="org-switcher-tabs">
+                @foreach($userOrganizations as $uOrg)
+                    <a href="{{ route('admin.dashboard', ['org' => $uOrg['id']]) }}" class="org-switcher-tab {{ $uOrg['active'] ? 'active' : '' }}">
+                        <span class="org-tab-dot org-dot-{{ $uOrg['type'] }}"></span>
+                        <div class="org-tab-text">
+                            <span class="org-tab-name">{{ $uOrg['name'] }}</span>
+                            <span class="org-tab-role">{{ $uOrg['role'] }}</span>
+                        </div>
+                        @if($uOrg['active'])
+                            <span class="org-tab-active-check">✓</span>
+                        @endif
+                    </a>
+                @endforeach
+            </div>
+        </div>
+    </section>
+    @endif
 
     <!-- 2. KPI / STATISTICS CARDS -->
     <section class="kpi-grid" aria-label="Key Performance Indicators">
@@ -486,6 +529,150 @@
         font: 700 28px 'Libre Baskerville', Georgia, serif;
         color: #ffffff;
         letter-spacing: -0.01em;
+    }
+
+    /* Banner user meta */
+    .banner-user-meta {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 8px;
+    }
+    .banner-user-name {
+        font-size: 13px;
+        font-weight: 700;
+        color: #ffffff;
+    }
+    .banner-user-pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 2px 10px;
+        border-radius: 20px;
+        font-size: 10px;
+        font-weight: 600;
+        background: rgba(255, 255, 255, 0.18);
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        color: #e2e8f0;
+    }
+    .banner-user-pill.pill-org {
+        background: rgba(216, 170, 60, 0.22);
+        border-color: rgba(216, 170, 60, 0.45);
+        color: #fde68a;
+    }
+
+    /* ===== My Organizations Switcher ===== */
+    .org-switcher-section {
+        margin-bottom: 24px;
+    }
+    .org-switcher-card {
+        background: #ffffff;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 16px 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+    .org-switcher-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    .org-switcher-title-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    .org-switcher-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #eef4ff;
+        color: #1d4ed8;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        padding: 3px 10px;
+        border-radius: 6px;
+    }
+    .org-switcher-hint {
+        font-size: 12px;
+        color: var(--muted);
+    }
+    .current-context-tag {
+        font-size: 12px;
+        color: #334155;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        padding: 4px 12px;
+        border-radius: 20px;
+    }
+    .current-context-tag strong {
+        color: var(--navy);
+    }
+    .current-context-tag .tag-role {
+        color: #64748b;
+    }
+    .org-switcher-tabs {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    .org-switcher-tab {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 14px;
+        border-radius: 9px;
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
+        text-decoration: none;
+        transition: all 0.18s ease;
+        color: #1e293b;
+    }
+    .org-switcher-tab:hover {
+        background: #f1f5f9;
+        border-color: #cbd5e1;
+        transform: translateY(-1px);
+    }
+    .org-switcher-tab.active {
+        background: #eff6ff;
+        border-color: #93c5fd;
+        box-shadow: 0 2px 6px rgba(29, 78, 216, 0.08);
+    }
+    .org-tab-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+    .org-dot-parish { background: #9d174d; }
+    .org-dot-commission { background: #2563eb; }
+    .org-dot-ministry { background: #16a34a; }
+    .org-tab-text {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.25;
+    }
+    .org-tab-name {
+        font-size: 12px;
+        font-weight: 700;
+        color: #0f172a;
+    }
+    .org-switcher-tab.active .org-tab-name {
+        color: #1d4ed8;
+    }
+    .org-tab-role {
+        font-size: 10px;
+        color: #64748b;
+    }
+    .org-tab-active-check {
+        font-size: 12px;
+        font-weight: 800;
+        color: #1d4ed8;
     }
 
     .banner-lead {

@@ -1,11 +1,7 @@
-﻿@php
+@php
     $authUser = auth()->user();
     $displayName = $authUser?->displayName ?? 'Parishioner';
-    $roleName = match($authUser?->role) {
-        'admin' => 'Administrator',
-        'staff' => 'Staff',
-        default => 'Parishioner',
-    };
+    $roleName = $authUser?->role_badge_label ?? 'Parishioner';
     $initials = $authUser?->initials ?? 'PA';
     $avatar = $authUser?->avatar;
 @endphp

@@ -5,13 +5,70 @@ namespace App\Http\Controllers;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 class AdminDashboardController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
+        $user = Auth::user();
+        if ($user) {
+            $user->loadMissing(['commissions', 'ministries']);
+        }
+
+        // Build "My Organizations" switcher context
+        $userOrganizations = [];
+        $currentContext = $request->query('org', 'all');
+
+        if ($user) {
+            if ($user->hasParishWideAccess() || $user->isParishAdministration()) {
+                $userOrganizations[] = [
+                    'id' => 'parish',
+                    'type' => 'parish',
+                    'name' => 'Parish Administration',
+                    'role' => $user->position ?: 'Parish Administrator',
+                    'active' => ($currentContext === 'parish' || $currentContext === 'all'),
+                ];
+            }
+
+            foreach ($user->commissions as $comm) {
+                $cRole = match ($comm->pivot->role ?? 'member') {
+                    'coordinator' => 'Coordinator',
+                    'officer' => 'Officer',
+                    default => 'Member',
+                };
+                $userOrganizations[] = [
+                    'id' => 'commission-' . $comm->id,
+                    'type' => 'commission',
+                    'name' => $comm->name,
+                    'role' => $cRole,
+                    'active' => ($currentContext === 'commission-' . $comm->id),
+                ];
+            }
+
+            foreach ($user->ministries as $min) {
+                $mRole = match ($min->pivot->role ?? 'member') {
+                    'coordinator' => 'Coordinator',
+                    'officer' => 'Officer',
+                    default => 'Member',
+                };
+                $userOrganizations[] = [
+                    'id' => 'ministry-' . $min->id,
+                    'type' => 'ministry',
+                    'name' => $min->name,
+                    'role' => $mRole,
+                    'active' => ($currentContext === 'ministry-' . $min->id),
+                ];
+            }
+        }
+
+        $currentOrgDetails = null;
+        foreach ($userOrganizations as $uo) {
+            if ($uo['active']) {
+                $currentOrgDetails = $uo;
+                break;
+            }
+        }
         // 1. Live Parishioner Counts
         $dbParishioners = \App\Models\User::query()->where('role', 'user')->count();
         $verifiedParishioners = \App\Models\User::query()->where('role', 'user')->where('is_verified', true)->count();
@@ -163,6 +220,9 @@ class AdminDashboardController extends Controller
             'recentRequests' => $recentRequests,
             'latestAnnouncements' => $latestAnnouncements,
             'activeSchedules' => $activeSchedules,
+            'userOrganizations' => $userOrganizations,
+            'currentContext' => $currentContext,
+            'currentOrgDetails' => $currentOrgDetails,
         ]);
     }
 

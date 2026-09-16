@@ -18,7 +18,11 @@ class InquiryTest extends TestCase
     {
         foreach (['staff', 'admin'] as $role) {
             $user = User::factory()->create(['role' => $role]);
-            $this->actingAs($user)->get('/'.$role.'/inquiries')->assertOk()->assertSee('Inquiries &amp; messages', false);
+            $response = $this->actingAs($user)->get('/'.$role.'/inquiries');
+            $response->assertOk();
+            $response->assertSee('Inquiries &amp; messages', false);
+            $response->assertDontSee('id="global-search-wrap"', false);
+            $response->assertDontSee('placeholder="Search modules... (Ctrl+K)"', false);
         }
     }
 
@@ -65,5 +69,22 @@ class InquiryTest extends TestCase
         $this->assertDatabaseCount('inquiry_messages', 0);
         $this->post('/inquiries', ['recipient_id' => $recipient->id, 'attachments' => [UploadedFile::fake()->create('allowed.pdf', 10240, 'application/pdf')]])->assertSessionHasNoErrors();
         $this->assertDatabaseCount('inquiry_messages', 1);
+    }
+
+    public function test_parish_secretary_and_clergy_open_inquiries_with_admin_layout(): void
+    {
+        $secretary = User::factory()->create([
+            'name' => 'Angela Gwyn Mansanero',
+            'role' => 'parish_secretary',
+            'organization' => 'parish_administration',
+            'position' => 'Parish Secretary',
+        ]);
+
+        $response = $this->actingAs($secretary)->get('/inquiries');
+        $response->assertOk();
+        // Uses Admin Portal layout
+        $response->assertSee('Admin Navigation', false);
+        $response->assertSee('Parish Secretary', false);
+        $response->assertDontSee('Parishioner Portal', false);
     }
 }

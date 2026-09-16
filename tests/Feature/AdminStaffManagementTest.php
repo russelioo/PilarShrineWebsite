@@ -315,5 +315,147 @@ class AdminStaffManagementTest extends TestCase
         $response->assertSee('0919 555 7777');
         $response->assertDontSee('Maria Santos');
     }
+
+    public function test_parish_secretary_displays_proper_organization_and_dash_for_commission_ministry(): void
+    {
+        $admin = $this->createAdmin();
+
+        $secretary = User::factory()->create([
+            'name' => 'Angela Gwyn Mansanero',
+            'email' => 'mansaneroangelagwyn22@gmail.com',
+            'role' => 'parish_secretary',
+            'organization' => 'parish_administration',
+            'position' => 'Parish Secretary',
+            'responsibilities' => 'Administrative Staff',
+            'commission_id' => null,
+            'is_verified' => true,
+        ]);
+
+        $response = $this->actingAs($admin)->get(route('admin.staff'));
+
+        $response->assertOk();
+        $response->assertSee('Angela Gwyn Mansanero');
+        $response->assertSee('mansaneroangelagwyn22@gmail.com');
+        $response->assertSee('Parish Secretary');
+        $response->assertSee('Parish Administration');
+        $response->assertSee('Administrative Staff');
+        $response->assertSee('<span class="commission-badge commission-none">—</span>', false);
+        $this->assertFalse($secretary->hasParishWideCommissionOversight());
+        $this->assertSame('—', $secretary->commission_ministry_summary);
+    }
+
+    public function test_admin_can_create_staff_with_multiple_commissions_and_ministries(): void
+    {
+        $admin = $this->createAdmin();
+
+        $comm1 = \App\Models\Commission::create(['name' => 'Social Communications', 'slug' => 'soccom', 'is_active' => true]);
+        $comm2 = \App\Models\Commission::create(['name' => 'Youth Commission', 'slug' => 'youth', 'is_active' => true]);
+        $min1 = \App\Models\Ministry::create([
+            'name' => 'Altar Servers',
+            'slug' => 'altar-servers',
+            'description' => 'Altar servers ministry description',
+            'commission_id' => $comm1->id,
+            'is_accepting_members' => true,
+        ]);
+
+        $payload = [
+            'name' => 'Multi Org Member',
+            'email' => 'multiorg@pilarshrine.test',
+            'role' => 'commission_member',
+            'organization' => 'commission',
+            'position' => 'Youth Coordinator',
+            'responsibilities' => 'Youth Programs & Media',
+            'status' => 'active',
+            'commission_ids' => [$comm1->id, $comm2->id],
+            'commission_roles' => [
+                $comm1->id => 'coordinator',
+                $comm2->id => 'member',
+            ],
+            'ministry_ids' => [$min1->id],
+            'ministry_roles' => [
+                $min1->id => 'officer',
+            ],
+            'password' => 'Password123!',
+            'password_confirmation' => 'Password123!',
+        ];
+
+        $response = $this->actingAs($admin)->postJson(route('admin.staff.store'), $payload);
+
+        $response->assertCreated();
+
+        $created = User::where('email', 'multiorg@pilarshrine.test')->first();
+        $this->assertNotNull($created);
+        $this->assertSame('Youth Coordinator', $created->position);
+        $this->assertSame('Youth Programs & Media', $created->responsibilities);
+        $this->assertCount(2, $created->commissions);
+        $this->assertCount(1, $created->ministries);
+        $this->assertDatabaseHas('commission_memberships', [
+            'user_id' => $created->id,
+            'commission_id' => $comm1->id,
+            'role' => 'coordinator',
+        ]);
+        $this->assertDatabaseHas('ministry_memberships', [
+            'user_id' => $created->id,
+            'ministry_id' => $min1->id,
+            'role' => 'officer',
+        ]);
+    }
+
+    public function test_admin_can_sort_staff_by_name(): void
+    {
+        $admin = $this->createAdmin();
+
+        User::factory()->create(['name' => 'Zara Morales', 'email' => 'zara@pilarshrine.test', 'role' => 'staff']);
+        User::factory()->create(['name' => 'Albert Cruz', 'email' => 'albert@pilarshrine.test', 'role' => 'staff']);
+
+        $response = $this->actingAs($admin)->get(route('admin.staff', ['sort' => 'name']));
+
+        $response->assertOk();
+        $staffItems = $response->viewData('staff');
+        $this->assertGreaterThanOrEqual(2, $staffItems->count());
+        $names = $staffItems->pluck('name')->all();
+        $this->assertTrue(
+            array_search('Albert Cruz', $names) < array_search('Zara Morales', $names),
+            'Albert Cruz should appear before Zara Morales when sorted by name.'
+        );
+    }
+
+    public function test_admin_can_export_staff_to_csv(): void
+    {
+        $admin = $this->createAdmin();
+
+        User::factory()->create([
+            'name' => 'Carlos Mendoza',
+            'email' => 'carlos.mendoza@pilarshrine.test',
+            'phone' => '09171234567',
+            'role' => 'staff',
+            'is_verified' => true,
+        ]);
+
+        $response = $this->actingAs($admin)->get(route('admin.staff', ['export' => 'csv']));
+
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
+        
+        $content = $response->streamedContent();
+        $this->assertStringContainsString('Carlos Mendoza', $content);
+        $this->assertStringContainsString('carlos.mendoza@pilarshrine.test', $content);
+        $this->assertStringContainsString('09171234567', $content);
+        $this->assertStringContainsString('Staff', $content);
+    }
+
+    public function test_staff_page_has_sort_dropdown_beside_export_and_no_apply_button(): void
+    {
+        $admin = $this->createAdmin();
+
+        $response = $this->actingAs($admin)->get(route('admin.staff'));
+
+        $response->assertOk();
+        $response->assertSee('id="staff-sort-select"', false);
+        $response->assertSee('handleSortChange(this.value)', false);
+        $response->assertSee('exportStaffData()', false);
+        $response->assertDontSee('>Apply</button>', false);
+    }
 }
+
 

@@ -14,6 +14,7 @@ class MinistryMembership extends Model
     protected $fillable = [
         'user_id',
         'ministry_id',
+        'role',
         'status',
         'application_message',
         'experience',

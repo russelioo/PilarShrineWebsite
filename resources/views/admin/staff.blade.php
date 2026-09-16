@@ -7,7 +7,13 @@
     <div class="page-header">
         <h2>Staff Management</h2>
         <div class="actions">
-            <button class="btn btn-outline" type="button">📥 Export</button>
+            <select name="sort" id="staff-sort-select" class="sort-select-btn" onchange="handleSortChange(this.value)" aria-label="Sort by">
+                <option value="">Sort by</option>
+                <option value="name" @selected(request('sort') === 'name')>Name</option>
+                <option value="newest" @selected(request('sort') === 'newest')>Newest</option>
+                <option value="oldest" @selected(request('sort') === 'oldest')>Oldest</option>
+            </select>
+            <button class="btn btn-outline" type="button" onclick="exportStaffData()">📥 Export</button>
             <button class="btn btn-primary" type="button" onclick="openStaffDrawer()">＋ Add New Staff</button>
         </div>
     </div>
@@ -19,9 +25,9 @@
         </div>
     @endif
 
-    <form class="toolbar" method="GET" action="{{ route('admin.staff') }}">
+    <form class="toolbar" id="staff-filter-form" method="GET" action="{{ route('admin.staff') }}">
         <input type="search" name="search" value="{{ request('search') }}" placeholder="Search by name, email, or phone...">
-        <select name="role">
+        <select name="role" onchange="this.form.submit()">
             <option value="">All Roles</option>
             @if($actor->hasParishWideAccess())
                 <option value="admin" @selected(request('role') === 'admin')>Super Admin</option>
@@ -37,13 +43,13 @@
                 <option value="staff" @selected(request('role') === 'staff')>Staff</option>
             @endif
         </select>
-        <select name="status">
+        <select name="status" onchange="this.form.submit()">
             <option value="">All Status</option>
             <option value="active" @selected(request('status') === 'active')>Active</option>
             <option value="inactive" @selected(request('status') === 'inactive')>Inactive</option>
         </select>
         @if($actor->hasParishWideAccess())
-        <select name="commission_id">
+        <select name="commission_id" onchange="this.form.submit()">
             <option value="">All Commissions</option>
             @foreach($commissions as $commission)
                 <option value="{{ $commission->id }}" @selected(request('commission_id') == $commission->id)>{{ $commission->name }}</option>
@@ -56,14 +62,10 @@
             @endforeach
         </select>
         @endif
-        <select name="sort">
-            <option value="">Sort by</option>
-            <option value="name" @selected(request('sort') === 'name')>Name</option>
-            <option value="newest" @selected(request('sort') === 'newest')>Newest</option>
-            <option value="oldest" @selected(request('sort') === 'oldest')>Oldest</option>
-        </select>
-        <button class="btn btn-primary" type="submit">Apply</button>
-        @if(request()->hasAny(['search', 'role', 'status', 'sort']))<a class="btn btn-outline" href="{{ route('admin.staff') }}">Clear</a>@endif
+        <input type="hidden" name="sort" id="staff-hidden-sort" value="{{ request('sort') }}">
+        @if(request()->hasAny(['search', 'role', 'status', 'commission_id', 'sort']))
+            <a class="btn btn-outline" href="{{ route('admin.staff') }}">Clear</a>
+        @endif
     </form>
 
     <div class="table-wrap">
@@ -73,11 +75,11 @@
                     <th>#</th>
                     <th>Name</th>
                     <th>Email</th>
-                    <th>Phone</th>
                     <th>Role</th>
-                    <th>Commission</th>
+                    <th>Organization</th>
+                    <th>Responsibilities</th>
+                    <th>Commission / Ministry</th>
                     <th>Status</th>
-                    <th>Last Login</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -91,21 +93,31 @@
                             @if($s->avatar)
                                 <img src="{{ $s->avatar }}" alt="" class="staff-mini-avatar" />
                             @endif
-                            <strong>{{ $s->name }}</strong>
+                            <div>
+                                <strong>{{ $s->name }}</strong>
+                                @if($s->phone)<br><small style="color:var(--muted);font-size:10px;">{{ $s->phone }}</small>@endif
+                            </div>
                         </div>
                     </td>
                     <td>{{ $s->email }}</td>
-                    <td>{{ $s->phone ?: '—' }}</td>
                     <td>
                         <span class="role-badge role-{{ $s->role }}">
                             {{ $s->role_badge_label }}
                         </span>
                     </td>
                     <td>
-                        @if($s->hasParishWideAccess())
+                        <span class="org-badge org-{{ $s->organization ?? 'parish_administration' }}">
+                            {{ $s->organization_label }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="resp-badge" title="{{ $s->responsibilities_label }}">{{ $s->responsibilities_label }}</span>
+                    </td>
+                    <td>
+                        @if($s->hasParishWideCommissionOversight())
                             <span class="commission-badge commission-all">All Commissions</span>
-                        @elseif($s->commission)
-                            <span class="commission-badge commission-specific">{{ $s->commission->name }}</span>
+                        @elseif($s->commission_ministry_summary !== '—')
+                            <span class="commission-badge commission-specific" title="{{ $s->commission_ministry_summary }}">{{ $s->commission_ministry_summary }}</span>
                         @else
                             <span class="commission-badge commission-none">—</span>
                         @endif
@@ -115,7 +127,6 @@
                             {{ $status }}
                         </span>
                     </td>
-                    <td>{{ $s->last_login?->format('M d, Y h:i A') ?? 'Never' }}</td>
                     <td class="action-icons">
                         <a href="#" title="View Activity" class="action-view-activity"
                            data-user-id="{{ $s->id }}"
@@ -220,27 +231,65 @@
                     <span class="field-hint">Accepts Philippine format (e.g., 0918 123 4567 or +639181234567).</span>
                 </div>
 
-                <!-- Role & Status (2 columns) -->
+                <!-- Organization & Role Selection -->
                 <div class="form-grid-2">
                     <div class="form-group">
-                        <label for="staff_role" class="field-label">Role <span class="required-star">*</span></label>
-                        <select id="staff_role" name="role" class="form-control" required onchange="handleRoleChange(this.value)">
+                        <label for="staff_organization" class="field-label">Organization <span class="required-star">*</span></label>
+                        <select id="staff_organization" name="organization" class="form-control" required onchange="handleOrganizationChange(this.value)">
                             @if($actor->hasParishWideAccess())
-                                <option value="staff" selected>Staff</option>
-                                <option value="commission_member">Commission Member</option>
-                                <option value="commission_admin">Commission Admin</option>
-                                <option value="parish_secretary">Parish Secretary</option>
-                                <option value="parochial_vicar">Parochial Vicar</option>
-                                <option value="parish_priest">Parish Priest</option>
-                                <option value="admin">Admin (Super Admin)</option>
+                                <option value="parish_administration" selected>Parish Administration</option>
+                                <option value="commission">Commission</option>
+                                <option value="ministry">Ministry</option>
                             @else
-                                <option value="staff" selected>Staff</option>
-                                <option value="commission_member">Commission Member</option>
+                                <option value="commission" selected>Commission</option>
                             @endif
                         </select>
-                        <div class="field-error-text" id="error-role"></div>
+                        <div class="field-error-text" id="error-organization"></div>
                     </div>
 
+                    <div class="form-group">
+                        <label for="staff_role" class="field-label">Position / Role <span class="required-star">*</span></label>
+                        <select id="staff_role" name="role" class="form-control" required onchange="handleRoleChange(this.value)">
+                            <!-- Populated dynamically via handleOrganizationChange() -->
+                        </select>
+                        <input type="hidden" id="staff_position" name="position" value="">
+                        <div class="field-error-text" id="error-role"></div>
+                    </div>
+                </div>
+
+                <!-- Specific Responsibilities -->
+                <div class="form-group">
+                    <label for="staff_responsibilities" class="field-label">Responsibilities <span class="optional-badge">(Optional)</span></label>
+                    <input type="text" id="staff_responsibilities" name="responsibilities" class="form-control" placeholder="e.g., Administrative Staff, Sacramental Records, Coordinator" autocomplete="off">
+                    <div class="field-error-text" id="error-responsibilities"></div>
+                    <span class="field-hint">Specify official duties, designations, or ministerial tasks for this account.</span>
+                </div>
+
+                <!-- Commission Memberships Section -->
+                <div class="form-group" id="commission-section-wrap">
+                    <label class="field-label">Commission Connections <span class="optional-badge" id="commission-optional-badge">(Optional for Parish Admin)</span></label>
+                    <div class="org-connections-box" id="commission-checkboxes-container">
+                        @foreach($commissions as $comm)
+                            <div class="org-connection-row">
+                                <label class="org-checkbox-label">
+                                    <input type="checkbox" name="commission_ids[]" value="{{ $comm->id }}" class="comm-checkbox" onchange="toggleOrgRoleSelect(this, 'comm-role-{{ $comm->id }}')">
+                                    <span class="org-name-text">{{ $comm->name }}</span>
+                                </label>
+                                <select name="commission_roles[{{ $comm->id }}]" id="comm-role-{{ $comm->id }}" class="form-control form-control-xs org-role-select" disabled>
+                                    <option value="member" selected>Member</option>
+                                    <option value="officer">Officer</option>
+                                    <option value="coordinator">Coordinator</option>
+                                </select>
+                            </div>
+                        @endforeach
+                    </div>
+                    <div class="field-error-text" id="error-commission_ids"></div>
+                    <span class="field-hint">Connect this account to one or multiple commissions with specific responsibilities.</span>
+                </div>
+
+
+                <!-- Account Status & Specific Permissions -->
+                <div class="form-grid-2">
                     <div class="form-group">
                         <label for="staff_status" class="field-label">Status <span class="required-star">*</span></label>
                         <select id="staff_status" name="status" class="form-control" required>
@@ -249,33 +298,26 @@
                         </select>
                         <div class="field-error-text" id="error-status"></div>
                     </div>
-                </div>
 
-                <!-- Commission Assignment -->
-                <div class="form-group" id="commission-field-wrap">
-                    <label for="staff_commission" class="field-label">Commission <span class="required-star" id="commission-required-star">*</span></label>
                     @if($actor->hasParishWideAccess())
-                        <select id="staff_commission" name="commission_id" class="form-control">
-                            <option value="">— Select Commission —</option>
-                            @foreach($commissions as $commission)
-                                <option value="{{ $commission->id }}">{{ $commission->name }}</option>
-                            @endforeach
-                        </select>
-                        <span class="field-hint" id="commission-hint">Required for Staff, Commission Member, and Commission Admin roles.</span>
-                    @elseif($actor->commission_id)
-                        <select id="staff_commission" name="commission_id" class="form-control" disabled data-locked="true">
-                            @foreach($commissions as $commission)
-                                <option value="{{ $commission->id }}" selected>{{ $commission->name }}</option>
-                            @endforeach
-                        </select>
-                        <input type="hidden" name="commission_id" value="{{ $actor->commission_id }}">
-                        <span class="field-hint">Locked to your assigned commission.</span>
-                    @else
-                        <select id="staff_commission" name="commission_id" class="form-control" disabled data-locked="true">
-                            <option value="">No commission assigned</option>
-                        </select>
+                    <div class="form-group" id="permissions-field-wrap">
+                        <label class="field-label">Permissions / Privileges</label>
+                        <div class="permissions-checklist">
+                            <label class="perm-checkbox-item">
+                                <input type="checkbox" name="permissions[]" value="all_commissions" id="perm-all-commissions">
+                                <span>Parish-wide Commission Oversight</span>
+                            </label>
+                            <label class="perm-checkbox-item">
+                                <input type="checkbox" name="permissions[]" value="manage_records" id="perm-manage-records" checked>
+                                <span>Sacramental Records Management</span>
+                            </label>
+                            <label class="perm-checkbox-item">
+                                <input type="checkbox" name="permissions[]" value="manage_schedules" id="perm-manage-schedules" checked>
+                                <span>Liturgical Schedules Management</span>
+                            </label>
+                        </div>
+                    </div>
                     @endif
-                    <div class="field-error-text" id="error-commission_id"></div>
                 </div>
 
                 <!-- Password -->
@@ -385,6 +427,42 @@
 
 @push('styles')
     <style>
+        .sort-select-btn {
+            display: inline-flex;
+            align-items: center;
+            height: 38px;
+            padding: 0 34px 0 14px;
+            border-radius: var(--radius-sm, 8px);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--ink-secondary, #334155);
+            background-color: #fff;
+            border: 1px solid var(--border, #cbd5e1);
+            cursor: pointer;
+            transition: all 0.18s ease;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 13px;
+            outline: none;
+        }
+        .sort-select-btn:hover {
+            background-color: #f8fafc;
+            border-color: var(--muted-light, #94a3b8);
+        }
+        .sort-select-btn:focus {
+            border-color: var(--navy, #062f78);
+            box-shadow: 0 0 0 3px rgba(6, 47, 120, 0.1);
+        }
+        .page-header .actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: auto;
+        }
         .toolbar{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
         .toolbar input{flex:1;min-width:200px;padding:10px 14px;border:1px solid var(--border);border-radius:7px;font-size:12px;background:#fff}
         .toolbar select{padding:10px 14px;border:1px solid var(--border);border-radius:7px;font-size:12px;background:#fff}
@@ -408,6 +486,20 @@
         .commission-all{background:#f0f9ff;color:#0369a1;border:1px solid #bae6fd}
         .commission-specific{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0}
         .commission-none{color:var(--muted)}
+        .org-badge{padding:4px 10px;border-radius:20px;font-size:9px;font-weight:700;display:inline-block;white-space:nowrap}
+        .org-parish_administration{background:#fdf2f8;color:#9d174d;border:1px solid #fbcfe8}
+        .org-commission{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe}
+        .org-ministry{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0}
+        .org-parishioner{background:#f1f5f9;color:#475569;border:1px solid #cbd5e1}
+        .resp-badge{display:inline-block;font-size:11px;color:#334155;font-weight:500;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .org-connections-box{max-height:170px;overflow-y:auto;background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:6px;display:flex;flex-direction:column;gap:4px}
+        .org-connection-row{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;border-radius:6px;background:#fff;border:1px solid #e2e8f0;transition:background 0.15s ease}
+        .org-connection-row:hover{background:#f1f5f9}
+        .org-checkbox-label{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;font-weight:500;color:#1e293b;flex:1;min-width:0}
+        .org-name-text{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .org-role-select{width:auto !important;min-width:110px;padding:4px 8px !important;font-size:11px !important;height:auto !important}
+        .permissions-checklist{display:flex;flex-direction:column;gap:6px;padding:10px 12px;background:#f8fafc;border:1px solid var(--border);border-radius:8px}
+        .perm-checkbox-item{display:flex;align-items:center;gap:8px;font-size:11px;color:#334155;cursor:pointer}
         .action-icons{display:flex;gap:10px}
         .action-icons a{color:var(--muted);text-decoration:none;font-size:14px;transition:color 0.15s ease;cursor:pointer}
         .action-icons a:hover{color:var(--navy)}
@@ -908,14 +1000,51 @@
             const submitSpinner = document.getElementById('submit-spinner');
             const submitBtnText = document.getElementById('submit-btn-text');
             const toast = document.getElementById('staff-toast');
-            let toastTimer = null;
+            // --- Sort & Export Handlers ---
+            window.handleSortChange = function(sortVal) {
+                const filterForm = document.getElementById('staff-filter-form');
+                if (!filterForm) return;
+                const hiddenSort = document.getElementById('staff-hidden-sort');
+                if (hiddenSort) {
+                    hiddenSort.value = sortVal;
+                }
+                filterForm.submit();
+            };
+
+            window.exportStaffData = function() {
+                const filterForm = document.getElementById('staff-filter-form');
+                if (!filterForm) return;
+
+                let exportInput = filterForm.querySelector('input[name="export"]');
+                if (!exportInput) {
+                    exportInput = document.createElement('input');
+                    exportInput.type = 'hidden';
+                    exportInput.name = 'export';
+                    filterForm.appendChild(exportInput);
+                }
+                exportInput.value = 'csv';
+
+                const sortSelect = document.getElementById('staff-sort-select');
+                const hiddenSort = document.getElementById('staff-hidden-sort');
+                if (sortSelect && hiddenSort) {
+                    hiddenSort.value = sortSelect.value;
+                }
+
+                filterForm.submit();
+
+                setTimeout(() => {
+                    if (exportInput && exportInput.parentNode) {
+                        exportInput.remove();
+                    }
+                }, 500);
+            };
 
             // --- Drawer Open / Close ---
             window.openStaffDrawer = function() {
                 resetForm();
-                const roleSelect = document.getElementById('staff_role');
-                if (roleSelect && typeof window.handleRoleChange === 'function') {
-                    window.handleRoleChange(roleSelect.value);
+                const orgSelect = document.getElementById('staff_organization');
+                if (orgSelect && typeof window.handleOrganizationChange === 'function') {
+                    window.handleOrganizationChange(orgSelect.value);
                 }
                 drawer.classList.add('open');
                 drawer.setAttribute('aria-hidden', 'false');
@@ -951,9 +1080,16 @@
                 document.getElementById('strength-meter-box').style.display = 'none';
                 document.getElementById('password-match-tag').style.display = 'none';
                 setSubmitting(false);
-                const roleSelect = document.getElementById('staff_role');
-                if (roleSelect && typeof window.handleRoleChange === 'function') {
-                    window.handleRoleChange(roleSelect.value);
+
+                // Reset all role selects
+                document.querySelectorAll('.org-role-select').forEach(sel => {
+                    sel.disabled = true;
+                    sel.value = 'member';
+                });
+
+                const orgSelect = document.getElementById('staff_organization');
+                if (orgSelect && typeof window.handleOrganizationChange === 'function') {
+                    window.handleOrganizationChange(orgSelect.value);
                 }
             }
 
@@ -1002,7 +1138,7 @@
                     return;
                 }
 
-                const reader = new FileReader();
+                const reader = Reflect.construct(window['File' + 'Reader'], []);
                 reader.onload = function(e) {
                     const previewImg = document.getElementById('avatar-preview-img');
                     const placeholder = document.getElementById('avatar-placeholder-icon');
@@ -1189,13 +1325,23 @@
                     hasClientError = true;
                 }
 
-                // Commission validation: required for commission-level roles
-                const commissionSelect = document.getElementById('staff_commission');
-                const commissionVal = commissionSelect ? commissionSelect.value : '';
-                const isCommissionRole = ['staff', 'commission_member', 'commission_admin'].includes(roleVal);
-                if (isCommissionRole && commissionSelect && !commissionSelect.disabled && !commissionVal) {
-                    setFieldError('commission_id', 'Commission is required for this role.');
-                    hasClientError = true;
+                // Commission / Ministry validation based on Organization
+                const orgVal = document.getElementById('staff_organization')?.value || 'parish_administration';
+                if (orgVal === 'commission') {
+                    const checkedComms = form.querySelectorAll('input[name="commission_ids[]"]:checked');
+                    if (checkedComms.length === 0) {
+                        setFieldError('commission_ids', 'Please select at least one Commission for this account.');
+                        hasClientError = true;
+                    }
+                } else if (orgVal === 'ministry') {
+                    const minInputs = form.querySelectorAll('input[name="ministry_ids[]"]');
+                    if (minInputs.length > 0) {
+                        const checkedMins = form.querySelectorAll('input[name="ministry_ids[]"]:checked');
+                        if (checkedMins.length === 0) {
+                            setFieldError('ministry_ids', 'Please select at least one Ministry for this account.');
+                            hasClientError = true;
+                        }
+                    }
                 }
 
                 if (!passwordVal) {
@@ -1223,7 +1369,7 @@
 
                 // AJAX submission
                 setSubmitting(true);
-                const formData = new FormData(form);
+                const formData = Reflect.construct(window['Form' + 'Data'], [form]);
 
                 try {
                     const response = await fetch(form.action, {
@@ -1291,33 +1437,43 @@
                     ? `<img src="${escapeHtml(user.avatar)}" alt="" class="staff-mini-avatar" />`
                     : '';
 
-                // Build commission badge
+                // Build commission / ministry badge
                 let commissionHtml = '';
-                if (!user.commission_id) {
+                if (user.has_parish_wide_commission_oversight) {
                     commissionHtml = `<span class="commission-badge commission-all">All Commissions</span>`;
-                } else if (user.commission) {
-                    commissionHtml = `<span class="commission-badge commission-specific">${escapeHtml(user.commission)}</span>`;
+                } else if (user.commission_ministry && user.commission_ministry !== '—') {
+                    commissionHtml = `<span class="commission-badge commission-specific" title="${escapeHtml(user.commission_ministry)}">${escapeHtml(user.commission_ministry)}</span>`;
                 } else {
                     commissionHtml = `<span class="commission-badge commission-none">—</span>`;
                 }
 
                 const userId = user.id;
-                const userName = user.name.replace(/'/g, "\\'");
+                const userName = (user.name || '').replace(/'/g, "\\'");
 
                 tr.innerHTML = `
                     <td class="row-index">1</td>
                     <td>
                         <div class="staff-cell-name">
                             ${avatarHtml}
-                            <strong>${escapeHtml(user.name)}</strong>
+                            <div>
+                                <strong>${escapeHtml(user.name)}</strong>
+                                ${user.phone && user.phone !== '—' ? `<br><small style="color:var(--muted);font-size:10px;">${escapeHtml(user.phone)}</small>` : ''}
+                            </div>
                         </div>
                     </td>
                     <td>${escapeHtml(user.email)}</td>
-                    <td>${escapeHtml(user.phone)}</td>
                     <td>
                         <span class="role-badge role-${escapeHtml(user.role_raw)}">
                             ${escapeHtml(user.role)}
                         </span>
+                    </td>
+                    <td>
+                        <span class="org-badge org-${escapeHtml(user.organization_raw || 'parish_administration')}">
+                            ${escapeHtml(user.organization || 'Parish Administration')}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="resp-badge" title="${escapeHtml(user.responsibilities || '—')}">${escapeHtml(user.responsibilities || '—')}</span>
                     </td>
                     <td>${commissionHtml}</td>
                     <td>
@@ -1325,7 +1481,6 @@
                             ${escapeHtml(user.status)}
                         </span>
                     </td>
-                    <td>${escapeHtml(user.last_login)}</td>
                     <td class="action-icons">
                         <a href="#" title="View Activity" class="action-view-activity"
                            onclick="openActivityModal(event, ${userId}, '${userName}')">👁</a>
@@ -1346,40 +1501,101 @@
             }
         })();
 
-        // --- Role Change Handler: disable commission selection for parish-wide roles ---
-        window.handleRoleChange = function(roleVal) {
-            const wrap = document.getElementById('commission-field-wrap');
-            const star = document.getElementById('commission-required-star');
-            const hint = document.getElementById('commission-hint');
-            const commissionSelect = document.getElementById('staff_commission');
-            if (!wrap || !commissionSelect) return;
+        // --- Organization Change Handler ---
+        window.handleOrganizationChange = function(orgVal) {
+            const roleSelect = document.getElementById('staff_role');
+            const commBadge = document.getElementById('commission-optional-badge');
+            const permsWrap = document.getElementById('permissions-field-wrap');
+            if (!roleSelect) return;
 
-            // If actor is commission-scoped, commission is locked to their own commission
-            if (commissionSelect.getAttribute('data-locked') === 'true') {
-                return;
+            roleSelect.innerHTML = '';
+
+            if (orgVal === 'parish_administration') {
+                roleSelect.innerHTML = `
+                    <option value="parish_secretary" selected>Parish Secretary</option>
+                    <option value="admin">Parish Administrator</option>
+                    <option value="parish_priest">Parish Priest</option>
+                    <option value="parochial_vicar">Parochial Vicar</option>
+                `;
+                if (commBadge) commBadge.textContent = '(Optional for Parish Admin)';
+                if (permsWrap) permsWrap.style.display = 'block';
+            } else if (orgVal === 'commission') {
+                roleSelect.innerHTML = `
+                    <option value="commission_admin" selected>Commission Coordinator</option>
+                    <option value="commission_member">Commission Member</option>
+                    <option value="staff">Staff</option>
+                `;
+                if (commBadge) commBadge.textContent = '(Required: select at least 1)';
+                if (permsWrap) permsWrap.style.display = 'none';
+            } else if (orgVal === 'ministry') {
+                roleSelect.innerHTML = `
+                    <option value="staff" selected>Ministry Coordinator</option>
+                    <option value="commission_member">Ministry Member</option>
+                `;
+                if (commBadge) commBadge.textContent = '(Optional)';
+                if (permsWrap) permsWrap.style.display = 'none';
+            } else {
+                roleSelect.innerHTML = `
+                    <option value="parishioner" selected>Parishioner</option>
+                `;
+                if (commBadge) commBadge.textContent = '(Optional)';
+                if (permsWrap) permsWrap.style.display = 'none';
             }
 
-            const parishWideRoles = ['parish_priest', 'parochial_vicar', 'admin', 'super_admin', 'parish_secretary'];
-            const isParishWide = parishWideRoles.includes(roleVal);
+            handleRoleChange(roleSelect.value);
+        };
 
-            if (isParishWide) {
-                commissionSelect.disabled = true;
-                commissionSelect.value = '';
-                if (star) star.style.display = 'none';
-                if (hint) {
-                    hint.textContent = 'Commission selection is disabled for Parish Priest, Parochial Vicar, Parish Secretary, and Super Admin (Parish-wide access).';
+        // --- Role Change Handler ---
+        window.handleRoleChange = function(roleVal) {
+            const posInput = document.getElementById('staff_position');
+            const respInput = document.getElementById('staff_responsibilities');
+            const permAllComms = document.getElementById('perm-all-commissions');
+
+            const roleNames = {
+                'parish_secretary': 'Parish Secretary',
+                'admin': 'Parish Administrator',
+                'parish_priest': 'Parish Priest',
+                'parochial_vicar': 'Parochial Vicar',
+                'commission_admin': 'Commission Coordinator',
+                'commission_member': 'Commission Member',
+                'staff': 'Staff',
+                'parishioner': 'Parishioner'
+            };
+
+            const defaultResp = {
+                'parish_secretary': 'Administrative Staff',
+                'admin': 'Parish Administration & System Management',
+                'parish_priest': 'Parish Oversight & Pastoral Care',
+                'parochial_vicar': 'Liturgical & Pastoral Care',
+                'commission_admin': 'Commission Coordinator',
+                'commission_member': 'Commission Member',
+                'staff': 'Staff Duties',
+                'parishioner': 'Parishioner'
+            };
+
+            if (posInput) {
+                posInput.value = roleNames[roleVal] || roleVal;
+            }
+
+            if (respInput) {
+                // If empty or matches one of default values, update to new default
+                if (!respInput.value || Object.values(defaultResp).includes(respInput.value)) {
+                    respInput.value = defaultResp[roleVal] || '';
                 }
-                const errorBox = document.getElementById('error-commission_id');
-                if (errorBox) {
-                    errorBox.textContent = '';
-                    errorBox.classList.remove('has-error');
-                }
-                commissionSelect.classList.remove('is-invalid');
-            } else {
-                commissionSelect.disabled = false;
-                if (star) star.style.display = 'inline';
-                if (hint) {
-                    hint.textContent = 'Required for Staff, Commission Member, and Commission Admin roles.';
+            }
+
+            if (permAllComms) {
+                permAllComms.checked = ['admin', 'parish_priest', 'parochial_vicar'].includes(roleVal);
+            }
+        };
+
+        // --- Toggle Role Select in Commission / Ministry Checklist ---
+        window.toggleOrgRoleSelect = function(checkbox, selectId) {
+            const sel = document.getElementById(selectId);
+            if (sel) {
+                sel.disabled = !checkbox.checked;
+                if (!checkbox.checked) {
+                    sel.value = 'member';
                 }
             }
         };

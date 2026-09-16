@@ -103,8 +103,7 @@ class GoogleAuthController extends Controller
             // Parishioners return to the Official Public Website homepage
             $targetRedirect = session()->pull('google_oauth_redirect');
             return match ($existingUser->role) {
-                'admin' => redirect()->route('admin.dashboard'),
-                'staff' => redirect()->route('staff.dashboard'),
+                'admin', 'super_admin', 'parish_priest', 'parochial_vicar', 'parish_secretary', 'commission_admin', 'commission_member', 'staff' => redirect()->route('admin.dashboard'),
                 default => redirect($targetRedirect ?: '/?login=success'),
             };
         }
