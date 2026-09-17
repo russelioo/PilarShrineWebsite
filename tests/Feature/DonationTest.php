@@ -77,6 +77,43 @@ class DonationTest extends TestCase
         Storage::disk('public')->assertExists($donation->proof_of_payment);
     }
 
+    public function test_parishioner_can_submit_donation_without_purpose(): void
+    {
+        Storage::fake('public');
+
+        $user = User::factory()->create([
+            'name' => 'Jose Rizal',
+            'email' => 'jose@example.com',
+            'role' => 'parishioner',
+        ]);
+
+        $file = UploadedFile::fake()->image('receipt2.jpg', 600, 800)->size(1024);
+
+        $payload = [
+            'donor_name' => 'Jose Rizal',
+            'amount' => '1500.00',
+            'donation_date' => now()->toDateString(),
+            'payment_method' => 'GCash',
+            'reference_number' => 'REF-GCASH-112233',
+            'proof_of_payment' => $file,
+            'email' => 'jose@example.com',
+            'contact_number' => '09181234567',
+        ];
+
+        $response = $this->actingAs($user)->post('/parishioner/donations', $payload);
+
+        $response->assertRedirect('/parishioner/donations');
+        $response->assertSessionHas('success');
+
+        $this->assertDatabaseHas('donations', [
+            'user_id' => $user->id,
+            'donor_name' => 'Jose Rizal',
+            'amount' => 1500.00,
+            'purpose' => null,
+            'status' => 'pending_verification',
+        ]);
+    }
+
     public function test_parishioner_can_view_submitted_donations_list(): void
     {
         $user = User::factory()->create(['role' => 'parishioner']);

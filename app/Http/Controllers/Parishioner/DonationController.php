@@ -48,7 +48,7 @@ class DonationController extends Controller
 
         $validated = $request->validate([
             'donor_name' => ['required', 'string', 'max:255'],
-            'purpose' => ['required', 'string', 'max:255'],
+            'purpose' => ['nullable', 'string', 'max:255'],
             'amount' => ['required', 'numeric', 'min:1'],
             'donation_date' => ['required', 'date', 'before_or_equal:today'],
             'method' => ['required', 'string', 'max:50'],
@@ -71,7 +71,7 @@ class DonationController extends Controller
             'donor_name' => $validated['donor_name'],
             'email' => $validated['email'],
             'contact_number' => $validated['contact_number'] ?? null,
-            'purpose' => $validated['purpose'],
+            'purpose' => $validated['purpose'] ?? null,
             'amount' => $validated['amount'],
             'donation_date' => $validated['donation_date'],
             'method' => $validated['method'],

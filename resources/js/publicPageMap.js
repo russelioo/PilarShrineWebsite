@@ -158,10 +158,7 @@ export const publicPages = {
     title: 'Support the Shrine',
     description: 'Your generosity helps support the mission, ministries, programs, and digital evangelization of the Diocesan Shrine and Parish of Our Lady of the Pillar.',
     hasRule: true,
-    heroActions: [
-      { label: '♥ Support the Shrine', href: '#/donations#donation-methods', variant: 'primary' },
-      { label: '▣ View Mass Schedule', href: '#/schedule', variant: 'secondary' },
-    ],
+    heroActions: [],
   },
 }
 

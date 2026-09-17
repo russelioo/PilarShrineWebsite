@@ -79,30 +79,6 @@
                 <small class="field-hint">For quick verification by the parish financial office.</small>
                 @error('contact_number')<span class="field-error">{{ $message }}</span>@enderror
             </label>
-
-            <label class="form-field">
-                <span class="field-label">Donation Purpose / Fund <strong class="req">*</strong></span>
-                <select name="purpose" required>
-                    <option value="">Select a purpose or fund</option>
-                    @php
-                        $purposes = [
-                            'General Parish Support & Operations' => 'General Parish Support & Operations',
-                            'Church Renovation & Maintenance' => 'Church Renovation & Maintenance',
-                            'Shrine Beautification & Heritage Preservation' => 'Shrine Beautification & Heritage Preservation',
-                            'Liturgical Needs & Altar Flowers' => 'Liturgical Needs & Altar Flowers',
-                            'Caritas & Social Action (Assistance to the Poor)' => 'Caritas & Social Action (Assistance to the Poor)',
-                            'Youth Ministry & Catechetical Formation' => 'Youth Ministry & Catechetical Formation',
-                            'Mass Offerings & Devotions' => 'Mass Offerings & Devotions',
-                            'Other Special Intention Offering' => 'Other Special Intention Offering',
-                        ];
-                    @endphp
-                    @foreach($purposes as $val => $lbl)
-                        <option value="{{ $val }}" @selected(old('purpose') === $val)>{{ $lbl }}</option>
-                    @endforeach
-                </select>
-                <small class="field-hint">Helps the parish direct your offering according to your intention.</small>
-                @error('purpose')<span class="field-error">{{ $message }}</span>@enderror
-            </label>
         </div>
 
         <div class="section-divider"></div>
