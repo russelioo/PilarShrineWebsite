@@ -309,10 +309,13 @@ class MassScheduleController extends Controller
      */
     private function authorizePortal(Request $request): string
     {
-        $portal = $request->routeIs('staff.*') ? 'staff' : 'admin';
-        $roles = $portal === 'staff' ? ['admin', 'staff'] : ['admin'];
-        abort_unless(in_array($request->user()->role, $roles, true), 403);
+        $actor = $request->user();
+        abort_unless(
+            $actor && ($actor->role === 'super_admin' || $actor->hasPermission('mass_schedules')),
+            403,
+            'You do not have permission to manage mass schedules.'
+        );
 
-        return $portal;
+        return $request->routeIs('staff.*') ? 'staff' : 'admin';
     }
 }

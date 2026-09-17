@@ -7,6 +7,7 @@
         <h2>Parish Ministries Directory</h2>
         <p class="page-description">Create, update, and manage parish apostolates, schedules, coordinators, and membership acceptance.</p>
     </div>
+    @if(auth()->user() && auth()->user()->hasPermission('create_ministries'))
     <div class="actions">
         <button type="button" class="btn btn-primary btn-add-ministry" onclick="openAddModal()">
             <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -16,6 +17,7 @@
             <span>+ Add New Ministry</span>
         </button>
     </div>
+    @endif
 </div>
 
 @if(session('success'))
@@ -144,6 +146,7 @@
                         </div>
                     </td>
                     <td>
+                        @if(auth()->user() && auth()->user()->hasPermission('edit_ministries'))
                         <form method="POST" action="{{ route('admin.ministries.toggle', $min) }}" style="display:inline;">
                             @csrf
                             @method('PATCH')
@@ -157,18 +160,27 @@
                                 </button>
                             @endif
                         </form>
+                        @else
+                            <span class="status-btn {{ $min->is_accepting_members ? 'btn-open' : 'btn-closed' }}" style="cursor: default; display: inline-block;">
+                                {{ $min->is_accepting_members ? '● Accepting' : '✕ Closed' }}
+                            </span>
+                        @endif
                     </td>
                     <td>
                         <div class="actions-cell">
+                            @if(auth()->user() && auth()->user()->hasPermission('edit_ministries'))
                             <button type="button" class="btn-sm btn-edit" onclick="openEditModal({{ json_encode($min) }})" title="Edit ministry details">
                                 Edit
                             </button>
+                            @endif
                             <a href="{{ route('admin.ministry-requests', ['ministry_id' => $min->id]) }}" class="btn-sm btn-view-requests" title="View parishioner applications">
                                 Requests
                             </a>
+                            @if(auth()->user() && auth()->user()->hasPermission('delete_ministries'))
                             <button type="button" class="btn-sm btn-delete" onclick="openDeleteModal('{{ $min->id }}', '{{ addslashes($min->name) }}')" title="Delete ministry">
                                 Delete
                             </button>
+                            @endif
                         </div>
                     </td>
                 </tr>

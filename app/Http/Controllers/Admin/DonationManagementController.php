@@ -18,7 +18,7 @@ class DonationManagementController extends Controller
      */
     public function index(Request $request): View
     {
-        $this->authorizeAdmin($request->user());
+        $this->authorizeAction($request->user(), 'donations');
 
         $status = $request->string('status', 'all')->trim()->toString();
         $search = $request->string('search')->trim()->toString();
@@ -70,7 +70,7 @@ class DonationManagementController extends Controller
      */
     public function updateStatus(Request $request, Donation $donation): RedirectResponse
     {
-        $this->authorizeAdmin($request->user());
+        $this->authorizeAction($request->user(), 'donations');
 
         $validated = $request->validate([
             'status' => ['required', Rule::in(['pending_verification', 'verified', 'rejected', 'receipt_ready'])],
@@ -121,7 +121,7 @@ class DonationManagementController extends Controller
      */
     public function donorHistory(Request $request, Donation $donation): JsonResponse
     {
-        $this->authorizeAdmin($request->user());
+        $this->authorizeAction($request->user(), 'donations');
 
         $allDonorDonations = Donation::query()->latest();
 
@@ -159,12 +159,14 @@ class DonationManagementController extends Controller
     }
 
     /**
-     * Enforce strict admin role authorization.
+     * Enforce permission-based authorization for donation management.
      */
-    private function authorizeAdmin($user): void
+    private function authorizeAction($user, string $permission = 'donations'): void
     {
-        if (!$user || $user->role !== 'admin') {
-            abort(403, 'Unauthorized. Super Admin access required.');
-        }
+        abort_unless(
+            $user && ($user->role === 'super_admin' || $user->hasPermission($permission) || $user->hasPermission('donations') || $user->hasPermission('view_reports')),
+            403,
+            'You do not have permission to access donation management.'
+        );
     }
 }

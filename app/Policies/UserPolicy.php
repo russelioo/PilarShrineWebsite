@@ -11,7 +11,12 @@ class UserPolicy
      */
     public function viewAny(User $actor): bool
     {
-        return $actor->hasParishWideAccess() || $actor->isCommissionMember();
+        return $actor->isSuperAdmin()
+            || $actor->hasPermission('view_users')
+            || $actor->hasPermission('parishioners')
+            || $actor->hasPermission('staff_management')
+            || $actor->hasParishWideAccess()
+            || $actor->isCommissionMember();
     }
 
     /**
@@ -19,7 +24,7 @@ class UserPolicy
      */
     public function view(User $actor, User $target): bool
     {
-        if ($actor->hasParishWideAccess()) {
+        if ($actor->isSuperAdmin() || $actor->hasParishWideAccess()) {
             return true;
         }
 
@@ -37,11 +42,19 @@ class UserPolicy
      */
     public function create(User $actor): bool
     {
-        if ($actor->hasParishWideAccess()) {
+        if ($actor->isSuperAdmin()) {
             return true;
         }
 
-        return $actor->isCommissionAdmin() && $actor->commission_id !== null;
+        if ($actor->hasPermission('create_users') || $actor->hasPermission('staff_management')) {
+            if ($actor->hasParishWideAccess()) {
+                return true;
+            }
+
+            return $actor->isCommissionAdmin() && $actor->commission_id !== null;
+        }
+
+        return false;
     }
 
     /**
@@ -53,7 +66,11 @@ class UserPolicy
             return true;
         }
 
-        if ($actor->isParishPriest() || $actor->isParochialVicar() || $actor->isParishSecretary()) {
+        if (! ($actor->hasPermission('edit_users') || $actor->hasPermission('staff_management'))) {
+            return false;
+        }
+
+        if ($actor->hasParishWideAccess()) {
             return ! $target->isSuperAdmin();
         }
 
@@ -74,8 +91,19 @@ class UserPolicy
      */
     public function delete(User $actor, User $target): bool
     {
-        // Only Super Admin can delete, and cannot delete own account
-        return $actor->isSuperAdmin() && $actor->id !== $target->id;
+        if ($actor->id === $target->id) {
+            return false;
+        }
+
+        if ($actor->isSuperAdmin()) {
+            return true;
+        }
+
+        if ($actor->hasPermission('delete_users') && $actor->hasParishWideAccess()) {
+            return ! $target->isSuperAdmin();
+        }
+
+        return false;
     }
 
     /**

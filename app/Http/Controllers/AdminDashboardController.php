@@ -12,9 +12,13 @@ class AdminDashboardController extends Controller
     public function index(Request $request): View
     {
         $user = Auth::user();
-        if ($user) {
-            $user->loadMissing(['commissions', 'ministries']);
-        }
+        abort_unless(
+            $user && ($user->role === 'super_admin' || $user->hasPermission('view_dashboard')),
+            403,
+            'You do not have permission to access the admin dashboard.'
+        );
+
+        $user->loadMissing(['commissions', 'ministries']);
 
         // Build "My Organizations" switcher context
         $userOrganizations = [];

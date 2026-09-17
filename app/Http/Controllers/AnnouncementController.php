@@ -79,7 +79,7 @@ class AnnouncementController extends Controller
      */
     public function index(Request $request): View
     {
-        $this->authorizeAdmin($request->user());
+        $this->authorizeAction($request->user(), 'view_announcements');
 
         $search = $request->string('search')->trim()->toString();
         $category = $request->string('category')->trim()->toString();
@@ -148,7 +148,7 @@ class AnnouncementController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $this->authorizeAdmin($request->user());
+        $this->authorizeAction($request->user(), 'create_announcements');
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
@@ -203,7 +203,7 @@ class AnnouncementController extends Controller
      */
     public function update(Request $request, Announcement $announcement): RedirectResponse
     {
-        $this->authorizeAdmin($request->user());
+        $this->authorizeAction($request->user(), 'edit_announcements');
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
@@ -229,10 +229,10 @@ class AnnouncementController extends Controller
             'photos.1' => 'second photo',
         ]);
 
+        $storedUrls = [];
         if ($request->boolean('remove_photos')) {
             $validated['image_url'] = null;
         } elseif ($request->hasFile('photos')) {
-            $storedUrls = [];
             foreach ($request->file('photos') as $photo) {
                 if (count($storedUrls) < 2) {
                     $path = $photo->store('announcements', 'public');
@@ -251,15 +251,15 @@ class AnnouncementController extends Controller
         $announcement->update($validated);
 
         return redirect()->route('admin.announcements')
-            ->with('success', "Announcement '{$announcement->title}' has been updated.");
+            ->with('success', "Announcement '{$announcement->title}' updated successfully.");
     }
 
     /**
-     * Soft delete an Announcement.
+     * Remove an Announcement.
      */
     public function destroy(Request $request, Announcement $announcement): RedirectResponse
     {
-        $this->authorizeAdmin($request->user());
+        $this->authorizeAction($request->user(), 'delete_announcements');
 
         $title = $announcement->title;
         $announcement->delete();
@@ -273,7 +273,7 @@ class AnnouncementController extends Controller
      */
     public function togglePin(Request $request, Announcement $announcement): RedirectResponse
     {
-        $this->authorizeAdmin($request->user());
+        $this->authorizeAction($request->user(), 'publish_announcements');
 
         $announcement->update([
             'is_pinned' => !$announcement->is_pinned,
@@ -286,13 +286,14 @@ class AnnouncementController extends Controller
     }
 
     /**
-     * Enforce strict admin role authorization.
+     * Enforce permission-based authorization for announcements.
      */
-    private function authorizeAdmin($user): void
+    private function authorizeAction($user, string $permission): void
     {
-        if (!$user || $user->role !== 'admin') {
-            abort(403, 'Unauthorized. Admin access required.');
-        }
+        abort_unless(
+            $user && ($user->role === 'super_admin' || $user->hasPermission($permission)),
+            403,
+            'You do not have permission to perform this announcement action.'
+        );
     }
 }
-

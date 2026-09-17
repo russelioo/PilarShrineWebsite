@@ -111,6 +111,8 @@
   $authResponsibilities = $user?->responsibilities_label ?? '';
   $authAvatar = $user?->avatar;
   $authInitials = strtoupper(substr(trim($authName), 0, 2));
+  $availableOrgs = $user ? $user->getAvailableOrganizations() : [];
+  $activeContext = $user ? $user->getActiveOrganizationContext() : null;
 @endphp
 
 <header class="admin-topbar">
@@ -203,6 +205,45 @@
   </div>
 
   <div class="topbar-right">
+    @if(count($availableOrgs) > 1)
+      <!-- Organization Context Switcher -->
+      <div class="topbar-dropdown-wrap" id="org-context-dropdown-wrap">
+        <button class="org-context-switcher-btn" id="org-context-btn" type="button" aria-label="Switch organization context" aria-expanded="false" aria-haspopup="true">
+          <span class="org-context-icon">🏛</span>
+          <span class="org-context-name">{{ $activeContext['name'] ?? 'Parish Administration' }}</span>
+          <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;margin-left:4px;">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+
+        <div class="dropdown-popover org-context-popover" id="org-context-popover" role="menu">
+          <div class="popover-header">
+            <strong>Active Organization</strong>
+            <span class="unread-count" style="font-size:10px;">{{ count($availableOrgs) }} Available</span>
+          </div>
+          <div class="org-context-list">
+            @foreach($availableOrgs as $org)
+              @php
+                $isActive = ($activeContext['type'] === $org['type']) && ((int)($activeContext['id'] ?? 0) === (int)($org['id'] ?? 0));
+              @endphp
+              <button type="button" 
+                      class="org-context-item {{ $isActive ? 'active' : '' }}" 
+                      onclick="switchActiveOrganization('{{ $org['type'] }}', {{ $org['id'] ? $org['id'] : 'null' }})">
+                <span class="org-context-item-dot dot-{{ $org['type'] }}"></span>
+                <div class="org-context-item-details">
+                  <div class="org-context-item-title">{{ $org['name'] }}</div>
+                  <small class="org-context-item-sub">{{ $org['role'] }} · {{ ucfirst(str_replace('_', ' ', $org['type'])) }}</small>
+                </div>
+                @if($isActive)
+                  <span class="org-context-active-check">✓</span>
+                @endif
+              </button>
+            @endforeach
+          </div>
+        </div>
+      </div>
+    @endif
+
     <!-- Notification Bell with Dropdown -->
     <div class="topbar-dropdown-wrap" id="notification-dropdown-wrap">
       <button class="icon-action-btn" id="notification-btn" type="button" aria-label="Notifications" aria-expanded="false" aria-haspopup="true">
@@ -1100,6 +1141,98 @@
       gap: 8px;
     }
   }
+
+  /* Organization Context Switcher */
+  .org-context-switcher-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border: 1px solid var(--border, #cbd5e1);
+    border-radius: 20px;
+    background: #f8fafc;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--navy, #062f78);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+    max-width: 220px;
+  }
+  .org-context-switcher-btn:hover {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+  }
+  .org-context-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .org-context-popover {
+    width: 280px;
+    right: 0;
+    left: auto;
+  }
+  .org-context-list {
+    display: flex;
+    flex-direction: column;
+    max-height: 280px;
+    overflow-y: auto;
+    padding: 6px;
+    gap: 4px;
+  }
+  .org-context-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s ease;
+  }
+  .org-context-item:hover {
+    background: #f1f5f9;
+  }
+  .org-context-item.active {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+  }
+  .org-context-item-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .org-context-item-dot.dot-parish_administration { background: #9d174d; }
+  .org-context-item-dot.dot-commission { background: #1d4ed8; }
+  .org-context-item-dot.dot-ministry { background: #15803d; }
+  .org-context-item-details {
+    flex: 1;
+    min-width: 0;
+  }
+  .org-context-item-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink, #1e293b);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .org-context-item-sub {
+    font-size: 10px;
+    color: var(--muted, #64748b);
+    display: block;
+  }
+  .org-context-active-check {
+    color: #1d4ed8;
+    font-weight: 700;
+    font-size: 14px;
+  }
 </style>
 
 <script>
@@ -1119,7 +1252,7 @@
       }
     });
 
-    // Dropdowns (Notification & Profile)
+    // Dropdowns (Notification & Profile & Org Switcher)
     const setupDropdown = (btnId, popoverId) => {
       const btn = document.getElementById(btnId);
       const popover = document.getElementById(popoverId);
@@ -1140,9 +1273,41 @@
 
     setupDropdown('notification-btn', 'notification-popover');
     setupDropdown('profile-trigger-btn', 'profile-popover');
+    setupDropdown('org-context-btn', 'org-context-popover');
+
+    window.switchActiveOrganization = async function(type, id) {
+      try {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+          || '{{ csrf_token() }}';
+
+        const response = await fetch('/admin/organization-context/switch', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': csrfToken,
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          body: JSON.stringify({
+            organization_type: type,
+            organization_id: id
+          })
+        });
+
+        if (response.ok) {
+          window.location.reload();
+        } else {
+          const data = await response.json();
+          alert(data.message || 'Failed to switch active organization.');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Network error while switching organization context.');
+      }
+    };
 
     document.addEventListener('click', (e) => {
-      if (!e.target.closest('.dropdown-popover') && !e.target.closest('.icon-action-btn') && !e.target.closest('.profile-trigger-btn')) {
+      if (!e.target.closest('.dropdown-popover') && !e.target.closest('.icon-action-btn') && !e.target.closest('.profile-trigger-btn') && !e.target.closest('.org-context-switcher-btn')) {
         document.querySelectorAll('.dropdown-popover.open').forEach(p => p.classList.remove('open'));
         document.querySelectorAll('[aria-expanded="true"]').forEach(b => b.setAttribute('aria-expanded', 'false'));
       }

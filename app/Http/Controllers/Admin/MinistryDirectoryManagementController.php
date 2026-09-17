@@ -17,7 +17,7 @@ class MinistryDirectoryManagementController extends Controller
      */
     public function index(Request $request): View
     {
-        $this->authorizeAdmin($request->user());
+        $this->authorizeAction($request->user(), 'view_ministries');
 
         $search = $request->string('search')->trim()->toString();
         $category = $request->string('category')->trim()->toString();
@@ -91,7 +91,7 @@ class MinistryDirectoryManagementController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $this->authorizeAdmin($request->user());
+        $this->authorizeAction($request->user(), 'create_ministries');
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -156,7 +156,7 @@ class MinistryDirectoryManagementController extends Controller
      */
     public function update(Request $request, Ministry $ministry): RedirectResponse
     {
-        $this->authorizeAdmin($request->user());
+        $this->authorizeAction($request->user(), 'edit_ministries');
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -211,7 +211,7 @@ class MinistryDirectoryManagementController extends Controller
      */
     public function toggle(Request $request, Ministry $ministry): RedirectResponse
     {
-        $this->authorizeAdmin($request->user());
+        $this->authorizeAction($request->user(), 'edit_ministries');
 
         $ministry->is_accepting_members = !$ministry->is_accepting_members;
         $ministry->save();
@@ -226,7 +226,7 @@ class MinistryDirectoryManagementController extends Controller
      */
     public function destroy(Request $request, Ministry $ministry): RedirectResponse
     {
-        $this->authorizeAdmin($request->user());
+        $this->authorizeAction($request->user(), 'delete_ministries');
 
         $name = $ministry->name;
         $ministry->delete();
@@ -251,13 +251,15 @@ class MinistryDirectoryManagementController extends Controller
     }
 
     /**
-     * Enforce strict admin role authorization.
+     * Enforce permission-based authorization.
      */
-    private function authorizeAdmin($user): void
+    private function authorizeAction($user, string $permission): void
     {
-        if (!$user || $user->role !== 'admin') {
-            abort(403, 'Unauthorized. Super Admin access required.');
-        }
+        abort_unless(
+            $user && ($user->role === 'super_admin' || $user->hasPermission($permission) || $user->hasPermission('manage_ministries')),
+            403,
+            'You do not have permission to perform this ministry action.'
+        );
     }
 }
 

@@ -21,6 +21,7 @@
   <!-- Navigation -->
   <nav class="sidebar-nav" aria-label="Sidebar Menu">
     <!-- DASHBOARD -->
+    @if(!auth()->check() || auth()->user()->hasPermission('dashboard') || auth()->user()->hasPermission('view_dashboard'))
     <div class="nav-section">
       <span class="nav-section-title">DASHBOARD</span>
       <a href="{{ route('admin.dashboard') }}" 
@@ -37,7 +38,9 @@
         <span class="nav-label">Dashboard</span>
       </a>
     </div>
+    @endif
 
+    @if(!auth()->check() || auth()->user()->hasPermission('messages') || auth()->user()->hasPermission('view_messages'))
     <div class="nav-section">
       <span class="nav-section-title">COMMUNICATION</span>
       <a href="{{ route('admin.inquiries') }}" class="admin-nav-item {{ request()->routeIs('admin.inquiries', 'inquiries.*') ? 'active' : '' }}" data-title="Messages">
@@ -45,10 +48,18 @@
         <span class="nav-label">Messages</span>
       </a>
     </div>
+    @endif
 
     <!-- USER MANAGEMENT -->
+    @php
+      $canParishioners = !auth()->check() || auth()->user()->hasPermission('parishioners') || auth()->user()->hasPermission('view_users');
+      $canStaff = !auth()->check() || auth()->user()->hasPermission('staff_management') || auth()->user()->hasPermission('view_users');
+      $canAudit = auth()->check() && (auth()->user()->role === 'super_admin' || auth()->user()->hasPermission('view_audit_logs') || auth()->user()->hasPermission('audit_logs'));
+    @endphp
+    @if($canParishioners || $canStaff || $canAudit)
     <div class="nav-section">
       <span class="nav-section-title">USER MANAGEMENT</span>
+      @if($canParishioners)
       <a href="{{ route('admin.parishioners') }}" 
          class="admin-nav-item {{ request()->routeIs('admin.parishioners') ? 'active' : '' }}"
          data-title="Parishioners">
@@ -62,6 +73,8 @@
         </span>
         <span class="nav-label">Parishioners</span>
       </a>
+      @endif
+      @if($canStaff)
       <a href="{{ route('admin.staff') }}" 
          class="admin-nav-item {{ request()->routeIs('admin.staff') ? 'active' : '' }}"
          data-title="Staff Management">
@@ -75,8 +88,9 @@
         </span>
         <span class="nav-label">Staff Management</span>
       </a>
-      @if(auth()->check() && (auth()->user()->hasParishWideAccess() || auth()->user()->isCommissionAdmin()))
-      <a href="{{ route('admin.audit-logs') }}"
+      @endif
+      @if($canAudit)
+      <a href="{{ route('admin.audit-logs') }}" 
          class="admin-nav-item {{ request()->routeIs('admin.audit-logs') ? 'active' : '' }}"
          data-title="Audit Logs">
         <span class="nav-icon-box">
@@ -92,10 +106,17 @@
       </a>
       @endif
     </div>
+    @endif
 
     <!-- PARISH MINISTRIES -->
+    @php
+      $canMinistries = !auth()->check() || auth()->user()->hasPermission('manage_ministries') || auth()->user()->hasPermission('view_ministries');
+      $canMinistryRequests = !auth()->check() || auth()->user()->hasPermission('ministry_requests') || auth()->user()->hasPermission('view_requests');
+    @endphp
+    @if($canMinistries || $canMinistryRequests)
     <div class="nav-section">
       <span class="nav-section-title">PARISH MINISTRIES</span>
+      @if($canMinistries)
       <a href="{{ route('admin.ministries') }}" 
          class="admin-nav-item {{ request()->routeIs('admin.ministries*') ? 'active' : '' }}"
          data-title="Manage Ministries">
@@ -108,6 +129,8 @@
         </span>
         <span class="nav-label">Manage Ministries</span>
       </a>
+      @endif
+      @if($canMinistryRequests)
       <a href="{{ route('admin.ministry-requests') }}" 
          class="admin-nav-item {{ request()->routeIs('admin.ministry-requests*') ? 'active' : '' }}"
          data-title="Ministry Requests">
@@ -121,11 +144,20 @@
         </span>
         <span class="nav-label">Ministry Requests</span>
       </a>
+      @endif
     </div>
+    @endif
 
     <!-- LITURGY & RECORDS -->
+    @php
+      $canMass = !auth()->check() || auth()->user()->hasPermission('mass_schedules');
+      $canAnnouncements = !auth()->check() || auth()->user()->hasPermission('announcements') || auth()->user()->hasPermission('view_announcements');
+      $canDonations = !auth()->check() || auth()->user()->hasPermission('donations') || auth()->user()->hasPermission('view_reports');
+    @endphp
+    @if($canMass || $canAnnouncements || $canDonations)
     <div class="nav-section">
       <span class="nav-section-title">LITURGY &amp; RECORDS</span>
+      @if($canMass)
       <a href="{{ route('admin.mass-schedules') }}" 
          class="admin-nav-item {{ request()->routeIs('admin.mass-schedules') ? 'active' : '' }}"
          data-title="Mass &amp; Confession Schedule">
@@ -137,6 +169,8 @@
         </span>
         <span class="nav-label">Mass &amp; Confession Schedule</span>
       </a>
+      @endif
+      @if($canAnnouncements)
       <a href="{{ route('admin.announcements') }}" 
          class="admin-nav-item {{ request()->routeIs('admin.announcements') ? 'active' : '' }}"
          data-title="Announcements">
@@ -148,6 +182,8 @@
         </span>
         <span class="nav-label">Announcements</span>
       </a>
+      @endif
+      @if($canDonations)
       <a href="{{ route('admin.donations') }}" 
          class="admin-nav-item {{ request()->routeIs('admin.donations') ? 'active' : '' }}"
          data-title="Donations">
@@ -159,9 +195,12 @@
         </span>
         <span class="nav-label">Donations</span>
       </a>
+      @endif
     </div>
+    @endif
 
     <!-- SYSTEM -->
+    @if(!auth()->check() || auth()->user()->hasPermission('settings') || auth()->user()->hasPermission('view_settings'))
     <div class="nav-section">
       <span class="nav-section-title">SYSTEM</span>
       <a href="{{ route('admin.notifications') }}" 
@@ -176,6 +215,7 @@
         <span class="nav-label">Settings</span>
       </a>
     </div>
+    @endif
 
     <!-- UPCOMING SERVICES (COMING SOON AT THE BOTTOM) -->
     <div class="nav-section nav-section-soon">

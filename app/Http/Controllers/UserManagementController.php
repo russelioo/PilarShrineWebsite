@@ -19,14 +19,166 @@ class UserManagementController extends Controller
 {
     public function parishioners(Request $request): View
     {
+        $actor = $request->user();
+        abort_unless(
+            $actor && ($actor->role === 'super_admin' || $actor->hasPermission('view_users') || $actor->hasPermission('parishioners')),
+            403,
+            'You do not have permission to view parishioners.'
+        );
+
         $parishioners = $this->filteredUsers($request, ['user'])->paginate(10)->withQueryString();
-        return view('admin.parishioners', compact('parishioners'));
+        $commissions = Commission::where('is_active', true)->orderByRaw('LOWER(name) ASC')->get();
+        $ministries = \App\Models\Ministry::orderBy('name')->get();
+
+        return view('admin.parishioners', compact('parishioners', 'actor', 'commissions', 'ministries'));
+    }
+
+    /**
+     * Promote a registered parishioner to a staff, commission, or admin role.
+     * Restricted strictly to Super Administrators and Parish Administrators.
+     */
+    public function promoteParishioner(Request $request, User $user): JsonResponse
+    {
+        $actor = $request->user();
+        abort_unless($actor, 401);
+
+        // Strict Access Control: Only Super Admin and Parish Administrator can promote
+        abort_unless(
+            in_array($actor->role, ['super_admin', 'admin'], true),
+            403,
+            'Only Super Administrators can promote parishioners to staff roles.'
+        );
+
+        // Guard: Only regular parishioners can be promoted
+        if ($user->role !== 'user') {
+            abort(422, "User {$user->name} is already a {$user->role_badge_label} and cannot be promoted as a parishioner.");
+        }
+
+        $validated = $request->validate([
+            'role' => ['required', 'string', 'in:admin,parish_secretary,commission_admin,staff,commission_member'],
+            'organization' => ['required', 'string', 'in:parish_administration,commission,ministry'],
+            'position' => ['nullable', 'string', 'max:255'],
+            'responsibilities' => ['nullable', 'string', 'max:1000'],
+            'commission_id' => ['nullable', 'exists:commissions,id'],
+            'commission_ids' => ['nullable', 'array'],
+            'commission_ids.*' => ['integer', 'exists:commissions,id'],
+            'ministry_ids' => ['nullable', 'array'],
+            'ministry_ids.*' => ['integer', 'exists:ministries,id'],
+        ], [
+            'role.required' => 'Please select an assigned staff role.',
+            'role.in' => 'Selected role is invalid.',
+            'organization.required' => 'Please select an organization unit.',
+            'organization.in' => 'Selected organization is invalid.',
+            'commission_id.exists' => 'The selected commission does not exist.',
+        ]);
+
+        $oldRole = $user->role;
+        $newRole = $validated['role'];
+        $newOrg = $validated['organization'];
+
+        // Determine default position label if not provided
+        $position = !empty($validated['position']) ? trim($validated['position']) : match ($newRole) {
+            'admin' => 'Parish Administrator',
+            'parish_secretary' => 'Parish Secretary',
+            'commission_admin' => 'Commission Coordinator',
+            'staff' => 'Parish Staff',
+            'commission_member' => 'Commission Member',
+            default => 'Staff Member',
+        };
+
+        // Determine default responsibilities if not provided
+        $responsibilities = !empty($validated['responsibilities']) ? trim($validated['responsibilities']) : match ($newOrg) {
+            'parish_administration' => 'Parish Administration & Pastoral Governance',
+            'commission' => 'Commission Operations & Programs',
+            'ministry' => 'Ministry Service & Liturgy',
+            default => 'Staff Responsibilities',
+        };
+
+        $primaryCommissionId = $validated['commission_id'] ?? null;
+        if (! $primaryCommissionId && ! empty($validated['commission_ids'])) {
+            $primaryCommissionId = $validated['commission_ids'][0];
+        }
+
+        // 1. Update user fields
+        $user->role = $newRole;
+        $user->organization = $newOrg;
+        $user->position = $position;
+        $user->responsibilities = $responsibilities;
+        $user->commission_id = $primaryCommissionId;
+        $user->permissions = null; // Revert to role default baseline
+        $user->save();
+
+        // 2. Sync commission memberships
+        $allCommissionIds = collect($validated['commission_ids'] ?? []);
+        if ($primaryCommissionId && ! $allCommissionIds->contains($primaryCommissionId)) {
+            $allCommissionIds->push($primaryCommissionId);
+        }
+
+        if ($allCommissionIds->isNotEmpty()) {
+            foreach ($allCommissionIds as $cid) {
+                \App\Models\CommissionMembership::updateOrCreate(
+                    ['user_id' => $user->id, 'commission_id' => $cid],
+                    [
+                        'role' => $newRole === 'commission_admin' ? 'coordinator' : 'member',
+                        'status' => 'active',
+                        'joined_at' => now(),
+                    ]
+                );
+            }
+        }
+
+        // 3. Sync ministry memberships
+        if (! empty($validated['ministry_ids'])) {
+            foreach ($validated['ministry_ids'] as $mid) {
+                \App\Models\MinistryMembership::updateOrCreate(
+                    ['user_id' => $user->id, 'ministry_id' => $mid],
+                    [
+                        'role' => 'member',
+                        'status' => 'active',
+                        'joined_at' => now(),
+                    ]
+                );
+            }
+        }
+
+        // 4. Record Audit Log
+        AuditLogger::log(
+            action: 'parishioner_promoted_to_staff',
+            description: "Promoted {$user->name} from Parishioner to {$user->position} ({$user->role_badge_label}) under {$user->organization_label}.",
+            target: $user,
+            commissionId: $primaryCommissionId,
+            oldValues: ['role' => $oldRole, 'organization' => 'parishioner'],
+            newValues: [
+                'role' => $newRole,
+                'organization' => $newOrg,
+                'position' => $position,
+                'commission_id' => $primaryCommissionId,
+            ],
+            actor: $actor
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => "{$user->name} has been promoted to {$user->position} ({$user->role_badge_label}) and added to the staff roster.",
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'role' => $user->role,
+                'role_label' => $user->role_badge_label,
+                'position' => $user->position,
+                'organization' => $user->organization_label,
+            ],
+        ]);
     }
 
     public function staff(Request $request): View|StreamedResponse
     {
         $actor = $request->user();
-        abort_unless($actor && ($actor->hasParishWideAccess() || $actor->isCommissionMember() || $actor->isParishAdministration()), 403, 'Unauthorized access to staff management.');
+        abort_unless(
+            $actor && ($actor->role === 'super_admin' || $actor->hasPermission('staff_management') || $actor->hasPermission('view_users')),
+            403,
+            'You do not have permission to view staff management.'
+        );
 
         $roles = ['super_admin', 'admin', 'parish_priest', 'parochial_vicar', 'parish_secretary', 'commission_admin', 'commission_member', 'staff'];
 
@@ -72,7 +224,11 @@ class UserManagementController extends Controller
     public function storeStaff(Request $request): JsonResponse|RedirectResponse
     {
         $actor = $request->user();
-        abort_unless($actor && ($actor->hasParishWideAccess() || $actor->isCommissionAdmin()), 403, 'Unauthorized to create staff accounts.');
+        abort_unless(
+            $actor && ($actor->role === 'super_admin' || $actor->hasPermission('create_users')),
+            403,
+            'You do not have permission to create user accounts.'
+        );
 
         // Commission-scoped authorization rule: Commission admins can only assign users to their own commission
         if ($actor->isCommissionAdmin() && ! $actor->hasParishWideAccess()) {
@@ -174,7 +330,11 @@ class UserManagementController extends Controller
         // Determine permissions
         $permissions = $validated['permissions'] ?? [];
         if (in_array($validated['role'], ['super_admin', 'admin', 'parish_priest', 'parochial_vicar'], true)) {
-            $permissions = array_unique(array_merge($permissions, ['all_commissions', 'all_ministries', 'parish_oversight']));
+            $permissions = array_unique(array_merge($permissions, [
+                'messages', 'parishioners', 'staff_management', 'audit_logs',
+                'manage_ministries', 'ministry_requests', 'mass_schedules',
+                'announcements', 'donations', 'all_commissions', 'all_ministries', 'parish_oversight'
+            ]));
         }
 
         // Commission assignment logic:
@@ -374,6 +534,289 @@ class UserManagementController extends Controller
         }
 
         return view('admin.commissions.members', compact('commission', 'members', 'actor'));
+    }
+
+    /**
+     * Get a user's permissions and available permissions catalog.
+     */
+    public function permissions(Request $request, User $user): JsonResponse
+    {
+        $actor = $request->user();
+        abort_unless(
+            $actor && ($actor->role === 'super_admin' || $actor->hasPermission('view_permissions') || $actor->hasPermission('modify_permissions') || $actor->hasPermission('assign_permissions') || $actor->canManagePermissions()),
+            403,
+            'You do not have permission to view permissions.'
+        );
+
+        // Security: Super Administrator permissions cannot be viewed or modified
+        if ($user->role === 'super_admin') {
+            abort(403, 'Super Administrator permissions cannot be modified.');
+        }
+
+        // Security: Non-parish-wide users cannot view permissions outside their commission
+        if (! $actor->hasParishWideAccess()) {
+            if ($user->hasParishWideAccess() || (int) $user->commission_id !== (int) $actor->commission_id) {
+                abort(403, 'You are not authorized to view permissions for this user.');
+            }
+        }
+
+        $currentPermissions = $user->getEffectivePermissions();
+        $available = User::getAllAvailablePermissions();
+        $defaults = User::getDefaultPermissionsForRole($user->role);
+
+        return response()->json([
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role,
+                'role_label' => $user->role_badge_label,
+                'organization' => $user->organization,
+                'organization_label' => $user->organization_label,
+                'position' => $user->position ?: $user->role_badge_label,
+                'responsibilities' => $user->responsibilities_label,
+                'is_super_admin' => $user->role === 'super_admin',
+            ],
+            'current_permissions' => $currentPermissions,
+            'default_permissions' => $defaults,
+            'available_permissions' => $available,
+        ]);
+    }
+
+    /**
+     * Update a user's granular permissions.
+     */
+    public function updatePermissions(Request $request, User $user): JsonResponse
+    {
+        $actor = $request->user();
+        abort_unless(
+            $actor && ($actor->role === 'super_admin' || $actor->hasPermission('modify_permissions') || $actor->hasPermission('assign_permissions') || $actor->canManagePermissions()),
+            403,
+            'You do not have permission to modify permissions.'
+        );
+
+        // Security: Super Administrator permissions cannot be modified
+        if ($user->role === 'super_admin') {
+            abort(403, 'Cannot modify Super Administrator permissions.');
+        }
+
+        // Security: Non-parish-wide users cannot modify permissions outside their commission
+        if (! $actor->hasParishWideAccess()) {
+            if ($user->hasParishWideAccess() || (int) $user->commission_id !== (int) $actor->commission_id) {
+                abort(403, 'You are not authorized to modify permissions for this user.');
+            }
+        }
+
+        $validated = $request->validate([
+            'permissions' => ['present', 'array'],
+            'permissions.*' => ['string'],
+        ]);
+
+        $oldPermissions = $user->permissions ?? [];
+        $newPermissions = array_values(array_unique($validated['permissions']));
+
+        $user->permissions = $newPermissions;
+        $user->save();
+
+        $targetTitle = $user->position ?: $user->role_badge_label;
+        $permCount = count($newPermissions);
+
+        // Audit Log entry
+        AuditLogger::log(
+            action: 'permission_updated',
+            description: "Updated permissions for {$user->name} ({$targetTitle}): {$permCount} permissions granted.",
+            target: $user,
+            commissionId: $user->commission_id,
+            oldValues: ['permissions' => $oldPermissions],
+            newValues: ['permissions' => $newPermissions],
+            actor: $actor
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => "Permissions for {$user->name} updated successfully.",
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'permissions_count' => count($newPermissions),
+            ],
+            'permissions' => $newPermissions,
+        ]);
+    }
+
+    /**
+     * Remove a staff/commission member from staff and revert account to regular parishioner.
+     */
+    public function revertToParishioner(Request $request, User $user): JsonResponse
+    {
+        $actor = $request->user();
+        abort_unless($actor, 401);
+
+        // Security: Actor cannot revert themselves
+        if ($actor->id === $user->id) {
+            abort(403, 'You cannot remove your own staff account.');
+        }
+
+        // Security: Super Admin cannot be reverted
+        if ($user->role === 'super_admin') {
+            abort(403, 'Super Administrator accounts cannot be reverted to parishioner.');
+        }
+
+        // Security: Actor must have permission (edit_users, delete_users, staff_management, or canManagePermissions)
+        abort_unless(
+            $actor->hasPermission('edit_users')
+            || $actor->hasPermission('delete_users')
+            || $actor->hasPermission('staff_management')
+            || $actor->canManagePermissions(),
+            403,
+            'You do not have permission to remove staff members.'
+        );
+
+        // Commission admin scoping: can only revert members in their own commission
+        if (! $actor->hasParishWideAccess()) {
+            if ($user->hasParishWideAccess() || (int) $user->commission_id !== (int) $actor->commission_id) {
+                abort(403, 'You are not authorized to modify this staff member.');
+            }
+        }
+
+        $oldRole = $user->role;
+        $oldPosition = $user->position;
+        $oldOrg = $user->organization;
+        $oldCommissionId = $user->commission_id;
+
+        // 1. Revert user record fields to regular Parishioner
+        $user->role = 'user';
+        $user->organization = 'parishioner';
+        $user->position = 'Parishioner';
+        $user->responsibilities = 'Parishioner';
+        $user->commission_id = null;
+        $user->permissions = null; // Revert to role default permissions
+        $user->save();
+
+        // 2. Detach or delete commission memberships
+        \App\Models\CommissionMembership::where('user_id', $user->id)->delete();
+
+        // 3. Record Audit Log
+        AuditLogger::log(
+            action: 'staff_reverted_to_parishioner',
+            description: "Removed {$user->name} from {$oldPosition} ({$oldRole}) and commission roles. Account reverted to regular Parishioner.",
+            target: $user,
+            commissionId: $oldCommissionId,
+            oldValues: [
+                'role' => $oldRole,
+                'organization' => $oldOrg,
+                'position' => $oldPosition,
+                'commission_id' => $oldCommissionId,
+            ],
+            newValues: [
+                'role' => 'user',
+                'organization' => 'parishioner',
+                'position' => 'Parishioner',
+                'commission_id' => null,
+            ],
+            actor: $actor
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => "{$user->name} has been removed from staff and successfully reverted to a regular Parishioner.",
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'role' => 'user',
+                'role_label' => $user->role_badge_label,
+            ],
+        ]);
+    }
+
+    /**
+     * Show detailed user profile and organizational information.
+     */
+    public function show(Request $request, User $user): JsonResponse
+    {
+        $actor = $request->user();
+        abort_unless($actor && ($actor->hasParishWideAccess() || $actor->canAccessCommission($user->commission_id)), 403);
+
+        $user->loadMissing(['commissions', 'ministries']);
+
+        $allPerms = [];
+        foreach (User::getAllAvailablePermissions() as $group) {
+            foreach (array_keys($group['permissions']) as $pKey) {
+                $allPerms[] = $pKey;
+            }
+        }
+        $granted = count(array_filter($allPerms, fn($p) => $user->hasPermission($p)));
+        $restricted = count($allPerms) - $granted;
+
+        return response()->json([
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone' => $user->phone ?: '—',
+                'role' => $user->role,
+                'role_label' => $user->role_badge_label,
+                'organization' => $user->organization,
+                'organization_label' => $user->organization_label,
+                'position' => $user->position ?: $user->role_badge_label,
+                'responsibilities' => $user->responsibilities_label,
+                'commission_ministry_summary' => $user->hasParishWideCommissionOversight() ? 'All Commissions' : ($user->commission_ministry_summary === '—' ? 'None' : $user->commission_ministry_summary),
+                'status' => $user->is_verified ? 'Active' : 'Inactive',
+                'avatar' => $user->avatar,
+                'initials' => $user->initials,
+                'commissions' => $user->commissions->map(fn($c) => [
+                    'id' => $c->id,
+                    'name' => $c->name,
+                    'role' => ucfirst($c->pivot->role ?? 'member'),
+                ]),
+                'ministries' => $user->ministries->map(fn($m) => [
+                    'id' => $m->id,
+                    'name' => $m->name,
+                    'role' => ucfirst($m->pivot->role ?? 'member'),
+                ]),
+                'permissions_summary' => [
+                    'granted' => $granted,
+                    'restricted' => $restricted,
+                ],
+            ],
+        ]);
+    }
+
+    /**
+     * Switch active organization context in session.
+     */
+    public function switchOrganization(Request $request): JsonResponse
+    {
+        $actor = $request->user();
+        abort_unless($actor, 401);
+
+        $validated = $request->validate([
+            'organization_type' => ['required', 'string', 'in:parish_administration,commission,ministry'],
+            'organization_id' => ['nullable', 'integer'],
+        ]);
+
+        $type = $validated['organization_type'];
+        $id = $validated['organization_id'] ?? null;
+
+        $available = $actor->getAvailableOrganizations();
+        $targetOrg = collect($available)->first(function ($org) use ($type, $id) {
+            if ($type === 'parish_administration') {
+                return $org['type'] === 'parish_administration';
+            }
+            return $org['type'] === $type && (int) ($org['id'] ?? 0) === (int) $id;
+        });
+
+        if (! $targetOrg) {
+            abort(403, 'You are not a member of the selected organization.');
+        }
+
+        session(['active_organization_context' => $targetOrg]);
+
+        return response()->json([
+            'success' => true,
+            'message' => "Switched context to {$targetOrg['name']}.",
+            'context' => $targetOrg,
+        ]);
     }
 
     private function filteredUsers(Request $request, array $roles): Builder

@@ -114,9 +114,15 @@ Route::prefix('parishioner')->name('parishioner.')->middleware('auth')->group(fu
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware('auth')->group(function () {
         Route::get('/parishioners', [UserManagementController::class, 'parishioners'])->name('parishioners');
+        Route::post('/parishioners/{user}/promote', [UserManagementController::class, 'promoteParishioner'])->name('parishioners.promote');
         Route::get('/staff', [UserManagementController::class, 'staff'])->name('staff');
         Route::post('/staff', [UserManagementController::class, 'storeStaff'])->name('staff.store');
         Route::get('/staff/{user}/activity', [UserManagementController::class, 'activity'])->name('staff.activity');
+        Route::get('/staff/{user}/details', [UserManagementController::class, 'show'])->name('staff.show');
+        Route::get('/staff/{user}/permissions', [UserManagementController::class, 'permissions'])->name('staff.permissions');
+        Route::put('/staff/{user}/permissions', [UserManagementController::class, 'updatePermissions'])->name('staff.permissions.update');
+        Route::post('/staff/{user}/revert-to-parishioner', [UserManagementController::class, 'revertToParishioner'])->name('staff.revert');
+        Route::post('/organization-context/switch', [UserManagementController::class, 'switchOrganization'])->name('organization-context.switch');
         Route::get('/commissions/{commission}/members', [UserManagementController::class, 'commissionMembers'])->name('commissions.members');
         Route::get('/audit-logs', [AuditLogController::class, 'index'])->name('audit-logs');
         Route::get('/mass-intentions', [MassIntentionManagementController::class, 'index'])->name('mass-intentions');
@@ -181,9 +187,10 @@ Route::prefix('staff')->name('staff.')->group(function () {
 
     Route::post('/logout', [AdminDashboardController::class, 'logout'])->name('logout');
 });
-// Add ->middleware(['auth', 'role:admin']) after backend login is connected.
 Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])
+    ->middleware('auth')
     ->name('admin.dashboard');
 
 Route::post('/admin/logout', [AdminDashboardController::class, 'logout'])
+    ->middleware('auth')
     ->name('admin.logout');

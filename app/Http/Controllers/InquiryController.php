@@ -25,6 +25,11 @@ class InquiryController extends Controller
     public function index(Request $request)
     {
         $me = $request->user();
+        abort_unless(
+            $me && ($me->role === 'super_admin' || $me->hasPermission('view_messages') || $me->hasPermission('messages')),
+            403,
+            'You do not have permission to view messages.'
+        );
         $data = $request->validate([
             'with' => ['nullable', 'integer', 'exists:users,id'],
             'q' => ['nullable', 'string', 'max:100'],
@@ -110,6 +115,12 @@ class InquiryController extends Controller
      */
     public function store(Request $request)
     {
+        $sender = $request->user();
+        abort_unless(
+            $sender && ($sender->role === 'super_admin' || $sender->hasPermission('send_messages') || $sender->hasPermission('messages')),
+            403,
+            'You do not have permission to send messages.'
+        );
         $data = $request->validate([
             'recipient_id' => ['nullable', 'integer', 'exists:users,id', 'not_in:'.$request->user()->id],
             'conversation_id' => ['nullable', 'integer', 'exists:conversations,id'],
@@ -265,6 +276,11 @@ class InquiryController extends Controller
     public function apiConversations(Request $request): JsonResponse
     {
         $user = $request->user();
+        abort_unless(
+            $user && ($user->hasPermission('view_messages') || $user->hasPermission('messages')),
+            403,
+            'You do not have permission to view messages.'
+        );
         $filter = $request->query('filter', 'all'); // all, unread, archived
         $search = trim($request->query('q', ''));
 
@@ -384,6 +400,11 @@ class InquiryController extends Controller
     public function apiStartConversation(Request $request): JsonResponse
     {
         $user = $request->user();
+        abort_unless(
+            $user && ($user->hasPermission('send_messages') || $user->hasPermission('messages')),
+            403,
+            'You do not have permission to send messages.'
+        );
         $validated = $request->validate([
             'recipient_id' => ['nullable', 'integer', 'exists:users,id', 'not_in:'.$user->id],
             'commission_id' => ['nullable', 'integer', 'exists:commissions,id'],
@@ -450,8 +471,13 @@ class InquiryController extends Controller
      */
     public function apiToggleArchive(Request $request, Conversation $conversation): JsonResponse
     {
-        abort_unless($request->user()->can('view', $conversation), 403);
         $user = $request->user();
+        abort_unless(
+            $user && ($user->hasPermission('archive_messages') || $user->hasPermission('view_messages') || $user->hasPermission('messages')),
+            403,
+            'You do not have permission to archive messages.'
+        );
+        abort_unless($user->can('view', $conversation), 403);
 
         $participant = ConversationParticipant::where('conversation_id', $conversation->id)
             ->where('user_id', $user->id)
@@ -471,6 +497,11 @@ class InquiryController extends Controller
     public function apiSync(Request $request): JsonResponse
     {
         $user = $request->user();
+        abort_unless(
+            $user && ($user->hasPermission('view_messages') || $user->hasPermission('messages')),
+            403,
+            'You do not have permission to view messages.'
+        );
         $activeId = $request->query('active_conversation_id');
         $lastMsgId = $request->query('last_message_id');
 

@@ -12,7 +12,7 @@ class CommissionPolicy
      */
     public function viewAny(User $actor): bool
     {
-        return $actor->hasParishWideAccess() || $actor->isCommissionMember();
+        return $actor->isSuperAdmin() || $actor->hasPermission('view_commissions') || $actor->hasPermission('commissions') || $actor->hasParishWideAccess() || $actor->isCommissionMember();
     }
 
     /**
@@ -20,7 +20,7 @@ class CommissionPolicy
      */
     public function view(User $actor, Commission $commission): bool
     {
-        if ($actor->hasParishWideAccess()) {
+        if ($actor->isSuperAdmin() || $actor->hasParishWideAccess() || $actor->hasPermission('view_commissions') || $actor->hasPermission('commissions')) {
             return true;
         }
 
@@ -32,7 +32,7 @@ class CommissionPolicy
      */
     public function create(User $actor): bool
     {
-        return $actor->isSuperAdmin() || $actor->isParishPriest() || $actor->isParishSecretary();
+        return $actor->isSuperAdmin() || $actor->hasPermission('create_commissions') || $actor->hasPermission('commissions');
     }
 
     /**
@@ -40,7 +40,7 @@ class CommissionPolicy
      */
     public function update(User $actor, Commission $commission): bool
     {
-        if ($actor->isSuperAdmin() || $actor->isParishPriest() || $actor->isParishSecretary()) {
+        if ($actor->isSuperAdmin() || $actor->hasPermission('edit_commissions') || $actor->hasPermission('commissions')) {
             return true;
         }
 
@@ -52,7 +52,7 @@ class CommissionPolicy
      */
     public function delete(User $actor, Commission $commission): bool
     {
-        return $actor->isSuperAdmin();
+        return $actor->isSuperAdmin() || $actor->hasPermission('delete_commissions');
     }
 }
 

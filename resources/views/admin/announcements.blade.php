@@ -7,6 +7,7 @@
         <h2>Parish Announcements &amp; News</h2>
         <p class="page-description">Publish, schedule, and pin liturgical notices, feast day advisories, and parish community news shown on the website.</p>
     </div>
+    @if(auth()->user() && auth()->user()->hasPermission('create_announcements'))
     <div class="actions">
         <button type="button" class="btn btn-primary" onclick="openAddModal()">
             <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -16,6 +17,7 @@
             <span>+ New Announcement</span>
         </button>
     </div>
+    @endif
 </div>
 
 @if(session('success'))
@@ -115,6 +117,7 @@
             @forelse($announcements as $a)
                 <tr>
                     <td style="text-align: center;">
+                        @if(auth()->user() && auth()->user()->hasPermission('publish_announcements'))
                         <form method="POST" action="{{ route('admin.announcements.toggle-pin', $a) }}" style="display: inline;">
                             @csrf
                             @method('PATCH')
@@ -125,6 +128,9 @@
                                 </svg>
                             </button>
                         </form>
+                        @elseif($a->is_pinned)
+                            <span title="Pinned notice">📌</span>
+                        @endif
                     </td>
                     <td>
                         <div class="item-title-group">
@@ -156,12 +162,16 @@
                     </td>
                     <td>
                         <div class="actions-cell">
+                            @if(auth()->user() && auth()->user()->hasPermission('edit_announcements'))
                             <button type="button" class="btn-sm btn-edit" onclick="openEditModal({{ json_encode($a) }}, {{ json_encode($a->image_urls) }})">
                                 Edit
                             </button>
+                            @endif
+                            @if(auth()->user() && auth()->user()->hasPermission('delete_announcements'))
                             <button type="button" class="btn-sm btn-delete" onclick="openDeleteModal({{ $a->id }}, '{{ addslashes($a->title) }}')">
                                 Delete
                             </button>
+                            @endif
                         </div>
                     </td>
                 </tr>
@@ -169,7 +179,9 @@
                 <tr>
                     <td colspan="7" class="empty-cell">
                         <p>No announcements found matching your criteria.</p>
+                        @if(auth()->user() && (auth()->user()->hasPermission('create_announcements') || auth()->user()->hasPermission('announcements')))
                         <button type="button" class="btn btn-primary" onclick="openAddModal()">+ Create First Announcement</button>
+                        @endif
                     </td>
                 </tr>
             @endforelse
@@ -509,8 +521,11 @@ async function compressImageIfNeeded(file) {
 
     return new Promise((resolve) => {
         const reader = new FileReader();
+    return new window.Promise((resolve) => {
+        const reader = new window.FileReader();
         reader.onload = (e) => {
             const img = new Image();
+            const img = new window.Image();
             img.onload = () => {
                 const canvas = document.createElement('canvas');
                 let width = img.width;
@@ -536,8 +551,10 @@ async function compressImageIfNeeded(file) {
                     if (blob && blob.size < file.size) {
                         const newName = file.name.replace(/\.[^/.]+$/, "") + ".jpg";
                         const compressedFile = new File([blob], newName, {
+                        const compressedFile = new window.File([blob], newName, {
                             type: 'image/jpeg',
                             lastModified: Date.now(),
+                            lastModified: window.Date.now(),
                         });
                         resolve(compressedFile);
                     } else {
@@ -598,6 +615,7 @@ async function previewPhotos(input, containerId) {
     // Update input.files with optimized files via DataTransfer if supported
     try {
         const dt = new DataTransfer();
+        const dt = new window.DataTransfer();
         optimizedFiles.forEach(f => dt.items.add(f));
         input.files = dt.files;
         files = Array.from(input.files);
@@ -715,6 +733,7 @@ function openEditModal(announcement, imageUrls) {
 
     if (announcement.published_at) {
         const d = new Date(announcement.published_at);
+        const d = new window.Date(announcement.published_at);
         const yyyy = d.getFullYear();
         const mm = String(d.getMonth() + 1).padStart(2, '0');
         const dd = String(d.getDate()).padStart(2, '0');

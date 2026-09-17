@@ -456,6 +456,330 @@ class AdminStaffManagementTest extends TestCase
         $response->assertSee('exportStaffData()', false);
         $response->assertDontSee('>Apply</button>', false);
     }
+
+    public function test_admin_can_create_staff_with_module_permissions(): void
+    {
+        $admin = $this->createAdmin();
+
+        $payload = [
+            'name' => 'John Secretariat',
+            'email' => 'john.sec@pilarshrine.test',
+            'role' => 'parish_secretary',
+            'status' => 'active',
+            'password' => 'Password123!',
+            'password_confirmation' => 'Password123!',
+            'permissions' => ['messages', 'parishioners', 'ministry_requests', 'mass_schedules', 'announcements', 'donations'],
+        ];
+
+        $response = $this->actingAs($admin)->postJson(route('admin.staff.store'), $payload);
+        $response->assertCreated();
+
+        $user = User::where('email', 'john.sec@pilarshrine.test')->first();
+        $this->assertNotNull($user);
+        $this->assertTrue($user->hasPermission('messages'));
+        $this->assertTrue($user->hasPermission('parishioners'));
+        $this->assertTrue($user->hasPermission('donations'));
+        $this->assertFalse($user->hasPermission('staff_management'));
+        $this->assertFalse($user->hasPermission('manage_ministries'));
+    }
+
+    public function test_admin_can_get_staff_permissions(): void
+    {
+        $admin = $this->createAdmin();
+        $staff = User::factory()->create(['role' => 'staff']);
+
+        $response = $this->actingAs($admin)->getJson(route('admin.staff.permissions', $staff));
+        $response->assertOk();
+        $response->assertJsonStructure([
+            'user' => ['id', 'name', 'email', 'role', 'role_label', 'organization', 'organization_label'],
+            'current_permissions',
+            'default_permissions',
+            'available_permissions',
+        ]);
+    }
+
+    public function test_admin_can_update_staff_permissions(): void
+    {
+        $admin = $this->createAdmin();
+        $staff = User::factory()->create(['role' => 'staff']);
+
+        $newPerms = ['view_users', 'view_announcements', 'create_announcements'];
+        $response = $this->actingAs($admin)->putJson(route('admin.staff.permissions.update', $staff), [
+            'permissions' => $newPerms,
+        ]);
+
+        $response->assertOk();
+        $staff->refresh();
+        $this->assertEquals($newPerms, $staff->permissions);
+        $this->assertTrue($staff->hasPermission('create_announcements'));
+        $this->assertFalse($staff->hasPermission('delete_announcements'));
+    }
+
+    public function test_admin_can_revert_staff_member_to_parishioner(): void
+    {
+        $admin = $this->createAdmin();
+        $commission = \App\Models\Commission::create([
+            'name' => 'Commission on Youth',
+            'slug' => 'commission-on-youth',
+            'is_active' => true,
+        ]);
+
+        $staff = User::factory()->create([
+            'name' => 'Bro. Mateo Silva',
+            'role' => 'staff',
+            'organization' => 'commission',
+            'position' => 'Commission Member',
+            'responsibilities' => 'Commission Member',
+            'commission_id' => $commission->id,
+            'permissions' => ['view_messages', 'view_announcements'],
+            'is_verified' => true,
+        ]);
+
+        \App\Models\CommissionMembership::create([
+            'user_id' => $staff->id,
+            'commission_id' => $commission->id,
+            'role' => 'member',
+            'status' => 'active',
+            'joined_at' => now(),
+        ]);
+
+        $this->assertEquals(1, \App\Models\CommissionMembership::where('user_id', $staff->id)->count());
+
+        $response = $this->actingAs($admin)->postJson(route('admin.staff.revert', $staff));
+        $response->assertOk();
+        $response->assertJson([
+            'success' => true,
+            'user' => [
+                'id' => $staff->id,
+                'role' => 'user',
+            ],
+        ]);
+
+        $staff->refresh();
+        $this->assertEquals('user', $staff->role);
+        $this->assertEquals('parishioner', $staff->organization);
+        $this->assertEquals('Parishioner', $staff->position);
+        $this->assertEquals('Parishioner', $staff->responsibilities);
+        $this->assertNull($staff->commission_id);
+        $this->assertNull($staff->permissions);
+        $this->assertEquals(0, \App\Models\CommissionMembership::where('user_id', $staff->id)->count());
+    }
+
+    public function test_reverted_staff_appears_in_parishioners_and_not_in_staff(): void
+    {
+        $admin = $this->createAdmin();
+        $staff = User::factory()->create([
+            'name' => 'Sister Clara Delgado',
+            'email' => 'clara.delgado@pilarshrine.test',
+            'role' => 'staff',
+            'is_verified' => true,
+        ]);
+
+        // Visible in staff list before revert
+        $response = $this->actingAs($admin)->get(route('admin.staff'));
+        $response->assertSee('Sister Clara Delgado');
+
+        // Execute revert
+        $this->actingAs($admin)->postJson(route('admin.staff.revert', $staff))->assertOk();
+
+        // No longer in staff list
+        $staffResponse = $this->actingAs($admin)->get(route('admin.staff'));
+        $staffResponse->assertDontSee('Sister Clara Delgado');
+
+        // Now present in parishioners list
+        $parishionerResponse = $this->actingAs($admin)->get(route('admin.parishioners'));
+        $parishionerResponse->assertSee('Sister Clara Delgado');
+    }
+
+    public function test_admin_cannot_revert_themselves_or_super_admin(): void
+    {
+        $admin = $this->createAdmin();
+        $superAdmin = User::factory()->create([
+            'role' => 'super_admin',
+            'is_verified' => true,
+        ]);
+
+        // Attempt self-revert
+        $this->actingAs($admin)->postJson(route('admin.staff.revert', $admin))
+            ->assertForbidden();
+
+        // Attempt super admin revert
+        $this->actingAs($admin)->postJson(route('admin.staff.revert', $superAdmin))
+            ->assertForbidden();
+    }
+
+    public function test_unauthorized_user_cannot_revert_staff(): void
+    {
+        $parishioner = User::factory()->create(['role' => 'user']);
+        $staff = User::factory()->create(['role' => 'staff']);
+
+        $this->actingAs($parishioner)->postJson(route('admin.staff.revert', $staff))
+            ->assertForbidden();
+    }
+
+    public function test_super_admin_and_admin_can_promote_parishioner_to_staff(): void
+    {
+        $admin = $this->createAdmin();
+        $commission = \App\Models\Commission::create([
+            'name' => 'Commission on Social Communications',
+            'slug' => 'commission-on-social-communications',
+            'is_active' => true,
+        ]);
+
+        $parishioner = User::factory()->create([
+            'name' => 'Angela Gwyn Mansanero',
+            'email' => 'mansaneroangelagwyn22@gmail.com',
+            'role' => 'user',
+            'organization' => 'parishioner',
+            'is_verified' => true,
+        ]);
+
+        $response = $this->actingAs($admin)->postJson(route('admin.parishioners.promote', $parishioner), [
+            'role' => 'parish_secretary',
+            'organization' => 'parish_administration',
+            'position' => 'Parish Secretary',
+            'commission_id' => $commission->id,
+        ]);
+
+        $response->assertOk();
+        $response->assertJson([
+            'success' => true,
+            'user' => [
+                'id' => $parishioner->id,
+                'role' => 'parish_secretary',
+                'position' => 'Parish Secretary',
+            ],
+        ]);
+
+        $parishioner->refresh();
+        $this->assertEquals('parish_secretary', $parishioner->role);
+        $this->assertEquals('parish_administration', $parishioner->organization);
+        $this->assertEquals('Parish Secretary', $parishioner->position);
+        $this->assertEquals($commission->id, $parishioner->commission_id);
+        $this->assertEquals(1, \App\Models\CommissionMembership::where('user_id', $parishioner->id)->count());
+    }
+
+    public function test_promoted_parishioner_leaves_parishioners_and_appears_in_staff(): void
+    {
+        $admin = $this->createAdmin();
+        $parishioner = User::factory()->create([
+            'name' => 'Bro. Eduardo Ramos',
+            'role' => 'user',
+            'is_verified' => true,
+        ]);
+
+        // Present in parishioners
+        $this->actingAs($admin)->get(route('admin.parishioners'))->assertSee('Bro. Eduardo Ramos');
+
+        // Promote
+        $this->actingAs($admin)->postJson(route('admin.parishioners.promote', $parishioner), [
+            'role' => 'staff',
+            'organization' => 'parish_administration',
+            'position' => 'Administrative Staff',
+        ])->assertOk();
+
+        // No longer in parishioners
+        $this->actingAs($admin)->get(route('admin.parishioners'))->assertDontSee('Bro. Eduardo Ramos');
+
+        // Now in staff
+        $this->actingAs($admin)->get(route('admin.staff'))->assertSee('Bro. Eduardo Ramos');
+    }
+
+    public function test_non_admin_cannot_promote_parishioner(): void
+    {
+        $staff = User::factory()->create(['role' => 'staff']);
+        $commissionAdmin = User::factory()->create(['role' => 'commission_admin']);
+        $regularUser = User::factory()->create(['role' => 'user']);
+        $target = User::factory()->create(['role' => 'user']);
+
+        $payload = [
+            'role' => 'staff',
+            'organization' => 'parish_administration',
+            'position' => 'Staff Member',
+        ];
+
+        // Staff cannot promote
+        $this->actingAs($staff)->postJson(route('admin.parishioners.promote', $target), $payload)
+            ->assertForbidden();
+
+        // Commission Admin cannot promote
+        $this->actingAs($commissionAdmin)->postJson(route('admin.parishioners.promote', $target), $payload)
+            ->assertForbidden();
+
+        // Regular user cannot promote
+        $this->actingAs($regularUser)->postJson(route('admin.parishioners.promote', $target), $payload)
+            ->assertForbidden();
+    }
+
+    public function test_cannot_promote_user_who_is_already_staff(): void
+    {
+        $admin = $this->createAdmin();
+        $staff = User::factory()->create(['role' => 'staff']);
+
+        $this->actingAs($admin)->postJson(route('admin.parishioners.promote', $staff), [
+            'role' => 'admin',
+            'organization' => 'parish_administration',
+        ])->assertStatus(422);
+    }
+
+    public function test_super_admin_cannot_have_permissions_viewed_or_modified(): void
+    {
+        $admin = $this->createAdmin();
+        $superAdmin = User::factory()->create([
+            'role' => 'super_admin',
+            'is_verified' => true,
+        ]);
+
+        $this->actingAs($admin)->getJson(route('admin.staff.permissions', $superAdmin))
+            ->assertForbidden();
+
+        $this->actingAs($admin)->putJson(route('admin.staff.permissions.update', $superAdmin), [
+            'permissions' => ['view_users'],
+        ])->assertForbidden();
+    }
+
+    public function test_super_admin_has_no_action_buttons_in_staff_management_view(): void
+    {
+        $admin = $this->createAdmin();
+        $superAdmin = User::factory()->create([
+            'name' => 'Archbishop Emeritus',
+            'role' => 'super_admin',
+            'is_verified' => true,
+        ]);
+
+        $response = $this->actingAs($admin)->get(route('admin.staff'));
+        $response->assertOk();
+        $response->assertSee('Archbishop Emeritus');
+        $response->assertSee('Super Administrator (Protected)');
+    }
+
+    public function test_non_parish_wide_admin_cannot_view_or_modify_other_commissions_permissions(): void
+    {
+        $comm1 = \App\Models\Commission::create(['name' => 'Comm 1', 'slug' => 'comm-1', 'is_active' => true]);
+        $comm2 = \App\Models\Commission::create(['name' => 'Comm 2', 'slug' => 'comm-2', 'is_active' => true]);
+
+        $commAdmin = User::factory()->create([
+            'role' => 'commission_admin',
+            'organization' => 'commission',
+            'commission_id' => $comm1->id,
+            'permissions' => ['modify_permissions', 'view_permissions', 'staff_management'],
+            'is_verified' => true,
+        ]);
+
+        $otherStaff = User::factory()->create([
+            'role' => 'staff',
+            'organization' => 'commission',
+            'commission_id' => $comm2->id,
+            'is_verified' => true,
+        ]);
+
+        $this->actingAs($commAdmin)->getJson(route('admin.staff.permissions', $otherStaff))
+            ->assertForbidden();
+
+        $this->actingAs($commAdmin)->putJson(route('admin.staff.permissions.update', $otherStaff), [
+            'permissions' => ['view_users'],
+        ])->assertForbidden();
+    }
 }
 
 

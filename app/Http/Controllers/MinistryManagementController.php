@@ -23,8 +23,15 @@ class MinistryManagementController extends Controller
 
         $query = MinistryMembership::query()->with(['user', 'ministry', 'reviewer']);
 
+        $hasParishWide = $user && (
+            $user->role === 'super_admin'
+            || $user->hasPermission('all_ministries')
+            || $user->hasPermission('parish_oversight')
+            || $user->hasParishWideAccess()
+        );
+
         // Scoped permissions: staff coordinators can ONLY view requests for their assigned ministries
-        if ($user->role !== 'admin') {
+        if (! $hasParishWide) {
             $coordinatedMinistryIds = Ministry::where('coordinator_user_id', $user->id)->pluck('id');
             $query->whereIn('ministry_id', $coordinatedMinistryIds);
         } elseif (!empty($ministryId)) {
@@ -48,7 +55,7 @@ class MinistryManagementController extends Controller
 
         // Count queries with same scoping
         $countsQuery = MinistryMembership::query();
-        if ($user->role !== 'admin') {
+        if (! $hasParishWide) {
             $coordinatedMinistryIds = Ministry::where('coordinator_user_id', $user->id)->pluck('id');
             $countsQuery->whereIn('ministry_id', $coordinatedMinistryIds);
         }
@@ -58,7 +65,7 @@ class MinistryManagementController extends Controller
         $totalCount = $countsQuery->count();
 
         // Available ministries for filter dropdown
-        $ministriesList = $user->role === 'admin'
+        $ministriesList = $hasParishWide
             ? Ministry::orderBy('name')->get()
             : Ministry::where('coordinator_user_id', $user->id)->orderBy('name')->get();
 
@@ -132,32 +139,39 @@ class MinistryManagementController extends Controller
 
     private function authorizeAdminOrCoordinator($user): void
     {
-        if ($user->role === 'admin') {
+        abort_unless($user, 403);
+
+        if ($user->role === 'super_admin'
+            || $user->hasPermission('ministry_requests')
+            || $user->hasPermission('view_requests')
+            || $user->hasPermission('approve_requests')
+            || $user->hasPermission('all_ministries')
+            || $user->hasParishWideAccess()) {
             return;
         }
 
-        if ($user->role === 'staff') {
-            // Check if they coordinate any ministry
-            $hasAssignedMinistry = Ministry::where('coordinator_user_id', $user->id)->exists();
-            if ($hasAssignedMinistry) {
-                return;
-            }
+        if (Ministry::where('coordinator_user_id', $user->id)->exists()) {
+            return;
         }
 
-        abort(403, 'Unauthorized. Only administrators and assigned ministry coordinators can manage membership requests.');
+        abort(403, 'You do not have permission to manage ministry requests.');
     }
 
     private function authorizeMinistryReview($user, MinistryMembership $membership): void
     {
-        if ($user->role === 'admin') {
+        abort_unless($user, 403);
+
+        if ($user->role === 'super_admin'
+            || $user->hasPermission('all_ministries')
+            || $user->hasParishWideAccess()) {
             return;
         }
 
-        if ($user->role === 'staff' && $membership->ministry->coordinator_user_id === $user->id) {
+        if ($membership->ministry && (int) $membership->ministry->coordinator_user_id === (int) $user->id) {
             return;
         }
 
-        abort(403, 'Unauthorized. You can only manage membership requests for your assigned ministry.');
+        abort(403, 'You can only manage membership requests for your assigned ministry.');
     }
 }
 

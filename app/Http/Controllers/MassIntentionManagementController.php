@@ -45,6 +45,11 @@ class MassIntentionManagementController extends Controller
 
     private function authorizeAdmin(Request $request): void
     {
-        abort_unless($request->user()?->role === 'admin', 403);
+        $actor = $request->user();
+        abort_unless(
+            $actor && ($actor->role === 'super_admin' || $actor->hasPermission('mass_intentions') || $actor->hasPermission('mass_schedules')),
+            403,
+            'You do not have permission to manage mass intentions.'
+        );
     }
 }

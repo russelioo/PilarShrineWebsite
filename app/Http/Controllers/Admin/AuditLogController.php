@@ -15,7 +15,7 @@ class AuditLogController extends Controller
     public function index(Request $request): View
     {
         $actor = $request->user();
-        abort_unless($actor && ($actor->hasParishWideAccess() || $actor->isCommissionAdmin()), 403, 'Unauthorized access to audit logs.');
+        abort_unless($actor && ($actor->role === 'super_admin' || $actor->hasPermission('view_audit_logs')), 403, 'Unauthorized access to audit logs.');
 
         $query = AuditLog::query()->with(['user', 'commission']);
 

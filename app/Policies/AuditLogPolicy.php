@@ -12,7 +12,7 @@ class AuditLogPolicy
      */
     public function viewAny(User $actor): bool
     {
-        return $actor->hasParishWideAccess() || $actor->isCommissionAdmin();
+        return $actor->isSuperAdmin() || $actor->hasPermission('view_audit_logs') || $actor->hasPermission('audit_logs') || $actor->hasParishWideAccess() || $actor->isCommissionAdmin();
     }
 
     /**
@@ -20,11 +20,11 @@ class AuditLogPolicy
      */
     public function view(User $actor, AuditLog $log): bool
     {
-        if ($actor->hasParishWideAccess()) {
+        if ($actor->isSuperAdmin() || $actor->hasParishWideAccess()) {
             return true;
         }
 
-        if ($actor->isCommissionAdmin() && $actor->commission_id !== null) {
+        if (($actor->hasPermission('view_audit_logs') || $actor->hasPermission('audit_logs') || $actor->isCommissionAdmin()) && $actor->commission_id !== null) {
             return (int) $actor->commission_id === (int) $log->commission_id;
         }
 
