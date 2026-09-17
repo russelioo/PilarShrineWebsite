@@ -40,6 +40,139 @@
     </div>
     @endif
 
+    @php
+      $authUser = auth()->user();
+      $isParishLeader = $authUser && ($authUser->hasParishWideAccess() || $authUser->isSuperAdmin());
+      $isCommissionCoord = $authUser && ! $isParishLeader && ($authUser->role === 'commission_coordinator' || $authUser->commission_id);
+    @endphp
+
+    {{-- SUPER ADMIN / PARISH-WIDE LEADERSHIP: PPC & COMMISSIONS --}}
+    @if($isParishLeader)
+    <!-- PARISH PASTORAL COUNCIL (PPC) -->
+    <div class="nav-section">
+      <span class="nav-section-title">PASTORAL COUNCIL</span>
+      <a href="{{ route('admin.ppc.index') }}" 
+         class="admin-nav-item {{ request()->routeIs('admin.ppc*') ? 'active' : '' }}"
+         data-title="Parish Pastoral Council">
+        <span class="nav-icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+        </span>
+        <span class="nav-label">Parish Pastoral Council</span>
+      </a>
+    </div>
+
+    <!-- COMMISSIONS -->
+    <div class="nav-section">
+      <span class="nav-section-title">COMMISSIONS</span>
+      <a href="{{ route('admin.commissions.index') }}" 
+         class="admin-nav-item {{ request()->routeIs('admin.commissions.index') ? 'active' : '' }}"
+         data-title="All Commissions">
+        <span class="nav-icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+            <path d="M2 17l10 5 10-5"></path>
+            <path d="M2 12l10 5 10-5"></path>
+          </svg>
+        </span>
+        <span class="nav-label">All Commissions</span>
+      </a>
+
+      @php
+        $sidebarCommissions = \App\Models\Commission::where('is_active', true)->orderBy('name')->get(['id', 'name', 'slug', 'code']);
+      @endphp
+      @foreach($sidebarCommissions as $comm)
+      <a href="{{ route('admin.commissions.show', $comm->slug) }}" 
+         class="admin-nav-item admin-nav-subitem {{ (request()->routeIs('admin.commissions.show') && (request()->route('commission')?->slug === $comm->slug || request()->route('commission')?->id == $comm->id)) ? 'active' : '' }}"
+         data-title="{{ $comm->name }}" title="{{ $comm->name }}">
+        <span class="nav-subitem-bullet"></span>
+        <span class="nav-label">{{ $comm->name }}</span>
+      </a>
+      @endforeach
+    </div>
+    @endif
+
+    {{-- COMMISSION COORDINATOR / OFFICER WORKSPACE --}}
+    @if($isCommissionCoord)
+    <div class="nav-section">
+      <span class="nav-section-title">MY COMMISSION</span>
+      <a href="{{ route('commission.overview') }}" 
+         class="admin-nav-item {{ request()->routeIs('commission.overview', 'commission.dashboard') ? 'active' : '' }}"
+         data-title="Overview">
+        <span class="nav-icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+            <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+            <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+            <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+          </svg>
+        </span>
+        <span class="nav-label">Overview</span>
+      </a>
+      <a href="{{ route('commission.members') }}" 
+         class="admin-nav-item {{ request()->routeIs('commission.members*') ? 'active' : '' }}"
+         data-title="Commission Members">
+        <span class="nav-icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+          </svg>
+        </span>
+        <span class="nav-label">Members Roster</span>
+      </a>
+      <a href="{{ route('commission.officers') }}" 
+         class="admin-nav-item {{ request()->routeIs('commission.officers*') ? 'active' : '' }}"
+         data-title="Commission Officers">
+        <span class="nav-icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <line x1="19" y1="8" x2="19" y2="14"></line>
+            <line x1="22" y1="11" x2="16" y2="11"></line>
+          </svg>
+        </span>
+        <span class="nav-label">Officers</span>
+      </a>
+      <a href="{{ route('commission.ministries') }}" 
+         class="admin-nav-item {{ request()->routeIs('commission.ministries*') ? 'active' : '' }}"
+         data-title="Ministries">
+        <span class="nav-icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+            <path d="M2 17l10 5 10-5"></path>
+            <path d="M2 12l10 5 10-5"></path>
+          </svg>
+        </span>
+        <span class="nav-label">Ministries</span>
+      </a>
+      <a href="{{ route('commission.projects') }}" 
+         class="admin-nav-item {{ request()->routeIs('commission.projects*') ? 'active' : '' }}"
+         data-title="Projects & Activities">
+        <span class="nav-icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+          </svg>
+        </span>
+        <span class="nav-label">Projects &amp; Activities</span>
+      </a>
+      <a href="{{ route('commission.documents') }}" 
+         class="admin-nav-item {{ request()->routeIs('commission.documents*') ? 'active' : '' }}"
+         data-title="Documents & Reports">
+        <span class="nav-icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+          </svg>
+        </span>
+        <span class="nav-label">Documents &amp; Reports</span>
+      </a>
+    </div>
+    @endif
+
     @if(!auth()->check() || auth()->user()->hasPermission('messages') || auth()->user()->hasPermission('view_messages'))
     <div class="nav-section">
       <span class="nav-section-title">COMMUNICATION</span>
@@ -479,6 +612,33 @@
     border-radius: 0 3px 3px 0;
     background: #d8aa3c;
     box-shadow: 0 0 8px rgba(216, 170, 60, 0.6);
+  }
+
+  .admin-nav-subitem {
+    font-size: 11.5px !important;
+    padding: 6px 12px 6px 30px !important;
+    color: #a8caea;
+  }
+
+  .nav-subitem-bullet {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.35);
+    flex-shrink: 0;
+    transition: all 0.16s ease;
+  }
+
+  .admin-nav-subitem:hover .nav-subitem-bullet,
+  .admin-nav-subitem.active .nav-subitem-bullet {
+    background: #d8aa3c;
+    box-shadow: 0 0 6px rgba(216, 170, 60, 0.8);
+    transform: scale(1.2);
+  }
+
+  .admin-nav-subitem.active::before {
+    left: 10px;
+    width: 2.5px;
   }
 
   .nav-icon-box {

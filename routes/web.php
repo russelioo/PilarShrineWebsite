@@ -21,6 +21,9 @@ use App\Http\Controllers\AnnouncementController;
 use App\Services\FacebookLiveService;
 use App\Http\Controllers\Parishioner\DonationController as ParishionerDonationController;
 use App\Http\Controllers\Admin\DonationManagementController as AdminDonationManagementController;
+use App\Http\Controllers\Admin\CommissionManagementController;
+use App\Http\Controllers\Admin\PpcManagementController;
+use App\Http\Controllers\Commission\CommissionWorkspaceController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth')->group(function () {
@@ -83,7 +86,10 @@ Route::post('/api/parishioner/complete-profile', [ProfileCompletionController::c
 
 Route::get('/portal', function (\Illuminate\Http\Request $request) {
     $user = $request->user();
-    if ($user && in_array($user->role, ['admin', 'super_admin', 'parish_priest', 'parochial_vicar', 'parish_secretary', 'commission_admin', 'commission_member', 'staff'], true)) {
+    if ($user && in_array($user->role, ['admin', 'super_admin', 'parish_priest', 'parochial_vicar', 'parish_secretary', 'commission_admin', 'commission_coordinator', 'commission_member', 'staff'], true)) {
+        if ($user->role === 'commission_coordinator' || ($user->commission_id && ! $user->hasParishWideAccess())) {
+            return redirect()->route('commission.dashboard');
+        }
         return redirect()->route('admin.dashboard');
     }
     return redirect()->route('parishioner.dashboard');
@@ -123,7 +129,29 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::put('/staff/{user}/permissions', [UserManagementController::class, 'updatePermissions'])->name('staff.permissions.update');
         Route::post('/staff/{user}/revert-to-parishioner', [UserManagementController::class, 'revertToParishioner'])->name('staff.revert');
         Route::post('/organization-context/switch', [UserManagementController::class, 'switchOrganization'])->name('organization-context.switch');
-        Route::get('/commissions/{commission}/members', [UserManagementController::class, 'commissionMembers'])->name('commissions.members');
+
+        // Parish Pastoral Council (PPC) Management
+        Route::get('/ppc', [PpcManagementController::class, 'index'])->name('ppc.index');
+        Route::post('/ppc/members', [PpcManagementController::class, 'store'])->name('ppc.members.store');
+        Route::put('/ppc/members/{ppcMember}', [PpcManagementController::class, 'update'])->name('ppc.members.update');
+        Route::delete('/ppc/members/{ppcMember}', [PpcManagementController::class, 'destroy'])->name('ppc.members.destroy');
+
+        // Pastoral Commissions Management
+        Route::get('/commissions', [CommissionManagementController::class, 'index'])->name('commissions.index');
+        Route::post('/commissions', [CommissionManagementController::class, 'store'])->name('commissions.store');
+        Route::get('/commissions/{commission}', [CommissionManagementController::class, 'show'])->name('commissions.show');
+        Route::put('/commissions/{commission}', [CommissionManagementController::class, 'update'])->name('commissions.update');
+        Route::patch('/commissions/{commission}/status', [CommissionManagementController::class, 'toggle'])->name('commissions.status');
+        Route::delete('/commissions/{commission}', [CommissionManagementController::class, 'destroy'])->name('commissions.destroy');
+        Route::post('/commissions/{commission}/account', [CommissionManagementController::class, 'createAccount'])->name('commissions.account');
+        Route::post('/commissions/{commission}/members', [CommissionManagementController::class, 'addMember'])->name('commissions.members.store');
+        Route::put('/commissions/{commission}/members/{membership}', [CommissionManagementController::class, 'updateMember'])->name('commissions.members.update');
+        Route::delete('/commissions/{commission}/members/{membership}', [CommissionManagementController::class, 'removeMember'])->name('commissions.members.destroy');
+        Route::post('/commissions/{commission}/projects', [CommissionManagementController::class, 'storeProject'])->name('commissions.projects.store');
+        Route::put('/commissions/{commission}/projects/{project}', [CommissionManagementController::class, 'updateProject'])->name('commissions.projects.update');
+        Route::delete('/commissions/{commission}/projects/{project}', [CommissionManagementController::class, 'destroyProject'])->name('commissions.projects.destroy');
+        Route::post('/commissions/{commission}/documents', [CommissionManagementController::class, 'storeDocument'])->name('commissions.documents.store');
+        Route::delete('/commissions/{commission}/documents/{document}', [CommissionManagementController::class, 'destroyDocument'])->name('commissions.documents.destroy');
         Route::get('/audit-logs', [AuditLogController::class, 'index'])->name('audit-logs');
         Route::get('/mass-intentions', [MassIntentionManagementController::class, 'index'])->name('mass-intentions');
         Route::patch('/mass-intentions/{massIntention}/status', [MassIntentionManagementController::class, 'updateStatus'])->name('mass-intentions.status');
@@ -152,6 +180,25 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::view('/sacramental-records', 'admin.sacramental-records')->name('sacramental-records');
     Route::view('/form-submissions', 'admin.form-submissions')->name('form-submissions');
     Route::view('/notifications', 'admin.notifications')->name('notifications');
+});
+
+// Dedicated Pastoral Commission Workspace (Coordinators & Commission Officers)
+Route::prefix('commission')->name('commission.')->middleware('auth')->group(function () {
+    Route::get('/dashboard', [CommissionWorkspaceController::class, 'dashboard'])->name('dashboard');
+    Route::get('/overview', [CommissionWorkspaceController::class, 'overview'])->name('overview');
+    Route::get('/members', [CommissionWorkspaceController::class, 'members'])->name('members');
+    Route::post('/members', [CommissionWorkspaceController::class, 'storeMember'])->name('members.store');
+    Route::put('/members/{membership}', [CommissionWorkspaceController::class, 'updateMember'])->name('members.update');
+    Route::delete('/members/{membership}', [CommissionWorkspaceController::class, 'removeMember'])->name('members.destroy');
+    Route::get('/officers', [CommissionWorkspaceController::class, 'officers'])->name('officers');
+    Route::get('/ministries', [CommissionWorkspaceController::class, 'ministries'])->name('ministries');
+    Route::get('/projects', [CommissionWorkspaceController::class, 'projects'])->name('projects');
+    Route::post('/projects', [CommissionWorkspaceController::class, 'storeProject'])->name('projects.store');
+    Route::put('/projects/{project}', [CommissionWorkspaceController::class, 'updateProject'])->name('projects.update');
+    Route::delete('/projects/{project}', [CommissionWorkspaceController::class, 'destroyProject'])->name('projects.destroy');
+    Route::get('/documents', [CommissionWorkspaceController::class, 'documents'])->name('documents');
+    Route::post('/documents', [CommissionWorkspaceController::class, 'storeDocument'])->name('documents.store');
+    Route::delete('/documents/{document}', [CommissionWorkspaceController::class, 'destroyDocument'])->name('documents.destroy');
 });
 
 Route::prefix('staff')->name('staff.')->group(function () {

@@ -17,6 +17,7 @@ class Commission extends Model
         'slug',
         'code',
         'description',
+        'icon',
         'head_user_id',
         'is_active',
     ];
@@ -29,6 +30,11 @@ class Commission extends Model
     }
 
     public function headUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'head_user_id');
+    }
+
+    public function coordinator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'head_user_id');
     }
@@ -46,8 +52,36 @@ class Commission extends Model
     public function members(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'commission_memberships')
-            ->withPivot('role', 'status', 'joined_at')
+            ->withPivot('id', 'position', 'is_officer', 'role', 'status', 'joined_at', 'notes')
             ->withTimestamps();
+    }
+
+    public function officers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'commission_memberships')
+            ->wherePivot('is_officer', true)
+            ->withPivot('id', 'position', 'is_officer', 'role', 'status', 'joined_at', 'notes')
+            ->withTimestamps();
+    }
+
+    public function ministries(): HasMany
+    {
+        return $this->hasMany(Ministry::class);
+    }
+
+    public function projects(): HasMany
+    {
+        return $this->hasMany(CommissionProject::class);
+    }
+
+    public function documents(): HasMany
+    {
+        return $this->hasMany(CommissionDocument::class);
+    }
+
+    public function ppcMembers(): HasMany
+    {
+        return $this->hasMany(PpcMember::class);
     }
 
     public function auditLogs(): HasMany
@@ -57,7 +91,31 @@ class Commission extends Model
 
     public function activeMembersCount(): int
     {
-        return $this->users()->where('is_verified', true)->count();
+        return $this->members()->wherePivot('status', 'active')->count();
+    }
+
+    public function getMembersCountAttribute(): int
+    {
+        return $this->members()->count();
+    }
+
+    public function getOfficersCountAttribute(): int
+    {
+        return $this->members()->wherePivot('is_officer', true)->count();
+    }
+
+    public function getProjectsCountAttribute(): int
+    {
+        return $this->projects()->count();
+    }
+
+    public function getDocumentsCountAttribute(): int
+    {
+        return $this->documents()->count();
+    }
+
+    public function getMinistriesCountAttribute(): int
+    {
+        return $this->ministries()->count();
     }
 }
-

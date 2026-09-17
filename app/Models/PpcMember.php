@@ -6,26 +6,25 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class CommissionMembership extends Model
+class PpcMember extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'user_id',
+        'role_title',
         'commission_id',
-        'position',
-        'is_officer',
-        'role',
+        'term_start',
+        'term_end',
         'status',
-        'joined_at',
         'notes',
     ];
 
     protected function casts(): array
     {
         return [
-            'is_officer' => 'boolean',
-            'joined_at'  => 'datetime',
+            'term_start' => 'date',
+            'term_end' => 'date',
         ];
     }
 
@@ -38,4 +37,10 @@ class CommissionMembership extends Model
     {
         return $this->belongsTo(Commission::class);
     }
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active');
+    }
 }
+

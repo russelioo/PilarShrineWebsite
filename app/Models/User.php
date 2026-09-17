@@ -145,8 +145,13 @@ class User extends Authenticatable
     public function commissions(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(Commission::class, 'commission_memberships')
-            ->withPivot('role', 'status', 'joined_at')
+            ->withPivot('id', 'position', 'is_officer', 'role', 'status', 'joined_at', 'notes')
             ->withTimestamps();
+    }
+
+    public function ppcMemberships(): HasMany
+    {
+        return $this->hasMany(PpcMember::class);
     }
 
     public function auditLogs(): HasMany

@@ -15,6 +15,7 @@ class Ministry extends Model
     protected $fillable = [
         'name',
         'slug',
+        'commission_id',
         'category',
         'icon',
         'description',
@@ -37,6 +38,11 @@ class Ministry extends Model
             'requirements' => 'array',
             'is_accepting_members' => 'boolean',
         ];
+    }
+
+    public function commission(): BelongsTo
+    {
+        return $this->belongsTo(Commission::class);
     }
 
     public function memberships(): HasMany
@@ -67,4 +73,3 @@ class Ministry extends Model
         return $this->memberships()->where('status', 'pending')->count();
     }
 }
-
