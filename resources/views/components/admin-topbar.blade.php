@@ -205,6 +205,14 @@
   </div>
 
   <div class="topbar-right">
+    <!-- Back to Official Website -->
+    <a href="/" class="btn-topbar-website" title="Return to Official Parish Website">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      <span>Official Website</span>
+    </a>
+
     @if(count($availableOrgs) > 1)
       <!-- Organization Context Switcher -->
       <div class="topbar-dropdown-wrap" id="org-context-dropdown-wrap">
@@ -628,6 +636,40 @@
     display: flex;
     align-items: center;
     gap: 14px;
+  }
+
+  /* Official Website button */
+  .btn-topbar-website {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 13px;
+    border: 1px solid #ccd8e4;
+    border-radius: 7px;
+    background: #f8fafc;
+    color: var(--navy);
+    font-size: 11.5px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.16s ease;
+    white-space: nowrap;
+  }
+
+  .btn-topbar-website:hover {
+    background: #ffffff;
+    border-color: var(--gold);
+    color: var(--gold-hover);
+    box-shadow: 0 2px 6px rgba(216, 170, 60, 0.15);
+  }
+
+  .btn-topbar-website svg {
+    color: var(--navy);
+    transition: transform 0.15s ease, color 0.16s ease;
+  }
+
+  .btn-topbar-website:hover svg {
+    color: var(--gold-hover);
+    transform: translateX(-2px);
   }
 
   .topbar-dropdown-wrap {
@@ -1102,6 +1144,14 @@
     }
 
     .admin-meta {
+      display: none;
+    }
+
+    .btn-topbar-website {
+      padding: 7px 9px;
+    }
+
+    .btn-topbar-website span {
       display: none;
     }
 
