@@ -24,6 +24,7 @@ use App\Http\Controllers\Admin\DonationManagementController as AdminDonationMana
 use App\Http\Controllers\Admin\CommissionManagementController;
 use App\Http\Controllers\Admin\PpcManagementController;
 use App\Http\Controllers\Commission\CommissionWorkspaceController;
+use App\Http\Controllers\PublicMinistryController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth')->group(function () {
@@ -52,6 +53,7 @@ Route::get('/', function () {
 
 Route::get('/api/announcements', [AnnouncementController::class, 'publicIndex'])->name('api.announcements');
 Route::get('/api/mass-schedules', [MassScheduleController::class, 'publicIndex'])->name('api.mass-schedules');
+Route::get('/api/ministries', [PublicMinistryController::class, 'publicIndex'])->name('api.ministries');
 
 Route::get('/api/livestream-status', function (FacebookLiveService $facebookLive) {
     return response()->json($facebookLive->status());
@@ -150,6 +152,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/commissions/{commission}/projects', [CommissionManagementController::class, 'storeProject'])->name('commissions.projects.store');
         Route::put('/commissions/{commission}/projects/{project}', [CommissionManagementController::class, 'updateProject'])->name('commissions.projects.update');
         Route::delete('/commissions/{commission}/projects/{project}', [CommissionManagementController::class, 'destroyProject'])->name('commissions.projects.destroy');
+        Route::post('/commissions/{commission}/ministries', [CommissionManagementController::class, 'storeMinistry'])->name('commissions.ministries.store');
         Route::post('/commissions/{commission}/documents', [CommissionManagementController::class, 'storeDocument'])->name('commissions.documents.store');
         Route::delete('/commissions/{commission}/documents/{document}', [CommissionManagementController::class, 'destroyDocument'])->name('commissions.documents.destroy');
         Route::get('/audit-logs', [AuditLogController::class, 'index'])->name('audit-logs');
@@ -192,6 +195,7 @@ Route::prefix('commission')->name('commission.')->middleware('auth')->group(func
     Route::delete('/members/{membership}', [CommissionWorkspaceController::class, 'removeMember'])->name('members.destroy');
     Route::get('/officers', [CommissionWorkspaceController::class, 'officers'])->name('officers');
     Route::get('/ministries', [CommissionWorkspaceController::class, 'ministries'])->name('ministries');
+    Route::post('/ministries', [CommissionWorkspaceController::class, 'storeMinistry'])->name('ministries.store');
     Route::get('/projects', [CommissionWorkspaceController::class, 'projects'])->name('projects');
     Route::post('/projects', [CommissionWorkspaceController::class, 'storeProject'])->name('projects.store');
     Route::put('/projects/{project}', [CommissionWorkspaceController::class, 'updateProject'])->name('projects.update');

@@ -102,14 +102,13 @@ export const publicPages = {
   ministries: {
     component: MinistriesPage,
     heroType: 'image',
-    image: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1400&q=80',
-    eyebrow: 'Parish Apostolates & Service',
+    image: '/images/pilar-shrine-sanctuary.jpg',
     title: 'Shrine Ministries & Organizations',
-    description: 'Discover the different pastoral, liturgical, and service ministries serving God and our parish community in Pilar, Sorsogon.',
+    description: 'Explore the pastoral commissions, apostolates, and mandated organizations serving the Diocesan Shrine and Parish of Our Lady of the Pillar.',
     hasRule: true,
     heroActions: [
-      { label: '✉ Contact Parish Office', href: '#/contact', variant: 'primary' },
-      { label: '▣ Mass Schedule', href: '#/schedule', variant: 'secondary' },
+      { label: '▣ Mass Schedule', href: '#/schedule', variant: 'primary' },
+      { label: '♙ Sacrament Guidelines', href: '#/sacraments', variant: 'secondary' },
     ],
   },
   store: {

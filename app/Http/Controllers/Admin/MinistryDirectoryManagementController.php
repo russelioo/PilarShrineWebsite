@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Commission;
 use App\Models\Ministry;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -24,6 +25,7 @@ class MinistryDirectoryManagementController extends Controller
         $status = $request->string('status', 'all')->trim()->toString();
 
         $query = Ministry::query()
+            ->with(['commission'])
             ->withCount([
                 'memberships as active_members_count' => fn ($q) => $q->where('status', 'approved'),
                 'memberships as pending_requests_count' => fn ($q) => $q->where('status', 'pending'),
@@ -72,6 +74,9 @@ class MinistryDirectoryManagementController extends Controller
         // Registered staff users for coordinator assignment dropdown
         $staffUsers = User::whereIn('role', ['staff', 'admin'])->orderBy('name')->get();
 
+        // Active pastoral commissions for commission affiliation
+        $commissions = Commission::where('is_active', true)->orderBy('name')->get();
+
         return view('admin.ministries', compact(
             'ministries',
             'totalCount',
@@ -80,6 +85,7 @@ class MinistryDirectoryManagementController extends Controller
             'totalMembersCount',
             'categoriesList',
             'staffUsers',
+            'commissions',
             'search',
             'category',
             'status'
@@ -95,7 +101,10 @@ class MinistryDirectoryManagementController extends Controller
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'commission_id' => ['nullable', 'exists:commissions,id'],
             'category' => ['required', 'string', 'max:100'],
+            'status' => ['nullable', 'string', 'in:active,inactive'],
+            'is_public' => ['nullable', 'boolean'],
             'icon' => ['nullable', 'string', 'max:50'],
             'description' => ['required', 'string', 'max:1000'],
             'about' => ['nullable', 'string', 'max:3000'],
@@ -108,6 +117,7 @@ class MinistryDirectoryManagementController extends Controller
             'coordinator_user_id' => ['nullable', 'exists:users,id'],
             'requirements' => ['nullable', 'string', 'max:3000'],
             'is_accepting_members' => ['nullable', 'boolean'],
+            'redirect_to' => ['nullable', 'string'],
         ]);
 
         // Auto-generate unique slug
@@ -129,10 +139,13 @@ class MinistryDirectoryManagementController extends Controller
             }
         }
 
-        Ministry::create([
+        $ministry = Ministry::create([
             'name' => $validated['name'],
             'slug' => $slug,
+            'commission_id' => $validated['commission_id'] ?? null,
             'category' => $validated['category'],
+            'status' => $validated['status'] ?? 'active',
+            'is_public' => $request->has('is_public') ? $request->boolean('is_public') : true,
             'icon' => !empty($validated['icon']) ? $validated['icon'] : '✝',
             'description' => $validated['description'],
             'about' => $validated['about'] ?? null,
@@ -145,7 +158,14 @@ class MinistryDirectoryManagementController extends Controller
             'coordinator_user_id' => !empty($validated['coordinator_user_id']) ? $validated['coordinator_user_id'] : null,
             'requirements' => $this->parseLinesToArray($validated['requirements'] ?? null),
             'is_accepting_members' => $request->boolean('is_accepting_members', true),
+            'created_by' => $request->user()?->id,
+            'updated_by' => $request->user()?->id,
         ]);
+
+        if (!empty($validated['redirect_to'])) {
+            return redirect($validated['redirect_to'])
+                ->with('success', "Ministry '{$validated['name']}' has been created successfully.");
+        }
 
         return redirect()->route('admin.ministries')
             ->with('success', "Ministry '{$validated['name']}' has been created successfully and is now active in the directory.");
@@ -160,7 +180,10 @@ class MinistryDirectoryManagementController extends Controller
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'commission_id' => ['nullable', 'exists:commissions,id'],
             'category' => ['required', 'string', 'max:100'],
+            'status' => ['nullable', 'string', 'in:active,inactive'],
+            'is_public' => ['nullable', 'boolean'],
             'icon' => ['nullable', 'string', 'max:50'],
             'description' => ['required', 'string', 'max:1000'],
             'about' => ['nullable', 'string', 'max:3000'],
@@ -173,6 +196,7 @@ class MinistryDirectoryManagementController extends Controller
             'coordinator_user_id' => ['nullable', 'exists:users,id'],
             'requirements' => ['nullable', 'string', 'max:3000'],
             'is_accepting_members' => ['nullable', 'boolean'],
+            'redirect_to' => ['nullable', 'string'],
         ]);
 
         // If coordinator user is selected, prefill details if missing
@@ -187,7 +211,10 @@ class MinistryDirectoryManagementController extends Controller
 
         $ministry->update([
             'name' => $validated['name'],
+            'commission_id' => $validated['commission_id'] ?? null,
             'category' => $validated['category'],
+            'status' => $validated['status'] ?? $ministry->status ?? 'active',
+            'is_public' => $request->has('is_public') ? $request->boolean('is_public') : $ministry->is_public,
             'icon' => !empty($validated['icon']) ? $validated['icon'] : '✝',
             'description' => $validated['description'],
             'about' => $validated['about'] ?? null,
@@ -200,7 +227,13 @@ class MinistryDirectoryManagementController extends Controller
             'coordinator_user_id' => !empty($validated['coordinator_user_id']) ? $validated['coordinator_user_id'] : null,
             'requirements' => $this->parseLinesToArray($validated['requirements'] ?? null),
             'is_accepting_members' => $request->boolean('is_accepting_members'),
+            'updated_by' => $request->user()?->id,
         ]);
+
+        if (!empty($validated['redirect_to'])) {
+            return redirect($validated['redirect_to'])
+                ->with('success', "Ministry '{$ministry->name}' details have been updated successfully.");
+        }
 
         return redirect()->route('admin.ministries')
             ->with('success', "Ministry '{$ministry->name}' details have been updated successfully.");

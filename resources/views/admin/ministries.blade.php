@@ -114,6 +114,11 @@
                             <div>
                                 <strong class="min-title">{{ $min->name }}</strong>
                                 <small class="min-slug">{{ $min->slug }}</small>
+                                @if($min->commission)
+                                    <span style="font-size: 9px; font-weight: 700; color: #062f78; background: #e0f2fe; padding: 1px 6px; border-radius: 4px; display: inline-block; margin-top: 3px;">
+                                        {{ $min->commission->name }}
+                                    </span>
+                                @endif
                             </div>
                         </div>
                     </td>
@@ -225,6 +230,33 @@
                                 <option value="{{ $cat }}">
                             @endforeach
                         </datalist>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="add-commission">Affiliated Pastoral Commission</label>
+                    <select id="add-commission" name="commission_id" class="form-input">
+                        <option value="">-- No Direct Commission Affiliation --</option>
+                        @foreach($commissions as $comm)
+                            <option value="{{ $comm->id }}">{{ $comm->name }} ({{ $comm->code }})</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label for="add-status">Operational Status <span class="req">*</span></label>
+                        <select id="add-status" name="status" class="form-input" required>
+                            <option value="active" selected>Active</option>
+                            <option value="inactive">Inactive / Suspended</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-is-public">Directory Visibility <span class="req">*</span></label>
+                        <select id="add-is-public" name="is_public" class="form-input" required>
+                            <option value="1" selected>Public (Displayed on Website)</option>
+                            <option value="0">Private / Internal Only</option>
+                        </select>
                     </div>
                 </div>
 
@@ -349,6 +381,33 @@
                     <div class="form-group">
                         <label for="edit-category">Category <span class="req">*</span></label>
                         <input list="category-suggestions" id="edit-category" name="category" required class="form-input">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-commission">Affiliated Pastoral Commission</label>
+                    <select id="edit-commission" name="commission_id" class="form-input">
+                        <option value="">-- No Direct Commission Affiliation --</option>
+                        @foreach($commissions as $comm)
+                            <option value="{{ $comm->id }}">{{ $comm->name }} ({{ $comm->code }})</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label for="edit-status">Operational Status <span class="req">*</span></label>
+                        <select id="edit-status" name="status" class="form-input" required>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive / Suspended</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-is-public">Directory Visibility <span class="req">*</span></label>
+                        <select id="edit-is-public" name="is_public" class="form-input" required>
+                            <option value="1">Public (Displayed on Website)</option>
+                            <option value="0">Private / Internal Only</option>
+                        </select>
                     </div>
                 </div>
 
@@ -612,6 +671,9 @@ function openEditModal(ministry) {
     
     document.getElementById('edit-name').value = ministry.name || '';
     document.getElementById('edit-category').value = ministry.category || '';
+    document.getElementById('edit-commission').value = ministry.commission_id || '';
+    document.getElementById('edit-status').value = ministry.status || 'active';
+    document.getElementById('edit-is-public').value = ministry.is_public === false || ministry.is_public === 0 ? '0' : '1';
     document.getElementById('edit-icon').value = ministry.icon || '✝';
     document.getElementById('edit-desc').value = ministry.description || '';
     document.getElementById('edit-about').value = ministry.about || '';

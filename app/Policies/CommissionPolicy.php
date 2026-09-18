@@ -160,4 +160,23 @@ class CommissionPolicy
         return $actor->isSuperAdmin()
             || ($actor->hasParishWideAccess() && $actor->hasPermission('create_users'));
     }
+
+    /**
+     * Determine whether the user can manage ministries of this commission.
+     */
+    public function manageMinistries(User $actor, Commission $commission): bool
+    {
+        if ($actor->isSuperAdmin() || $actor->hasParishWideAccess()) {
+            return true;
+        }
+
+        if ($actor->canAccessCommission($commission->id)) {
+            return (int) $commission->head_user_id === (int) $actor->id
+                || $actor->isCommissionAdmin()
+                || $actor->hasPermission('create_ministries')
+                || $actor->hasPermission('edit_ministries');
+        }
+
+        return false;
+    }
 }

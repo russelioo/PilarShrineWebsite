@@ -126,6 +126,38 @@ class CommissionAndPpcTest extends TestCase
     }
 
     /**
+     * Scenario 1b: Super admin can access commission workspace by slug, by ID, and by model.
+     */
+    public function test_super_admin_can_access_commission_by_slug_and_id(): void
+    {
+        // 1. By slug string
+        $responseSlug = $this->actingAs($this->superAdmin)
+            ->get(route('admin.commissions.show', $this->commissionWorship->slug));
+        $responseSlug->assertOk();
+        $responseSlug->assertViewIs('admin.commissions.show');
+        $responseSlug->assertSee('Commission on Worship');
+
+        // 2. By integer ID
+        $responseId = $this->actingAs($this->superAdmin)
+            ->get(route('admin.commissions.show', $this->commissionWorship->id));
+        $responseId->assertOk();
+        $responseId->assertViewIs('admin.commissions.show');
+        $responseId->assertSee('Commission on Worship');
+
+        // 3. By model instance
+        $responseModel = $this->actingAs($this->superAdmin)
+            ->get(route('admin.commissions.show', $this->commissionWorship));
+        $responseModel->assertOk();
+        $responseModel->assertViewIs('admin.commissions.show');
+        $responseModel->assertSee('Commission on Worship');
+
+        // 4. Non-existent slug returns 404
+        $response404 = $this->actingAs($this->superAdmin)
+            ->get('/admin/commissions/non-existent-commission-slug');
+        $response404->assertNotFound();
+    }
+
+    /**
      * Scenario 2: Commission Coordinator A can access only Commission A workspace.
      */
     public function test_coordinator_can_access_own_commission_workspace(): void
@@ -302,7 +334,7 @@ class CommissionAndPpcTest extends TestCase
     }
 
     /**
-     * Scenario 9: All 8 official commissions exist in the database with correct codes and active status.
+     * Scenario 9: All 9 official commissions exist in the database with correct codes and active status.
      */
     public function test_all_eight_official_commissions_seeded_with_correct_codes(): void
     {
@@ -317,6 +349,7 @@ class CommissionAndPpcTest extends TestCase
             'FAMILY'    => 'Commission on Family and Life',
             'YOUTH'     => 'Commission on Youth',
             'CLERGY'    => 'Commission on Clergy and Consecrated Life',
+            'SOCCOM'    => 'Commission on Social Communications and Mass Media',
         ];
 
         foreach ($expectedCommissions as $code => $name) {

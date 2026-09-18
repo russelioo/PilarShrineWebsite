@@ -84,10 +84,17 @@
 
       @php
         $sidebarCommissions = \App\Models\Commission::where('is_active', true)->orderBy('name')->get(['id', 'name', 'slug', 'code']);
+        $currentRouteComm = request()->route('commission');
       @endphp
       @foreach($sidebarCommissions as $comm)
+      @php
+        $isCurrentCommActive = request()->routeIs('admin.commissions.show') && (
+            (is_object($currentRouteComm) && ($currentRouteComm->slug === $comm->slug || $currentRouteComm->id == $comm->id)) ||
+            (is_string($currentRouteComm) && ($currentRouteComm === $comm->slug || $currentRouteComm == $comm->id))
+        );
+      @endphp
       <a href="{{ route('admin.commissions.show', $comm->slug) }}" 
-         class="admin-nav-item admin-nav-subitem {{ (request()->routeIs('admin.commissions.show') && (request()->route('commission')?->slug === $comm->slug || request()->route('commission')?->id == $comm->id)) ? 'active' : '' }}"
+         class="admin-nav-item admin-nav-subitem {{ $isCurrentCommActive ? 'active' : '' }}"
          data-title="{{ $comm->name }}" title="{{ $comm->name }}">
         <span class="nav-subitem-bullet"></span>
         <span class="nav-label">{{ $comm->name }}</span>

@@ -29,6 +29,37 @@ class Commission extends Model
         ];
     }
 
+    /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
+    /**
+     * Retrieve the model for a bound value.
+     * Supports both slug and numeric ID resolution.
+     *
+     * @param  mixed  $value
+     * @param  string|null  $field
+     * @return \Illuminate\Database\Eloquent\Model|null
+     */
+    public function resolveRouteBinding($value, $field = null)
+    {
+        if ($field) {
+            return parent::resolveRouteBinding($value, $field);
+        }
+
+        if (is_numeric($value)) {
+            return $this->where('id', $value)
+                ->orWhere('slug', (string) $value)
+                ->first();
+        }
+
+        return $this->where('slug', $value)->first();
+    }
+
     public function headUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'head_user_id');
@@ -116,6 +147,10 @@ class Commission extends Model
 
     public function getMinistriesCountAttribute(): int
     {
-        return $this->ministries()->count();
+        if (array_key_exists('ministries_count', $this->attributes)) {
+            return (int) $this->attributes['ministries_count'];
+        }
+
+        return $this->ministries()->where('status', 'active')->where('is_public', true)->count();
     }
 }

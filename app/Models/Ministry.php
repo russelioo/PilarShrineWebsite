@@ -19,6 +19,8 @@ class Ministry extends Model
         'category',
         'icon',
         'description',
+        'status',
+        'is_public',
         'about',
         'activities',
         'meeting_schedule',
@@ -29,6 +31,8 @@ class Ministry extends Model
         'coordinator_user_id',
         'requirements',
         'is_accepting_members',
+        'created_by',
+        'updated_by',
     ];
 
     protected function casts(): array
@@ -37,7 +41,18 @@ class Ministry extends Model
             'activities' => 'array',
             'requirements' => 'array',
             'is_accepting_members' => 'boolean',
+            'is_public' => 'boolean',
         ];
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active');
+    }
+
+    public function scopePublic($query)
+    {
+        return $query->where('is_public', true);
     }
 
     public function commission(): BelongsTo
@@ -61,6 +76,16 @@ class Ministry extends Model
     public function coordinatorUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'coordinator_user_id');
+    }
+
+    public function createdBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function updatedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 
     public function activeMembersCount(): int

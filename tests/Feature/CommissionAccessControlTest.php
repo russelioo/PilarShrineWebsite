@@ -478,6 +478,7 @@ class CommissionAccessControlTest extends TestCase
 
     public function test_commissions_are_seeded_in_alphabetical_order_with_social_communications_and_mass_media(): void
     {
+        Commission::query()->delete();
         $this->seed(\Database\Seeders\CommissionSeeder::class);
 
         $commissions = Commission::orderByRaw('LOWER(name) ASC')->pluck('name')->toArray();

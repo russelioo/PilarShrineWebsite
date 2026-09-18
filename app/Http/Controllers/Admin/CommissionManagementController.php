@@ -512,6 +512,67 @@ class CommissionManagementController extends Controller
     }
 
     /**
+     * Store a new ministry under this commission.
+     */
+    public function storeMinistry(Request $request, Commission $commission): RedirectResponse
+    {
+        Gate::authorize('manageMinistries', $commission);
+
+        $validated = $request->validate([
+            'name'                 => ['required', 'string', 'max:255'],
+            'description'          => ['required', 'string', 'max:1000'],
+            'category'             => ['nullable', 'string', 'max:100'],
+            'icon'                 => ['nullable', 'string', 'max:50'],
+            'status'               => ['nullable', 'string', 'in:active,inactive'],
+            'is_public'            => ['nullable', 'boolean'],
+            'meeting_schedule'     => ['nullable', 'string', 'max:255'],
+            'meeting_location'     => ['nullable', 'string', 'max:255'],
+            'coordinator_name'     => ['nullable', 'string', 'max:255'],
+            'coordinator_email'    => ['nullable', 'email', 'max:255'],
+            'coordinator_phone'    => ['nullable', 'string', 'max:50'],
+            'is_accepting_members' => ['nullable', 'boolean'],
+        ]);
+
+        $baseSlug = \Illuminate\Support\Str::slug($validated['name']);
+        $slug = $baseSlug;
+        $counter = 1;
+        while (\App\Models\Ministry::where('slug', $slug)->exists()) {
+            $slug = "{$baseSlug}-{$counter}";
+            $counter++;
+        }
+
+        $ministry = \App\Models\Ministry::create([
+            'name'                 => $validated['name'],
+            'slug'                 => $slug,
+            'commission_id'        => $commission->id,
+            'category'             => $validated['category'] ?? $commission->name,
+            'icon'                 => ! empty($validated['icon']) ? $validated['icon'] : ($commission->icon ?: '✝'),
+            'description'          => $validated['description'],
+            'status'               => $validated['status'] ?? 'active',
+            'is_public'            => $request->has('is_public') ? $request->boolean('is_public') : true,
+            'meeting_schedule'     => $validated['meeting_schedule'] ?? null,
+            'meeting_location'     => $validated['meeting_location'] ?? null,
+            'coordinator_name'     => $validated['coordinator_name'] ?? null,
+            'coordinator_email'    => $validated['coordinator_email'] ?? null,
+            'coordinator_phone'    => $validated['coordinator_phone'] ?? null,
+            'is_accepting_members' => $request->boolean('is_accepting_members', true),
+            'created_by'           => $request->user()->id,
+            'updated_by'           => $request->user()->id,
+        ]);
+
+        AuditLogger::log(
+            action: 'commission_ministry_created',
+            description: "Created ministry \"{$ministry->name}\" in {$commission->name}.",
+            target: $ministry,
+            commissionId: $commission->id,
+            actor: $request->user(),
+            category: 'commission'
+        );
+
+        return redirect()->back()->with('success', "Ministry \"{$ministry->name}\" created under {$commission->name}.");
+    }
+
+    /**
      * Store a new project for this commission.
      */
     public function storeProject(Request $request, Commission $commission): RedirectResponse

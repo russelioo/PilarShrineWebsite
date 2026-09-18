@@ -442,11 +442,18 @@
             <h3 class="card-title" style="margin:0;">Assigned Parish Ministries</h3>
             <p style="font-size:12px;color:#64748b;margin:3px 0 0;">Parish apostolates, organizations, and guilds supervised under this commission.</p>
         </div>
-        @if(auth()->user() && auth()->user()->hasParishWideAccess())
-        <a href="{{ route('admin.ministries') }}" class="btn btn-outline btn-sm">
-            <span>Manage All Parish Ministries</span>
-        </a>
-        @endif
+        <div style="display:flex;gap:8px;">
+            @can('manageMinistries', $commission)
+            <button type="button" class="btn btn-primary btn-sm" onclick="openAddMinistryModal()">
+                <span>+ Add Ministry</span>
+            </button>
+            @endcan
+            @if(auth()->user() && auth()->user()->hasParishWideAccess())
+            <a href="{{ route('admin.ministries') }}" class="btn btn-outline btn-sm">
+                <span>Manage All Parish Ministries</span>
+            </a>
+            @endif
+        </div>
     </div>
 
     <div class="ministries-cards-grid">
@@ -920,6 +927,81 @@
                 <button type="submit" class="btn btn-primary">Upload File</button>
             </div>
         </form>
+<!-- MODAL: ADD MINISTRY -->
+<div class="modal-backdrop" id="addMinistryModal" style="display:none;" onclick="if(event.target===this) closeAddMinistryModal()">
+    <div class="modal-box" style="max-width: 580px;">
+        <div class="modal-header">
+            <h3>Add Ministry to {{ $commission->name }}</h3>
+            <button type="button" class="modal-close-btn" onclick="closeAddMinistryModal()">&times;</button>
+        </div>
+        <form method="POST" action="{{ $isCoordinatorWorkspace ? route('commission.ministries.store') : route('admin.commissions.ministries.store', $commission) }}">
+            @csrf
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Ministry Name <span class="req">*</span></label>
+                    <input type="text" name="name" required class="form-input" placeholder="e.g. Altar Servers Guild">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group" style="flex:1;">
+                        <label class="form-label">Category</label>
+                        <input type="text" name="category" value="{{ $commission->name }}" class="form-input">
+                    </div>
+                    <div class="form-group" style="flex:1;">
+                        <label class="form-label">Operational Status <span class="req">*</span></label>
+                        <select name="status" class="form-select" required>
+                            <option value="active" selected>Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="flex:1;">
+                        <label class="form-label">Directory Visibility <span class="req">*</span></label>
+                        <select name="is_public" class="form-select" required>
+                            <option value="1" selected>Public (Website)</option>
+                            <option value="0">Private (Internal)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Description <span class="req">*</span></label>
+                    <textarea name="description" rows="2" required class="form-textarea" placeholder="Brief summary of this ministry's mission and purpose."></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group" style="flex:1;">
+                        <label class="form-label">Regular Schedule (Optional)</label>
+                        <input type="text" name="meeting_schedule" class="form-input" placeholder="e.g. Every Saturday • 9:00 AM">
+                    </div>
+                    <div class="form-group" style="flex:1;">
+                        <label class="form-label">Venue / Meeting Location (Optional)</label>
+                        <input type="text" name="meeting_location" class="form-input" placeholder="e.g. Shrine Sacristy">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group" style="flex:1;">
+                        <label class="form-label">Coordinator Name (Optional)</label>
+                        <input type="text" name="coordinator_name" class="form-input" placeholder="Coordinator Name">
+                    </div>
+                    <div class="form-group" style="flex:1;">
+                        <label class="form-label">Contact Mobile (Optional)</label>
+                        <input type="text" name="coordinator_phone" class="form-input" placeholder="0917-000-0000">
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom:0;">
+                    <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:#334155;cursor:pointer;">
+                        <input type="checkbox" name="is_accepting_members" value="1" checked>
+                        <span>Currently accepting new members</span>
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" onclick="closeAddMinistryModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Create Ministry</button>
+            </div>
+        </form>
     </div>
 </div>
 @endsection
@@ -1237,6 +1319,14 @@ function openUploadDocModal() {
 }
 function closeUploadDocModal() {
     document.getElementById('uploadDocModal').style.display = 'none';
+}
+
+// Ministry modal
+function openAddMinistryModal() {
+    document.getElementById('addMinistryModal').style.display = 'flex';
+}
+function closeAddMinistryModal() {
+    document.getElementById('addMinistryModal').style.display = 'none';
 }
 </script>
 @endpush
