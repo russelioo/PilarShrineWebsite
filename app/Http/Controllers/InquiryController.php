@@ -76,12 +76,8 @@ class InquiryController extends Controller
             ->groupBy('kind')
             ->pluck('total', 'kind');
 
-        $role = $me->role;
-        $isAdminOrStaff = in_array($role, [
-            'admin', 'super_admin', 'parish_priest', 'parochial_vicar',
-            'parish_secretary', 'commission_admin', 'commission_member', 'staff'
-        ], true) || $me->isParishAdministration() || $me->isCommissionMember();
-        $layout = $isAdminOrStaff ? 'layouts.admin' : 'layouts.parishioner';
+        $layout = $me->canAccessAdminPortal() ? 'layouts.admin' : 'layouts.parishioner';
+        $title = 'Messages & Inquiries';
 
         // Initial JSON state for Vue Messenger App
         $initialState = [
@@ -106,7 +102,7 @@ class InquiryController extends Controller
         ];
 
         return view('inquiries.index', compact(
-            'peer', 'messages', 'contacts', 'unread', 'usage', 'layout', 'activeConversation', 'initialState'
+            'peer', 'messages', 'contacts', 'unread', 'usage', 'layout', 'title', 'activeConversation', 'initialState'
         ));
     }
 

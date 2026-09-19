@@ -13,9 +13,14 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         //
         $middleware->web(append: [
+            \App\Http\Middleware\EnsurePortalAccess::class,
             \App\Http\Middleware\TrackLastActivity::class,
             \App\Http\Middleware\RecordWebsiteActivity::class,
         ]);
+        $middleware->prependToPriorityList(
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            \App\Http\Middleware\EnsurePortalAccess::class,
+        );
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

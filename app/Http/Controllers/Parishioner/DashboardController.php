@@ -14,7 +14,7 @@ class DashboardController extends Controller
     {
         $user = $request->user();
 
-        if ($user && in_array($user->role, ['admin', 'super_admin', 'parish_priest', 'parochial_vicar', 'parish_secretary', 'commission_admin', 'commission_member', 'staff'], true)) {
+        if ($user?->canAccessAdminPortal()) {
             return redirect()->route('admin.dashboard');
         }
 
@@ -88,4 +88,3 @@ class DashboardController extends Controller
         ));
     }
 }
-

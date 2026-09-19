@@ -24,7 +24,7 @@
 
     <div class="nav-group parishioner-services">
       <a href="{{ route('parishioner.ministries') }}" class="{{ request()->routeIs('parishioner.ministries') ? 'active' : '' }}"><svg class="nav-icon"><use href="#i-users"/></svg><span>Ministries</span></a>
-      <a href="{{ route('parishioner.messages-inquiries') }}" class="{{ request()->routeIs('parishioner.messages-inquiries') ? 'active' : '' }}"><svg class="nav-icon"><use href="#i-form"/></svg><span>Messages / Inquiries</span></a>
+      <a href="{{ route('parishioner.messages-inquiries') }}" class="{{ request()->routeIs('parishioner.messages-inquiries', 'parishioner.inquiries', 'inquiries.index') ? 'active' : '' }}"><svg class="nav-icon"><use href="#i-form"/></svg><span>Messages / Inquiries</span></a>
       <a href="{{ route('parishioner.profile-settings') }}" class="{{ request()->routeIs('parishioner.profile-settings') ? 'active' : '' }}"><svg class="nav-icon"><use href="#i-staff"/></svg><span>Profile / Settings</span></a>
     </div>
 

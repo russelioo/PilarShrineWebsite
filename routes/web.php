@@ -96,7 +96,7 @@ Route::post('/api/parishioner/complete-profile', [ProfileCompletionController::c
 
 Route::get('/portal', function (\Illuminate\Http\Request $request) {
     $user = $request->user();
-    if ($user && in_array($user->role, ['admin', 'super_admin', 'parish_priest', 'parochial_vicar', 'parish_secretary', 'commission_admin', 'commission_coordinator', 'commission_member', 'staff'], true)) {
+    if ($user?->canAccessAdminPortal()) {
         if ($user->role === 'commission_coordinator' || ($user->commission_id && ! $user->hasParishWideAccess())) {
             return redirect()->route('commission.dashboard');
         }

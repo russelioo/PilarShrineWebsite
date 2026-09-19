@@ -757,6 +757,15 @@ class User extends Authenticatable
             || in_array($this->role, ['super_admin', 'admin', 'parish_priest', 'parochial_vicar', 'parish_secretary'], true);
     }
 
+    public function canAccessAdminPortal(): bool
+    {
+        // Memberships, organization labels, and dashboard permissions do not make an account staff.
+        return in_array($this->role, [
+            'super_admin', 'admin', 'parish_priest', 'parochial_vicar', 'parish_secretary',
+            'commission_admin', 'commission_coordinator', 'commission_member', 'staff',
+        ], true);
+    }
+
     public function isCommissionAdmin(): bool
     {
         return $this->role === 'commission_admin' || $this->position === 'Commission Coordinator';
