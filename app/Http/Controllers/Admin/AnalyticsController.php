@@ -121,7 +121,7 @@ class AnalyticsController extends Controller
             $file = fopen('php://output', 'w');
             fputcsv($file, ['Timezone', config('app.timezone'), 'From', $filters['from'], 'To', $filters['to'], 'Area', $filters['area'], 'Audience', $filters['audience'], 'Account ID', $filters['user'] ?? 'All'], escape: '');
             fputcsv($file, ['Period', 'Visitors', 'Visits', 'Active accounts', 'Page views', 'Sign-ins', 'Registrations', 'Actions', 'Sign-outs', 'Failed sign-ins'], escape: '');
-            foreach ($series as $row) {
+            foreach (array_reverse($series) as $row) {
                 unset($row['label']);
                 fputcsv($file, array_values($row), escape: '');
             }
