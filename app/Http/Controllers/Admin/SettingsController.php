@@ -10,7 +10,6 @@ use App\Services\AuditLogger;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -108,7 +107,6 @@ class SettingsController extends Controller
             AuditLogger::log('website_settings_updated', 'Updated public website contact details and social links.', $site,
                 oldValues: $before, newValues: $data, category: 'settings');
         });
-        Cache::forget('facebook-live-status');
 
         return redirect()->to(route('admin.settings').'#website')
             ->with('success', 'Website settings saved. Your public contact information is now updated.');
@@ -129,7 +127,6 @@ class SettingsController extends Controller
             AuditLogger::log('livestream_settings_updated', 'Updated the website livestream banner.', $livestream,
                 oldValues: $before, newValues: $livestream->only(['title', 'url']), category: 'settings');
         });
-        Cache::forget('facebook-live-status');
 
         return redirect()->to(route('admin.settings').'#livestream')
             ->with('success', 'Broadcast details saved. The Live button follows the Mass schedule automatically.');

@@ -27,7 +27,7 @@ class FacebookLivestreamStatusTest extends TestCase
         return MassSchedule::create([
             'title' => 'Sunday Holy Mass', 'day_of_week' => 'Sunday', 'start_time' => '07:30:00',
             'end_time' => '08:30:00', 'location' => 'Main Church', 'is_active' => true,
-            'is_livestreamed' => true, ...$attributes,
+            'is_livestreamed' => true, 'priest_in_charge' => 'Parish Priest', ...$attributes,
         ]);
     }
 

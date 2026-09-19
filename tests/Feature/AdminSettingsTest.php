@@ -8,8 +8,8 @@ use App\Models\MassSchedule;
 use App\Models\Notification;
 use App\Models\SiteSetting;
 use App\Models\User;
+use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
@@ -185,13 +185,13 @@ class AdminSettingsTest extends TestCase
     {
         Http::fake();
         config()->set('services.facebook.page_access_token', null);
-        $this->travelTo(\Carbon\CarbonImmutable::parse('2026-09-20 07:30:00', 'Asia/Manila'));
+        $this->travelTo(CarbonImmutable::parse('2026-09-20 07:30:00', 'Asia/Manila'));
         MassSchedule::query()->update(['is_livestreamed' => false]);
         MassSchedule::create([
             'title' => 'Sunday Holy Mass', 'day_of_week' => 'Sunday', 'start_time' => '07:30:00',
             'end_time' => '08:30:00', 'location' => 'Main Church', 'is_active' => true, 'is_livestreamed' => true,
+            'priest_in_charge' => 'Parish Priest',
         ]);
-        Cache::put('facebook-live-status', ['is_live' => false], 60);
         $admin = $this->admin();
         $this->actingAs($admin)->get('/admin/settings')->assertOk()
             ->assertSee('Automatic livestream')->assertDontSee('id="livestream-live"', false);
@@ -199,11 +199,10 @@ class AdminSettingsTest extends TestCase
             'title' => 'Sunday Holy Mass', 'url' => 'https://www.facebook.com/PilarShrineSorsogon',
         ])->assertSessionHasNoErrors()->assertRedirect(route('admin.settings').'#livestream');
         $this->assertAuthenticatedAs($admin);
-        $this->assertNull(Cache::get('facebook-live-status'));
         $this->getJson('/api/livestream-status')->assertJson([
             'is_live' => true, 'title' => 'Sunday Holy Mass', 'url' => 'https://www.facebook.com/PilarShrineSorsogon',
         ]);
-        $this->travelTo(\Carbon\CarbonImmutable::parse('2026-09-20 08:50:00', 'Asia/Manila'));
+        $this->travelTo(CarbonImmutable::parse('2026-09-20 08:50:00', 'Asia/Manila'));
         // Even a stale form sending the old manual flag cannot keep the button on.
         $this->put('/admin/settings/livestream', [
             'is_live' => 1, 'title' => 'Sunday Holy Mass', 'url' => 'https://www.facebook.com/PilarShrineSorsogon',
