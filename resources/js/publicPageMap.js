@@ -10,6 +10,7 @@ import StorePage from './Pages/Public/StorePage.vue'
 import ContactPage from './Pages/Public/ContactPage.vue'
 import FormsPage from './Pages/Public/FormsPage.vue'
 import DonationPage from './Pages/Public/DonationPage.vue'
+import RosaryPage from './Pages/Public/RosaryPage.vue'
 
 export const publicPages = {
   home: {
@@ -98,6 +99,32 @@ export const publicPages = {
     description: 'Nine days of prayer, meditation, thanksgiving, and petitions in spiritual preparation for the Feast of Our Lady of the Pillar.',
     hasRule: false,
     heroActions: [],
+  },
+  rosary: {
+    component: RosaryPage,
+    heroType: 'image',
+    image: '/images/pilar-shrine-sanctuary.jpg',
+    eyebrow: 'DAILY MARIAN MEDITATION',
+    title: 'The Holy Rosary',
+    description: 'A step-by-step guide to praying the Holy Rosary with sacred meditations, complete prayers, and communal schedule.',
+    hasRule: false,
+    heroActions: [
+      { label: '📿 Back to Devotions', href: '#/novenas', variant: 'secondary' },
+      { label: '▣ Mass Schedule', href: '#/schedule', variant: 'secondary' },
+    ],
+  },
+  'holy-rosary': {
+    component: RosaryPage,
+    heroType: 'image',
+    image: '/images/pilar-shrine-sanctuary.jpg',
+    eyebrow: 'DAILY MARIAN MEDITATION',
+    title: 'The Holy Rosary',
+    description: 'A step-by-step guide to praying the Holy Rosary with sacred meditations, complete prayers, and communal schedule.',
+    hasRule: false,
+    heroActions: [
+      { label: '📿 Back to Devotions', href: '#/novenas', variant: 'secondary' },
+      { label: '▣ Mass Schedule', href: '#/schedule', variant: 'secondary' },
+    ],
   },
   ministries: {
     component: MinistriesPage,

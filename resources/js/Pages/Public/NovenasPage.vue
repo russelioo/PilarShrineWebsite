@@ -42,6 +42,12 @@ onBeforeUnmount(() => {
   document.body.style.overflow = ''
 })
 
+const navigateTo = (href) => {
+  if (href) {
+    window.location.hash = href
+  }
+}
+
 const additionalDevotions = [
   {
     icon: '📿',
@@ -51,6 +57,12 @@ const additionalDevotions = [
     schedule: 'Daily · 30 minutes before Mass',
     actionLabel: 'View Mass Times',
     actionHref: '#/schedule',
+    actionLabel: 'Pray the Rosary',
+    actionHref: '#/rosary',
+    cardHref: '#/rosary',
+    isClickableCard: true,
+    secondaryActionLabel: 'Mass Times',
+    secondaryActionHref: '#/schedule',
   },
   {
     icon: '♡',
@@ -236,6 +248,13 @@ const additionalDevotions = [
           v-for="devotion in additionalDevotions"
           :key="devotion.title"
           class="devotion-card"
+          :class="{ 'devotion-card-clickable': devotion.isClickableCard }"
+          :tabindex="devotion.isClickableCard ? 0 : undefined"
+          :role="devotion.isClickableCard ? 'link' : undefined"
+          :aria-label="devotion.isClickableCard ? `${devotion.title} - ${devotion.actionLabel}` : undefined"
+          @click="devotion.isClickableCard ? navigateTo(devotion.cardHref) : null"
+          @keydown.enter="devotion.isClickableCard ? navigateTo(devotion.cardHref) : null"
+          @keydown.space.prevent="devotion.isClickableCard ? navigateTo(devotion.cardHref) : null"
         >
           <div class="devotion-card-top">
             <span class="devotion-icon" aria-hidden="true">{{ devotion.icon }}</span>
@@ -253,6 +272,24 @@ const additionalDevotions = [
           <div class="devotion-footer">
             <a :href="devotion.actionHref" class="devotion-link">
               {{ devotion.actionLabel }} <span aria-hidden="true">&rarr;</span>
+          <div class="devotion-footer" :class="{ 'has-dual-actions': devotion.secondaryActionHref }">
+            <a
+              :href="devotion.actionHref"
+              class="devotion-link"
+              :class="{ 'rosary-action-cta': devotion.isClickableCard }"
+              @click.stop="navigateTo(devotion.actionHref)"
+            >
+              <span>{{ devotion.actionLabel }}</span> <span aria-hidden="true">&rarr;</span>
+            </a>
+
+            <a
+              v-if="devotion.secondaryActionHref"
+              :href="devotion.secondaryActionHref"
+              class="devotion-secondary-link"
+              title="View shrine mass and confession schedule"
+              @click.stop="navigateTo(devotion.secondaryActionHref)"
+            >
+              <span>{{ devotion.secondaryActionLabel }}</span> <span aria-hidden="true">&rarr;</span>
             </a>
           </div>
         </article>
