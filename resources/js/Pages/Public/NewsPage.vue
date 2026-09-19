@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import AnnouncementCaption from '../../components/AnnouncementCaption.vue'
 
 const defaultNews = [
@@ -72,12 +72,35 @@ const news = ref(defaultNews)
 const announcements = ref(defaultAnnouncements)
 const isLoading = ref(true)
 const activeNewsModal = ref(null)
+const liveAnnouncements = ref([])
+
+const openLinkedAnnouncement = (event) => {
+  const [page, query = ''] = window.location.hash.split('?')
+  if (!['#/news', '#/events'].includes(page)) return
+  const id = new URLSearchParams(query).get('announcement')
+  if (id) activeNewsModal.value = liveAnnouncements.value.find(item => String(item.id) === id) || null
+  else if (event?.type === 'hashchange') activeNewsModal.value = null
+}
+
+const closeNewsModal = () => {
+  activeNewsModal.value = null
+  const url = new URL(window.location.href)
+  const [page, query = ''] = url.hash.split('?')
+  const params = new URLSearchParams(query)
+  if (params.has('announcement')) {
+    params.delete('announcement')
+    url.hash = page + (params.size ? `?${params}` : '')
+    window.history.replaceState(window.history.state, '', url)
+  }
+}
+const handleEscape = event => { if (event.key === 'Escape' && activeNewsModal.value) closeNewsModal() }
 
 const fetchAnnouncements = async () => {
   try {
     const res = await fetch('/api/announcements', { headers: { 'Accept': 'application/json' } })
     if (res.ok) {
       const data = await res.json()
+      liveAnnouncements.value = data.announcements || []
       if (data.announcements && data.announcements.length > 0) {
         announcements.value = data.announcements
       }
@@ -90,11 +113,18 @@ const fetchAnnouncements = async () => {
     console.warn('Could not fetch live announcements, using cached defaults:', err)
   } finally {
     isLoading.value = false
+    openLinkedAnnouncement()
   }
 }
 
 onMounted(() => {
   fetchAnnouncements()
+  window.addEventListener('hashchange', openLinkedAnnouncement)
+  window.addEventListener('keydown', handleEscape)
+})
+onUnmounted(() => {
+  window.removeEventListener('hashchange', openLinkedAnnouncement)
+  window.removeEventListener('keydown', handleEscape)
 })
 </script>
 
@@ -246,9 +276,9 @@ onMounted(() => {
     </div>
 
     <!-- Article Detail Modal Dialog -->
-    <div v-if="activeNewsModal" class="news-modal-backdrop" @click.self="activeNewsModal = null" role="dialog" aria-modal="true" :aria-label="activeNewsModal.title">
+    <div v-if="activeNewsModal" class="news-modal-backdrop" @click.self="closeNewsModal" role="dialog" aria-modal="true" :aria-label="activeNewsModal.title">
       <div class="news-modal-card">
-        <button class="modal-close-btn" type="button" @click="activeNewsModal = null" aria-label="Close article">✕</button>
+        <button class="modal-close-btn" type="button" @click="closeNewsModal" aria-label="Close article">✕</button>
         <div v-if="activeNewsModal.images && activeNewsModal.images.length > 1" class="modal-gallery-wrap">
           <img v-for="(img, idx) in activeNewsModal.images" :key="idx" :src="img" :alt="activeNewsModal.title">
           <span class="modal-badge">{{ activeNewsModal.category || activeNewsModal.badge }}</span>
@@ -269,7 +299,7 @@ onMounted(() => {
           <AnnouncementCaption class="modal-lead" :text="activeNewsModal.description" initially-expanded />
           <AnnouncementCaption v-if="activeNewsModal.fullText && activeNewsModal.fullText !== activeNewsModal.description" class="modal-fulltext" :text="activeNewsModal.fullText" initially-expanded />
           <div class="modal-actions">
-            <button class="button secondary" type="button" @click="activeNewsModal = null">Close</button>
+            <button class="button secondary" type="button" @click="closeNewsModal">Close</button>
           </div>
         </div>
       </div>

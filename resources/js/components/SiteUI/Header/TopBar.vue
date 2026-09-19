@@ -50,7 +50,7 @@ import { siteSettings, parishPhoneHref, parishGmailUrl } from '../../../services
 
 <style scoped>
 .top-strip {
-  height: 30px;
+  height: var(--site-top-strip-height, 30px);
   padding: 0 max(28px, calc((100% - var(--site-container)) / 2));
   display: flex;
   align-items: center;
@@ -60,7 +60,6 @@ import { siteSettings, parishPhoneHref, parishGmailUrl } from '../../../services
   color: rgba(255, 255, 255, .86);
   font-size: 9px;
   letter-spacing: .015em;
-  transition: height .25s ease, opacity .2s ease;
 }
 
 .top-strip a,
