@@ -84,6 +84,8 @@ class RegisterController extends Controller
             ]);
         }
 
+        app(\App\Services\WebsiteAnalytics::class)->record($request, 'registration', 'register', user: $user);
+
         return response()->json([
             'success' => true,
             'message' => 'Account created successfully! You may now sign in.',

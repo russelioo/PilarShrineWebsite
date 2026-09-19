@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
         //
         $middleware->web(append: [
             \App\Http\Middleware\TrackLastActivity::class,
+            \App\Http\Middleware\RecordWebsiteActivity::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -115,6 +115,7 @@ onMounted(() => {
             class="news-announcement-card"
             :class="{ 'card-pinned': a.is_pinned }"
             @click="activeNewsModal = a"
+            data-analytics-action="announcement_open"
             style="cursor: pointer;"
           >
             <div class="announcement-header">
@@ -140,7 +141,7 @@ onMounted(() => {
                 </svg>
                 <span>{{ a.place || 'Diocesan Shrine & Parish' }}</span>
               </span>
-              <button class="announcement-read-link" type="button" @click.stop="activeNewsModal = a">Read Details &rarr;</button>
+              <button class="announcement-read-link" type="button" @click.stop="activeNewsModal = a" data-analytics-action="announcement_open">Read Details &rarr;</button>
             </div>
           </article>
         </div>
@@ -180,7 +181,7 @@ onMounted(() => {
             <div class="gold-rule left small">✣</div>
             <AnnouncementCaption :key="news[0].id || news[0].title" class="featured-desc" :text="news[0].description" initially-expanded />
             <div class="featured-actions">
-              <button class="button" type="button" @click="activeNewsModal = news[0]">
+              <button class="button" type="button" @click="activeNewsModal = news[0]" data-analytics-action="announcement_open">
                 Read Full Story
               </button>
               <a class="button secondary" href="#/schedule">View Mass Schedule</a>
@@ -222,7 +223,7 @@ onMounted(() => {
               <h3>{{ n.title }}</h3>
               <AnnouncementCaption class="card-summary" :text="n.description" />
               <div class="card-footer">
-                <button class="button secondary card-cta" type="button" @click="activeNewsModal = n">
+                <button class="button secondary card-cta" type="button" @click="activeNewsModal = n" data-analytics-action="announcement_open">
                   Read more &rarr;
                 </button>
               </div>

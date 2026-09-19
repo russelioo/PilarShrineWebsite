@@ -47,6 +47,15 @@
     @endphp
 
     {{-- SUPER ADMIN / PARISH-WIDE LEADERSHIP: PPC & COMMISSIONS --}}
+    @if($isParishLeader && $authUser->hasPermission('view_analytics'))
+    <div class="nav-section">
+      <a href="{{ route('admin.analytics') }}" class="admin-nav-item {{ request()->routeIs('admin.analytics*') ? 'active' : '' }}" data-title="Website Analytics">
+        <span class="nav-icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 3v17h17M8 16v-5m5 5V6m5 10V9"/></svg></span>
+        <span class="nav-label">Website Analytics</span>
+      </a>
+    </div>
+    @endif
+
     @if($isParishLeader)
     <!-- PARISH PASTORAL COUNCIL (PPC) -->
     <div class="nav-section">

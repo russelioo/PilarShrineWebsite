@@ -56,6 +56,9 @@ Route::get('/api/site-settings', function () {
     return response()->json(\App\Models\SiteSetting::publicValues())->header('Cache-Control', 'no-store');
 })->name('api.site-settings');
 
+Route::post('/api/analytics/events', [\App\Http\Controllers\AnalyticsEventController::class, 'store'])
+    ->middleware('throttle:120,1')->name('analytics.events');
+
 Route::get('/api/announcements', [AnnouncementController::class, 'publicIndex'])->name('api.announcements');
 Route::get('/api/mass-schedules', [MassScheduleController::class, 'publicIndex'])->name('api.mass-schedules');
 Route::get('/api/ministries', [PublicMinistryController::class, 'publicIndex'])->name('api.ministries');
@@ -129,6 +132,8 @@ Route::prefix('parishioner')->name('parishioner.')->middleware('auth')->group(fu
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware('auth')->group(function () {
         Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
+        Route::get('/analytics', [\App\Http\Controllers\Admin\AnalyticsController::class, 'index'])->name('analytics');
+        Route::get('/analytics/export', [\App\Http\Controllers\Admin\AnalyticsController::class, 'export'])->name('analytics.export');
         Route::get('/notifications', function (\Illuminate\Http\Request $request) {
             return redirect()->route('admin.settings', $request->query(), 301);
         })->name('notifications');

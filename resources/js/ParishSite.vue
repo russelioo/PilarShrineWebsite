@@ -5,19 +5,25 @@ import SiteLayout from './components/SiteUI/Layout/SiteLayout.vue'
 import MasterPageShell from './components/SiteUI/Layout/MasterPageShell.vue'
 import { getPublicPage } from './publicPageMap'
 import { siteSettings, refreshSiteSettings } from './services/siteSettings'
+import { trackPage, trackClick } from './services/analytics'
 
 const route = ref('home')
 const syncRoute = () => {
   const hashWithoutPrefix = location.hash.replace(/^#\/?/, '')
   const cleanPath = hashWithoutPrefix.split('?')[0].split('/')[0]
   route.value = cleanPath || 'home'
+  trackPage()
   scrollTo(0, 0)
 }
 onMounted(() => {
   syncRoute()
   addEventListener('hashchange', syncRoute)
+  document.addEventListener('click', trackClick, true)
 })
-onUnmounted(() => removeEventListener('hashchange', syncRoute))
+onUnmounted(() => {
+  removeEventListener('hashchange', syncRoute)
+  document.removeEventListener('click', trackClick, true)
+})
 
 const livestream = ref({ is_live: false, title: null, url: siteSettings.facebook_url })
 let livestreamTimer = null

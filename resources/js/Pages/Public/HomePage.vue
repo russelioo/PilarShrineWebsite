@@ -369,6 +369,7 @@ onMounted(() => {
           :key="item.id || item.title"
           class="home-news-card"
           @click="activeNewsModal = item"
+          data-analytics-action="announcement_open"
         >
           <div class="news-img-wrap">
             <img :src="item.image" :alt="item.title" loading="lazy" onerror="this.src='/images/church-interior.png'">
@@ -398,7 +399,7 @@ onMounted(() => {
             <h3 class="news-item-title">{{ item.title }}</h3>
             <AnnouncementCaption class="news-item-desc" :text="item.description" />
             <div class="news-item-footer">
-              <button class="news-more-link" type="button" :aria-label="'Read announcement: ' + item.title" @click.stop="activeNewsModal = item">
+              <button class="news-more-link" type="button" :aria-label="'Read announcement: ' + item.title" @click.stop="activeNewsModal = item" data-analytics-action="announcement_open">
                 <span class="link-label">Read Full Announcement</span>
                 <span class="link-arrow-circle" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">

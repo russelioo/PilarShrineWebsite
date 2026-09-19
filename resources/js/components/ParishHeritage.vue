@@ -185,6 +185,7 @@ onUnmounted(() => {
             aria-haspopup="dialog"
             aria-controls="heritage-viewer"
             @click="openHeritageViewer(celebrationPhotos, index)"
+            data-analytics-action="gallery_open"
           >
             <img :src="photo.src" :alt="photo.alt" :width="photo.width" :height="photo.height" loading="lazy" decoding="async">
           </button>
@@ -213,12 +214,12 @@ onUnmounted(() => {
               <dd>Most Rev. Arturo M. Bastes, SVD, DD<span>Bishop of Sorsogon</span></dd>
             </div>
           </dl>
-          <button class="button" type="button" aria-haspopup="dialog" aria-controls="heritage-viewer" @click="openDecree">
+          <button class="button" type="button" aria-haspopup="dialog" aria-controls="heritage-viewer" @click="openDecree" data-analytics-action="decree_open">
             View Full Decree
           </button>
         </div>
         <figure class="decree-document">
-          <button class="decree-preview" type="button" aria-label="View full coronation decree" aria-haspopup="dialog" aria-controls="heritage-viewer" @click="openDecree">
+          <button class="decree-preview" type="button" aria-label="View full coronation decree" aria-haspopup="dialog" aria-controls="heritage-viewer" @click="openDecree" data-analytics-action="decree_open">
             <img
               :src="coronationDecree"
               alt="Decree of the episcopal coronation of Nuestra Señora del Pilar, issued on October 2, 2018, and signed by Bishop Arturo M. Bastes and Chancellor Antonio G. Lorilla."

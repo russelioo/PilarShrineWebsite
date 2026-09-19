@@ -31,6 +31,7 @@ const heroStyle = computed(() => {
     <a
       v-if="livestream && livestream.is_live"
       class="livestream-alert"
+      data-analytics-action="livestream_click"
       :href="livestream.url"
       target="_blank"
       rel="noopener noreferrer"
@@ -93,4 +94,3 @@ const heroStyle = computed(() => {
     </main>
   </SiteLayout>
 </template>
-

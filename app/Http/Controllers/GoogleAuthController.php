@@ -175,6 +175,7 @@ class GoogleAuthController extends Controller
             'last_login' => now(),
         ]);
 
+        app(\App\Services\WebsiteAnalytics::class)->record($request, 'registration', 'register', user: $user);
         Auth::login($user, true);
         $request->session()->regenerate();
 

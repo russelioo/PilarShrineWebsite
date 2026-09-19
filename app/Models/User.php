@@ -228,6 +228,7 @@ class User extends Authenticatable
                 'label' => 'Dashboard',
                 'permissions' => [
                     'view_dashboard' => 'View Dashboard',
+                    'view_analytics' => 'View Website Analytics',
                 ],
             ],
             'users' => [
