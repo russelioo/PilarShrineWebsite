@@ -156,7 +156,7 @@
     margin: 0;
     color: #062f78;
     font-size: 20px;
-    font-family: 'Libre Baskerville', Georgia, serif;
+    font-family: var(--font-heading);
     font-weight: 700;
     white-space: nowrap;
     overflow: hidden;

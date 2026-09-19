@@ -271,7 +271,7 @@
 @push('styles')
 <style>
 .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-.page-header > div h2 { margin: 0; font-size: 22px; color: var(--navy); font-family: 'Libre Baskerville', Georgia, serif; }
+.page-header > div h2 { margin: 0; font-size: 22px; color: var(--navy); font-family: var(--font-heading); }
 .page-header > div p { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
 .alert { margin-bottom: 16px; padding: 12px 16px; border-radius: 8px; font-size: 12px; }
 .alert.success { border: 1px solid #a8dfbb; background: #edfaf2; color: #176b3a; }
@@ -340,7 +340,7 @@
 .form-card { padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px; background: #fff; box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04); }
 .form-heading { display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; margin-bottom: 20px; border-bottom: 1px solid #edf2f7; }
 .form-heading span { color: var(--gold); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; display: block; }
-.form-heading h3 { margin: 4px 0 0; color: var(--navy); font-size: 18px; font-family: 'Libre Baskerville', Georgia, serif; }
+.form-heading h3 { margin: 4px 0 0; color: var(--navy); font-size: 18px; font-family: var(--font-heading); }
 
 .fields { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 .fields label { display: flex; flex-direction: column; gap: 6px; }

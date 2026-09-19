@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Commission;
 use App\Models\Ministry;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -32,6 +33,9 @@ class PublicMinistriesApiTest extends TestCase
                     'icon',
                     'description',
                     'ministries_count',
+                    'coordinator_name',
+                    'coordinator_email',
+                    'coordinator_phone',
                 ],
             ],
             'ministries',
@@ -221,6 +225,32 @@ class PublicMinistriesApiTest extends TestCase
 
         $this->assertStringNotContainsString('password', $content);
         $this->assertStringNotContainsString('remember_token', $content);
+    }
+
+    public function test_commission_includes_coordinator_information(): void
+    {
+        $commission = Commission::where('slug', 'youth')->first();
+        $this->assertNotNull($commission);
+
+        $coordUser = User::factory()->create([
+            'name' => 'Mario Marbella',
+            'email' => 'mario@yahoo.com',
+            'phone' => '09123456789',
+            'role' => 'commission_admin',
+        ]);
+
+        $commission->update(['head_user_id' => $coordUser->id]);
+
+        $response = $this->getJson(route('api.ministries'));
+        $response->assertStatus(200);
+
+        $commissions = collect($response->json()['commissions']);
+        $youth = $commissions->firstWhere('slug', 'youth');
+
+        $this->assertNotNull($youth);
+        $this->assertEquals('Mario Marbella', $youth['coordinator_name']);
+        $this->assertEquals('mario@yahoo.com', $youth['coordinator_email']);
+        $this->assertEquals('09123456789', $youth['coordinator_phone']);
     }
 }
 

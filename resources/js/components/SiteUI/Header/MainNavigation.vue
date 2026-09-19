@@ -175,7 +175,7 @@ onBeforeUnmount(() => {
 }
 
 .brand-name {
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-heading);
   font-size: 15.5px;
   font-weight: 700;
   color: var(--color-primary);
@@ -185,7 +185,7 @@ onBeforeUnmount(() => {
 }
 
 .brand-sub {
-  font-family: Montserrat, -apple-system, sans-serif;
+  font-family: var(--font-body);
   font-size: 9.5px;
   font-weight: 600;
   text-transform: uppercase;
@@ -446,7 +446,7 @@ onBeforeUnmount(() => {
 .nav-avatar-initials {
   font-size: 11px;
   font-weight: 700;
-  font-family: Georgia, serif;
+  font-family: var(--font-body);
 }
 
 .nav-user-name {

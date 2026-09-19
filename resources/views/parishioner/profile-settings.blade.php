@@ -5,7 +5,7 @@
 <style>
 .settings-page{max-width:1120px;margin:0 auto}
 .settings-header{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:24px}
-.settings-header h2{margin:0;color:var(--navy);font:700 27px Georgia,serif}
+.settings-header h2{margin:0;color:var(--navy);font-family:var(--font-heading);font-size:27px;font-weight:700}
 .settings-header p{margin:6px 0 0;color:var(--muted);font-size:11px}
 .header-actions{display:flex;align-items:center;gap:10px}
 .btn-outline-website,.btn-outline-back{display:inline-flex;align-items:center;gap:6px;padding:9px 14px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--navy);font-size:11px;font-weight:700;text-decoration:none;transition:all .15s ease}
@@ -21,9 +21,9 @@
 .account-hero-card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--navy),var(--gold))}
 .hero-avatar-wrap{width:76px;height:76px;min-width:76px;min-height:76px;max-width:76px;max-height:76px;border-radius:50%;overflow:hidden;border:2.5px solid var(--gold);box-shadow:0 4px 12px rgba(6,47,120,0.12);flex-shrink:0;display:grid;place-items:center;background:#eaf2fb;box-sizing:border-box}
 .hero-avatar-img{width:100%;height:100%;object-fit:cover;display:block}
-.hero-avatar-initials{font-size:26px;font-weight:800;color:var(--navy);font-family:Georgia,serif}
+.hero-avatar-initials{font-size:26px;font-weight:800;color:var(--navy);font-family:var(--font-body)}
 .hero-details{min-width:0}
-.hero-name{margin:0 0 4px;font-size:22px;color:var(--navy);font-family:Georgia,serif}
+.hero-name{margin:0 0 4px;font-size:22px;color:var(--navy);font-family:var(--font-heading);font-weight:700}
 .hero-email{margin:0 0 10px;color:var(--muted);font-size:12px}
 .hero-badges{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .badge{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:16px;font-size:10px;font-weight:700;letter-spacing:0.02em}
@@ -42,7 +42,7 @@
 .card{background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 2px 8px rgba(6,47,120,0.03);overflow:hidden}
 .card-head{display:flex;align-items:flex-start;gap:12px;padding:18px 22px;border-bottom:1px solid #edf2f7;background:#fafcff}
 .head-icon{width:32px;height:32px;border-radius:8px;background:#eaf2fb;color:var(--navy);display:grid;place-items:center;flex-shrink:0}
-.card-head h4{margin:0;color:var(--navy);font:700 15px Georgia,serif}
+.card-head h4{margin:0;color:var(--navy);font-family:var(--font-heading);font-size:15px;font-weight:700}
 .card-head p{margin:3px 0 0;color:var(--muted);font-size:10px}
 .card-body{padding:22px}
 

@@ -391,7 +391,7 @@ const copyEmail = async () => {
 }
 
 .contact-title {
-  font-family: var(--font-serif, "Cinzel", "Playfair Display", Georgia, serif);
+  font-family: var(--font-heading);
   font-size: clamp(1.6rem, 3vw, 2.25rem);
   font-weight: 700;
   color: var(--blue, #0e325f);
@@ -571,7 +571,7 @@ const copyEmail = async () => {
 }
 
 .email-hub-title {
-  font-family: var(--font-serif, "Cinzel", "Playfair Display", Georgia, serif);
+  font-family: var(--font-heading);
   font-size: 1.6rem;
   color: var(--blue, #0e325f);
   margin: 0 0 0.4rem;

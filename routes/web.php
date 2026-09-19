@@ -130,6 +130,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/staff/{user}/permissions', [UserManagementController::class, 'permissions'])->name('staff.permissions');
         Route::put('/staff/{user}/permissions', [UserManagementController::class, 'updatePermissions'])->name('staff.permissions.update');
         Route::post('/staff/{user}/revert-to-parishioner', [UserManagementController::class, 'revertToParishioner'])->name('staff.revert');
+        Route::delete('/staff/{user}', [UserManagementController::class, 'deleteStaff'])->name('staff.destroy');
         Route::post('/organization-context/switch', [UserManagementController::class, 'switchOrganization'])->name('organization-context.switch');
 
         // Parish Pastoral Council (PPC) Management

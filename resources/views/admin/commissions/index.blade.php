@@ -4,15 +4,10 @@
 @section('content')
 <div class="page-header">
     <div>
-        <div class="breadcrumbs">
-            <span>Parish Pastoral Council</span>
-            <span class="crumb-separator">/</span>
-            <span class="crumb-current">Pastoral Commissions</span>
-        </div>
         <h2>Diocesan &amp; Pastoral Commissions</h2>
         <p class="page-description">Manage the 8 official parish pastoral commissions, authenticated coordinator accounts, officers, assigned ministries, and apostolic initiatives.</p>
     </div>
-    @if(auth()->user() && auth()->user()->hasParishWideAccess())
+    @if(auth()->user() && in_array(auth()->user()->role, ['super_admin', 'admin'], true))
     <div class="actions">
         <button type="button" class="btn btn-secondary" onclick="openCreateAccountModal()">
             <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
@@ -78,6 +73,15 @@
         <div>
             <strong>{{ $kpi['total_members'] }}</strong>
             <span>Commission Members</span>
+        </div>
+    </article>
+    <article class="stat-box">
+        <div class="stat-icon-wrap" style="background: rgba(14, 165, 233, 0.12); color: #0284c7;">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="9" r="2"/></svg>
+        </div>
+        <div>
+            <strong>{{ $kpi['active_officers'] ?? $kpi['total_officers'] }}</strong>
+            <span>Active Officers</span>
         </div>
     </article>
     <article class="stat-box">
@@ -171,19 +175,20 @@
         </div>
 
         <!-- Coordinator Info Card -->
+        @php $coordUser = $commission->coordinator ?? $commission->coordinator_user; @endphp
         <div class="commission-coordinator-box">
-            @if($commission->coordinator)
+            @if($coordUser)
             <div class="coord-avatar-pill">
-                @if($commission->coordinator->avatar_url)
-                    <img src="{{ $commission->coordinator->avatar_url }}" alt="{{ $commission->coordinator->name }}" class="coord-img">
+                @if($coordUser->avatar_url)
+                    <img src="{{ $coordUser->avatar_url }}" alt="{{ $coordUser->name }}" class="coord-img">
                 @else
-                    <span class="coord-initials">{{ $commission->coordinator->initials }}</span>
+                    <span class="coord-initials">{{ $coordUser->initials }}</span>
                 @endif
             </div>
             <div class="coord-meta">
                 <span class="coord-label">Coordinator</span>
-                <span class="coord-name">{{ $commission->coordinator->name }}</span>
-                <span class="coord-email">{{ $commission->coordinator->email }}</span>
+                <span class="coord-name">{{ $coordUser->name }}</span>
+                <span class="coord-email">{{ $coordUser->email }}</span>
             </div>
             @else
             <div class="coord-empty">
@@ -207,10 +212,16 @@
                 <strong>{{ $commission->ministries->count() }}</strong>
                 <span>Ministries</span>
             </div>
-            <div class="metric-item" title="Active & Completed projects">
+            <div class="metric-item" title="Active &amp; Completed projects">
                 <strong>{{ $commission->projects->count() }}</strong>
                 <span>Projects</span>
             </div>
+            @if($commission->official_population)
+            <div class="metric-item" title="Official total population / membership count" style="color:#062f78;">
+                <strong>{{ number_format($commission->official_population) }}</strong>
+                <span>Population</span>
+            </div>
+            @endif
         </div>
 
         <!-- Footer Actions -->
@@ -219,7 +230,7 @@
                 <span>Manage Commission Workspace</span>
                 <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
             </a>
-            @if(auth()->user() && auth()->user()->hasParishWideAccess())
+            @if(auth()->user() && in_array(auth()->user()->role, ['super_admin', 'admin'], true))
             <div class="card-action-row">
                 <button type="button" class="btn-icon" title="Edit Commission" onclick="openEditCommissionModal({{ json_encode($commission) }})">
                     <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -293,8 +304,35 @@
                     <small class="form-hint">Selected user will receive head coordinator access for this commission.</small>
                 </div>
                 <div class="form-group">
+                    <label class="form-label">Total Commission Members / Population</label>
+                    <input type="number" name="official_population" min="0" placeholder="e.g. 45" class="form-input">
+                    <small class="form-hint">Official headcount of all members under this commission.</small>
+                </div>
+                <div class="form-group">
                     <label class="form-label">Description &amp; Pastoral Focus</label>
                     <textarea name="description" rows="3" placeholder="Outline the primary apostolic mission and liturgical scope..." class="form-textarea"></textarea>
+                </div>
+
+                {{-- Optional: Shrine Ministries under this Commission --}}
+                <div class="form-group" style="margin-top:4px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                        <label class="form-label" style="margin:0;">Shrine Ministries Under This Commission <span style="font-size:11px;color:#64748b;font-weight:400;">(Optional)</span></label>
+                        <button type="button" class="btn btn-outline btn-sm" onclick="toggleMinistrySection('add')" id="addMinistryToggleBtn">
+                            + Add Ministry Names
+                        </button>
+                    </div>
+                    <div id="addMinistrySection" style="display:none;">
+                        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px 14px;margin-top:4px;">
+                            <p style="font-size:11.5px;color:#64748b;margin:0 0 10px;">Add ministry names, head coordinators, and official membership population. Leave empty if not needed.</p>
+                            <div id="addMinistryRows">
+                                {{-- Dynamic rows injected by JS --}}
+                            </div>
+                            <button type="button" class="btn btn-outline btn-sm" style="margin-top:8px;" onclick="addMinistryRow('add')">
+                                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                + Add Ministry Row
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -407,6 +445,11 @@
                     </select>
                 </div>
                 <div class="form-group">
+                    <label class="form-label">Total Commission Members / Population</label>
+                    <input type="number" name="official_population" id="edit_official_population" min="0" placeholder="e.g. 45" class="form-input">
+                    <small class="form-hint">Official headcount of all members under this commission.</small>
+                </div>
+                <div class="form-group">
                     <label class="form-label">Description &amp; Scope</label>
                     <textarea name="description" id="edit_description" rows="3" class="form-textarea"></textarea>
                 </div>
@@ -415,6 +458,30 @@
                         <input type="checkbox" name="is_active" id="edit_is_active" value="1">
                         <span>Commission is Active in Parish</span>
                     </label>
+                </div>
+
+                {{-- Optional: Add more Shrine Ministries --}}
+                <div class="form-group" style="margin-top:4px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                        <label class="form-label" style="margin:0;">Shrine Ministries <span style="font-size:11px;color:#64748b;font-weight:400;">(Optional — add new rows only)</span></label>
+                        <button type="button" class="btn btn-outline btn-sm" onclick="toggleMinistrySection('edit')" id="editMinistryToggleBtn">
+                            + Add Ministry Names
+                        </button>
+                    </div>
+                    {{-- Read-only list of existing ministries --}}
+                    <div id="editExistingMinistries" style="display:none;margin-bottom:8px;"></div>
+                    <div id="editMinistrySection" style="display:none;">
+                        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px 14px;margin-top:4px;">
+                            <p style="font-size:11.5px;color:#64748b;margin:0 0 10px;">New ministry rows entered here will be saved under this commission. Existing ministries are managed from the Ministries tab.</p>
+                            <div id="editMinistryRows">
+                                {{-- Dynamic rows injected by JS --}}
+                            </div>
+                            <button type="button" class="btn btn-outline btn-sm" style="margin-top:8px;" onclick="addMinistryRow('edit')">
+                                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                + Add Ministry Row
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -709,7 +776,7 @@
 }
 .modal-header h3 { margin: 0; font-size: 15px; font-weight: 700; color: #0f172a; }
 .modal-close-btn { background: none; border: none; font-size: 22px; cursor: pointer; color: #64748b; line-height: 1; }
-.modal-body { padding: 18px 20px; }
+.modal-body { padding: 18px 20px; max-height: 75vh; overflow-y: auto; }
 .modal-footer {
     display: flex;
     justify-content: flex-end;
@@ -756,6 +823,11 @@
 <script>
 function openAddCommissionModal() {
     document.getElementById('addCommissionModal').style.display = 'flex';
+    // Reset ministry section
+    document.getElementById('addMinistrySection').style.display = 'none';
+    document.getElementById('addMinistryRows').innerHTML = '';
+    document.getElementById('addMinistryToggleBtn').textContent = '+ Add Ministry Names';
+    _ministryRowCounters.add = 0;
 }
 function closeAddCommissionModal() {
     document.getElementById('addCommissionModal').style.display = 'none';
@@ -785,13 +857,134 @@ function openEditCommissionModal(commission) {
     document.getElementById('edit_code').value = commission.code || '';
     document.getElementById('edit_icon').value = commission.icon || 'cross';
     document.getElementById('edit_head_user_id').value = commission.head_user_id || '';
+    document.getElementById('edit_official_population').value = commission.official_population || '';
     document.getElementById('edit_description').value = commission.description || '';
     document.getElementById('edit_is_active').checked = Boolean(commission.is_active);
+
+    // Reset ministry section
+    document.getElementById('editMinistrySection').style.display = 'none';
+    document.getElementById('editMinistryRows').innerHTML = '';
+    document.getElementById('editMinistryToggleBtn').textContent = '+ Add Ministry Names';
+
+    // Show existing ministries with × delete button
+    const existingDiv = document.getElementById('editExistingMinistries');
+    existingDiv.innerHTML = '';
+    existingDiv.style.display = 'none';
+    if (commission.ministries && commission.ministries.length > 0) {
+        existingDiv.style.display = 'block';
+        let html = '<p style="font-size:11.5px;font-weight:600;color:#334155;margin:0 0 6px;">Existing Ministries:</p>';
+        html += '<div id="existingMinistriesList" style="display:flex;flex-direction:column;gap:4px;">';
+        commission.ministries.forEach(function(m) {
+            html += `<div id="ministry-row-${m.id}" style="background:#f1f5f9;border-radius:6px;padding:6px 10px;font-size:12px;color:#1e293b;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                <span>
+                    <strong>${m.name}</strong>`;
+            if (m.coordinator_name) html += ` <span style="color:#64748b;">— ${m.coordinator_name}</span>`;
+            if (m.official_population) html += ` <span style="color:#64748b;">(${m.official_population} members)</span>`;
+            html += `</span>
+                <button
+                    type="button"
+                    onclick="removeCommissionMinistry(${m.id}, this)"
+                    title="Remove this ministry"
+                    style="flex-shrink:0;width:22px;height:22px;border:1px solid #fca5a5;background:#fee2e2;border-radius:5px;cursor:pointer;color:#dc2626;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;">×</button>
+            </div>`;
+        });
+        html += '</div>';
+        existingDiv.innerHTML = html;
+    }
 
     modal.style.display = 'flex';
 }
 function closeEditCommissionModal() {
     document.getElementById('editCommissionModal').style.display = 'none';
+}
+
+function removeCommissionMinistry(ministryId, btnEl) {
+    if (!confirm('Remove this ministry from the commission? This cannot be undone.')) return;
+
+    const row = document.getElementById('ministry-row-' + ministryId);
+    btnEl.disabled = true;
+    btnEl.textContent = '…';
+
+    fetch(`/admin/ministries/${ministryId}`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(function(res) {
+        if (res.ok || res.status === 204 || res.status === 200) {
+            if (row) {
+                row.style.transition = 'opacity 0.2s';
+                row.style.opacity = '0';
+                setTimeout(function() { row.remove(); }, 200);
+            }
+        } else {
+            alert('Could not remove ministry. Please try again.');
+            btnEl.disabled = false;
+            btnEl.textContent = '×';
+        }
+    })
+    .catch(function() {
+        alert('Network error. Please try again.');
+        btnEl.disabled = false;
+        btnEl.textContent = '×';
+    });
+}
+
+// ---- Shrine Ministry Row Helpers ----
+
+let _ministryRowCounters = { add: 0, edit: 0 };
+
+function toggleMinistrySection(prefix) {
+    const section = document.getElementById(prefix + 'MinistrySection');
+    const btn = document.getElementById(prefix + 'MinistryToggleBtn');
+    const existingDiv = prefix === 'edit' ? document.getElementById('editExistingMinistries') : null;
+    const isHidden = section.style.display === 'none';
+    section.style.display = isHidden ? 'block' : 'none';
+    if (existingDiv) existingDiv.style.display = isHidden ? 'block' : 'none';
+    btn.textContent = isHidden ? '− Hide Ministry Section' : '+ Add Ministry Names';
+    // Auto-add first row when opening
+    if (isHidden && document.getElementById(prefix + 'MinistryRows').children.length === 0) {
+        addMinistryRow(prefix);
+    }
+}
+
+function addMinistryRow(prefix) {
+    const container = document.getElementById(prefix + 'MinistryRows');
+    const idx = _ministryRowCounters[prefix]++;
+    const row = document.createElement('div');
+    row.id = prefix + 'MinistryRow_' + idx;
+    row.style.cssText = 'display:grid;grid-template-columns:1fr 1fr auto auto;gap:8px;align-items:center;margin-bottom:8px;';
+    row.innerHTML = `
+        <input type="text"
+               name="shrine_ministries[${idx}][name]"
+               placeholder="Ministry Name"
+               class="form-input"
+               style="min-width:0;">
+        <input type="text"
+               name="shrine_ministries[${idx}][head]"
+               placeholder="Head / Coordinator"
+               class="form-input"
+               style="min-width:0;">
+        <input type="number"
+               name="shrine_ministries[${idx}][population]"
+               placeholder="Population"
+               min="0"
+               class="form-input"
+               style="width:100px;">
+        <button type="button"
+                onclick="removeMinistryRow('${prefix}MinistryRow_${idx}')"
+                title="Remove row"
+                style="width:30px;height:30px;border:1px solid #e2e8f0;background:#fff;border-radius:6px;cursor:pointer;color:#dc2626;font-size:16px;display:grid;place-items:center;flex-shrink:0;">×</button>
+    `;
+    container.appendChild(row);
+}
+
+function removeMinistryRow(rowId) {
+    const row = document.getElementById(rowId);
+    if (row) row.remove();
 }
 </script>
 @endpush

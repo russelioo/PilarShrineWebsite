@@ -1,4 +1,7 @@
 import { createApp } from 'vue';
 import ParishSite from './ParishSite.vue';
+import { applyTypographyConfig } from './config/typography';
 
-createApp(ParishSite).mount('#app')
+applyTypographyConfig();
+
+createApp(ParishSite).mount('#app');

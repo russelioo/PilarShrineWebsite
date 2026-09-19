@@ -6,11 +6,15 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>@yield('title', 'Pilar Shrine Staff')</title>
     <link rel="icon" href="/images/pilar-shrine-logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    @vite(['resources/css/portal-theme.css'])
 
     <style>
         :root{--navy:#062f78;--blue:#0b58b5;--gold:#d6aa3e;--ink:#1b2b40;--muted:#718096;--bg:#f3f7fb;--line:#dce5ee;--side-top:#052b69;--side-bottom:#073f94}
         *{box-sizing:border-box}
-        body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,sans-serif}
+        body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
         .layout{min-height:100vh;display:grid;grid-template-columns:280px 1fr;transition:grid-template-columns .25s ease}
         .layout.sidebar-collapsed{grid-template-columns:76px 1fr}
 
@@ -24,7 +28,7 @@
         .sidebar-toggle svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .25s ease}
         .brand-mark{width:42px;height:42px;flex:none;border-radius:50%;background:#fff;display:grid;place-items:center;overflow:hidden}
         .brand-mark img{width:26px;height:32px;object-fit:contain}
-        .brand b{display:block;font:700 14px Georgia,serif;color:#fff}
+        .brand b{display:block;font-family:var(--font-heading);font-weight:700;font-size:15px;color:#fff}
         .brand small{display:block;margin-top:2px;color:#c7c2ec;font-size:9px;text-transform:none}
 
         .nav{padding:0 2px}
@@ -51,11 +55,11 @@
         /* ===== Main / topbar / content shell ===== */
         .main{min-width:0}
         .topbar{height:78px;display:flex;align-items:center;justify-content:space-between;padding:0 36px;border-bottom:1px solid var(--line);background:#fff}
-        .topbar h1{margin:0;color:var(--navy);font-size:22px;font-family:Georgia,serif}
+        .topbar h1{margin:0;color:var(--navy);font-size:22px;font-family:var(--font-heading);font-weight:700}
         .profile{display:flex;align-items:center;gap:11px;font-size:11px}
         .avatar{width:38px;height:38px;min-width:38px;min-height:38px;display:grid;place-items:center;border-radius:50%;background:#eaf2fb;color:var(--navy);font-weight:800;overflow:hidden;border:1.5px solid var(--line);flex-shrink:0}
         .avatar img, .avatar-img{width:100%;height:100%;object-fit:cover;display:block;border-radius:50%}
-        .avatar-initials{font-size:13px;font-weight:800;color:var(--navy);line-height:1}
+        .avatar-initials{font-size:13px;font-weight:800;color:var(--navy);line-height:1;font-family:var(--font-body)}
         .profile-info{display:flex;flex-direction:column;text-align:left;line-height:1.3}
         .profile-info b{font-size:12px;font-weight:700;color:var(--ink)}
         .profile-info small{font-size:11px;color:var(--muted)}
@@ -65,7 +69,7 @@
         .content{padding:32px 36px}
 
         .welcome{display:flex;justify-content:space-between;align-items:end;margin-bottom:25px}
-        .welcome h2{margin:0 0 6px;color:var(--navy);font-size:26px;font-family:Georgia,serif}
+        .welcome h2{margin:0 0 6px;color:var(--navy);font-size:26px;font-family:var(--font-heading);font-weight:700}
         .welcome p,.date{margin:0;color:var(--muted);font-size:11px}
 
         /* ===== Generic buttons used across admin pages ===== */
@@ -73,7 +77,7 @@
         .btn-primary{border:1px solid var(--navy);background:var(--navy);color:#fff}
         .btn-outline{border:1px solid var(--line);background:#fff;color:var(--ink)}
         .page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-        .page-header h2{margin:0;color:var(--navy);font-family:Georgia,serif}
+        .page-header h2{margin:0;color:var(--navy);font-family:var(--font-heading);font-weight:700}
         .page-header .actions{display:flex;gap:10px}
 
         @media(max-width:900px){

@@ -10,8 +10,8 @@
     >
       <div class="w-6 h-6 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center text-[10px] font-bold overflow-hidden flex-shrink-0 shadow-2xs">
         <img
-          v-if="cluster.senderAvatar"
-          :src="cluster.senderAvatar"
+          v-if="effectiveAvatar"
+          :src="effectiveAvatar"
           :alt="cluster.senderName"
           class="w-full h-full object-cover rounded-full"
           referrerpolicy="no-referrer"
@@ -191,6 +191,16 @@ const props = defineProps({
 });
 
 defineEmits(['preview-image', 'retry-message']);
+
+const effectiveAvatar = computed(() => {
+  if (props.cluster.senderAvatar) return props.cluster.senderAvatar;
+  const name = (props.cluster.senderName || '').toLowerCase();
+  const role = (props.cluster.senderRole || '').toLowerCase();
+  if (name.includes('parish admin') || role.includes('admin') || role.includes('super admin')) {
+    return '/images/pilar-shrine-logo.png';
+  }
+  return null;
+});
 
 const latestMessage = computed(() => {
   const msgs = props.cluster.messages;

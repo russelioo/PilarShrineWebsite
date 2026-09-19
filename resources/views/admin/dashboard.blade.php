@@ -274,7 +274,7 @@
                                     </div>
                                     <div>
                                         <strong class="request-name">{{ $req['title'] }}</strong>
-                                        <small class="request-code">{{ $req['ref'] }}</small>
+                                        <small class="request-code">{{ $req['ref'] ?? $req['ref_code'] ?? '' }}</small>
                                     </div>
                                 </td>
                                 <td>
@@ -296,7 +296,7 @@
                                 </td>
                                 <td class="text-right">
                                     <div class="table-action-menu">
-                                        <a href="{{ $req['url'] }}" class="action-btn-sm" title="View details">
+                                        <a href="{{ $req['url'] ?? $req['action_url'] ?? '#' }}" class="action-btn-sm" title="View details">
                                             View
                                         </a>
                                     </div>
@@ -325,7 +325,7 @@
                             <span>🕒 {{ $req['date'] }}</span>
                         </div>
                         <div class="mobile-req-footer">
-                            <a href="{{ $req['url'] }}" class="btn btn-outline btn-sm">Review Request →</a>
+                            <a href="{{ $req['url'] ?? $req['action_url'] ?? '#' }}" class="btn btn-outline btn-sm">Review Request →</a>
                         </div>
                     </article>
                 @empty
@@ -526,7 +526,9 @@
 
     .banner-heading {
         margin: 0 0 6px;
-        font: 700 28px 'Libre Baskerville', Georgia, serif;
+        font-family: var(--font-heading);
+        font-size: 28px;
+        font-weight: 700;
         color: #ffffff;
         letter-spacing: -0.01em;
     }
@@ -836,7 +838,7 @@
 
     .kpi-value {
         display: block;
-        font-family: 'Libre Baskerville', Georgia, serif;
+        font-family: var(--font-heading);
         font-size: 27px;
         font-weight: 700;
         color: var(--navy);
@@ -911,7 +913,9 @@
 
     .card-title {
         margin: 0;
-        font: 700 18px 'Libre Baskerville', Georgia, serif;
+        font-family: var(--font-heading);
+        font-size: 18px;
+        font-weight: 700;
         color: var(--navy);
         letter-spacing: -0.01em;
     }
@@ -1253,7 +1257,7 @@
         font-weight: 800;
         color: var(--navy);
         padding: 5px 0 3px;
-        font-family: 'Libre Baskerville', Georgia, serif;
+        font-family: var(--font-heading);
     }
 
     .timeline-details {
@@ -1312,7 +1316,9 @@
 
     .quick-actions-title {
         margin: 0;
-        font: 700 16px 'Libre Baskerville', Georgia, serif;
+        font-family: var(--font-heading);
+        font-size: 16px;
+        font-weight: 700;
         color: var(--navy);
     }
 

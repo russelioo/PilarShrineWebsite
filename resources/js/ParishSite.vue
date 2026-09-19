@@ -332,7 +332,7 @@ const currentPage = computed(() => getPublicPage(route.value))
   border-left: 4px solid #d8aa3c;
   border-radius: 12px;
   box-shadow: 0 16px 40px -8px rgba(6, 47, 120, 0.2), 0 4px 14px rgba(0, 0, 0, 0.08);
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-body);
   color: #0f172a;
 }
 

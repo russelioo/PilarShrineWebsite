@@ -397,5 +397,58 @@ class CommissionAndPpcTest extends TestCase
             'action' => 'ppc.member_added',
         ]);
     }
+
+    /**
+     * Scenario 11: Creating a staff account as Commission Coordinator sets head_user_id and displays as Coordinator.
+     */
+    public function test_creating_staff_as_commission_coordinator_sets_head_user_and_displays_properly(): void
+    {
+        $response = $this->actingAs($this->superAdmin)->post(route('admin.staff.store'), [
+            'name'                  => 'Mario Marbella',
+            'email'                 => 'mario.test@pilarshrine.test',
+            'role'                  => 'commission_admin',
+            'organization'          => 'commission',
+            'position'              => 'Commission Coordinator',
+            'commission_ids'        => [$this->commissionYouth->id],
+            'commission_roles'      => [$this->commissionYouth->id => 'coordinator'],
+            'status'                => 'active',
+            'password'              => 'password123',
+            'password_confirmation' => 'password123',
+        ]);
+
+        $response->assertRedirect();
+
+        $user = User::where('email', 'mario.test@pilarshrine.test')->firstOrFail();
+        $this->commissionYouth->refresh();
+
+        // Commission head_user_id must point to Mario Marbella
+        $this->assertEquals($user->id, $this->commissionYouth->head_user_id);
+        $this->assertEquals($user->id, $this->commissionYouth->coordinator->id);
+
+        // Commission membership must reflect coordinator position and officer status
+        $this->assertDatabaseHas('commission_memberships', [
+            'user_id'       => $user->id,
+            'commission_id' => $this->commissionYouth->id,
+            'position'      => 'Commission Coordinator',
+            'is_officer'    => true,
+            'role'          => 'coordinator',
+        ]);
+
+        // Verify show view displays Coordinator properly
+        $showResponse = $this->actingAs($this->superAdmin)
+            ->get(route('admin.commissions.show', [$this->commissionYouth, 'tab' => 'members']));
+        $showResponse->assertOk();
+        $showResponse->assertSee('Mario Marbella');
+        $showResponse->assertSee('HEAD COORDINATOR');
+        $showResponse->assertSee('Commission Coordinator');
+
+        // Verify index view displays Coordinator
+        $indexResponse = $this->actingAs($this->superAdmin)
+            ->get(route('admin.commissions.index'));
+        $indexResponse->assertOk();
+        $indexResponse->assertSee('Mario Marbella');
+        $indexResponse->assertSee('Coordinator');
+    }
 }
+
 

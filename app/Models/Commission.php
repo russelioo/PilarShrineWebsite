@@ -20,6 +20,7 @@ class Commission extends Model
         'icon',
         'head_user_id',
         'is_active',
+        'official_population',
     ];
 
     protected function casts(): array
@@ -68,6 +69,28 @@ class Commission extends Model
     public function coordinator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'head_user_id');
+    }
+
+    public function getCoordinatorUserAttribute(): ?User
+    {
+        if ($this->relationLoaded('coordinator')) {
+            return $this->getRelation('coordinator');
+        }
+
+        if ($this->head_user_id) {
+            return $this->headUser;
+        }
+
+        $coordMembership = $this->memberships()
+            ->whereIn('role', ['coordinator', 'head'])
+            ->where('status', 'active')
+            ->first();
+
+        if ($coordMembership && $coordMembership->user) {
+            return $coordMembership->user;
+        }
+
+        return null;
     }
 
     public function users(): HasMany

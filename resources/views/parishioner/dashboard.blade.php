@@ -436,7 +436,9 @@
 .welcome-copy h2 {
     margin: 0 0 6px;
     color: var(--navy);
-    font: 700 28px Georgia, serif;
+    font-family: var(--font-heading);
+    font-size: 28px;
+    font-weight: 700;
     line-height: 1.2;
 }
 .welcome-copy p {
@@ -495,7 +497,8 @@
 .banner-content strong {
     display: block;
     font-size: 13px;
-    font-family: Georgia, serif;
+    font-family: var(--font-heading);
+    font-weight: 700;
     color: #92400e;
     margin-bottom: 2px;
 }
@@ -575,7 +578,9 @@
 .stat-icon-green { background: #ecfdf5; color: #059669; }
 
 .stat-count {
-    font: 700 32px Georgia, serif;
+    font-family: var(--font-heading);
+    font-size: 32px;
+    font-weight: 700;
     color: var(--navy);
     line-height: 1;
     margin-bottom: 6px;
@@ -724,7 +729,9 @@
 }
 .panel-header h3 {
     margin: 0;
-    font: 700 17px Georgia, serif;
+    font-family: var(--font-heading);
+    font-size: 17px;
+    font-weight: 700;
     color: var(--navy);
 }
 .panel-subtext {
@@ -830,7 +837,9 @@
 }
 .empty-activity-state h4 {
     margin: 0 0 6px;
-    font: 700 16px Georgia, serif;
+    font-family: var(--font-heading);
+    font-size: 16px;
+    font-weight: 700;
     color: var(--navy);
 }
 .empty-activity-state p {
@@ -874,7 +883,9 @@
 .icon-navy { background: #eaf2fb; color: var(--navy); }
 .info-card-header h4 {
     margin: 0;
-    font: 700 14.5px Georgia, serif;
+    font-family: var(--font-heading);
+    font-size: 14.5px;
+    font-weight: 700;
     color: var(--navy);
 }
 .info-card-body {

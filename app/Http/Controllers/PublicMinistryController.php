@@ -21,6 +21,11 @@ class PublicMinistryController extends Controller
         // 1. Fetch active commissions with real count of active, public parish ministries
         $commissions = Commission::query()
             ->where('is_active', true)
+            ->with([
+                'coordinator:id,name,email,phone',
+                'ministries' => fn ($q) => $q->where('status', 'active')->where('is_public', true)->orderBy('name'),
+                'projects' => fn ($q) => $q->whereIn('status', ['ongoing', 'planning', 'completed'])->latest(),
+            ])
             ->withCount([
                 'ministries' => fn ($q) => $q->where('status', 'active')->where('is_public', true),
             ])
@@ -89,15 +94,38 @@ class PublicMinistryController extends Controller
         $totalActiveCount = Ministry::where('status', 'active')->where('is_public', true)->count();
 
         return response()->json([
-            'commissions' => $commissions->map(fn ($c) => [
-                'id' => $c->id,
-                'name' => $c->name,
-                'slug' => $c->slug,
-                'code' => $c->code,
-                'icon' => $c->icon,
-                'description' => $c->description,
-                'ministries_count' => (int) $c->ministries_count,
-            ]),
+            'commissions' => $commissions->map(function ($c) {
+                $coord = $c->coordinator ?? $c->coordinator_user;
+                return [
+                    'id' => $c->id,
+                    'name' => $c->name,
+                    'slug' => $c->slug,
+                    'code' => $c->code,
+                    'icon' => $c->icon,
+                    'description' => $c->description,
+                    'ministries_count' => (int) $c->ministries_count,
+                    'coordinator_name' => $c->coordinator_name ?: ($coord?->name ?: null),
+                    'coordinator_email' => $c->coordinator_email ?: ($coord?->email ?: null),
+                    'coordinator_phone' => $c->coordinator_phone ?: ($coord?->phone ?: null),
+                    'posted_ministries' => $c->ministries->map(fn ($m) => [
+                        'id' => $m->id,
+                        'name' => $m->name,
+                        'slug' => $m->slug,
+                        'description' => $m->description,
+                        'coordinator_name' => $m->coordinator_name,
+                        'meeting_schedule' => $m->meeting_schedule,
+                        'meeting_location' => $m->meeting_location,
+                        'is_accepting_members' => (bool) $m->is_accepting_members,
+                    ])->values()->all(),
+                    'posted_projects' => $c->projects->map(fn ($p) => [
+                        'id' => $p->id,
+                        'title' => $p->title,
+                        'description' => $p->description,
+                        'status' => $p->status,
+                        'status_label' => $p->status_label,
+                    ])->values()->all(),
+                ];
+            }),
             'ministries' => $sanitizedMinistries,
             'total_count' => $totalActiveCount,
             'filtered_count' => $sanitizedMinistries->count(),

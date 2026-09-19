@@ -282,7 +282,7 @@ const categoryFilteredItems = computed(() => {
     name: u.display_name || u.name,
     email: u.email || '',
     subtitle: u.subtitle || formatRoleLabel(u),
-    avatar: u.avatar_url || u.profile_photo_url || u.avatar || null,
+    avatar: u.avatar_url || u.profile_photo_url || u.avatar || ((u.display_name || u.name || '').toLowerCase().includes('parish admin') || (u.role || '').toLowerCase() === 'admin' ? '/images/pilar-shrine-logo.png' : null),
     data: u,
     role: u.role,
   });

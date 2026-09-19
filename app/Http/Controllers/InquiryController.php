@@ -731,6 +731,9 @@ class InquiryController extends Controller
 
         $subtitle = 'Direct Conversation';
         $avatar = $otherUser?->avatar_url ?? $otherUser?->avatar;
+        if (empty($avatar) && (! $otherUser || $otherUser->isParishAdministrator())) {
+            $avatar = '/images/pilar-shrine-logo.png';
+        }
         $initials = $otherUser ? $otherUser->initials : ($conv->isDirect() ? $currentUser->initials : 'OL');
 
         if ($conv->isCommission() && $conv->commission) {
@@ -826,6 +829,9 @@ class InquiryController extends Controller
         }
 
         $senderAvatar = $message->sender?->avatar_url ?? $message->sender?->avatar;
+        if (empty($senderAvatar) && ($message->sender?->isParishAdministrator() || ! $message->sender)) {
+            $senderAvatar = '/images/pilar-shrine-logo.png';
+        }
 
         return [
             'id' => $message->id,

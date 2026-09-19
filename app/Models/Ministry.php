@@ -28,6 +28,7 @@ class Ministry extends Model
         'coordinator_name',
         'coordinator_email',
         'coordinator_phone',
+        'official_population',
         'coordinator_user_id',
         'requirements',
         'is_accepting_members',

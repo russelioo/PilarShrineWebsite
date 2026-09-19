@@ -9,7 +9,8 @@
     <link rel="icon" href="/images/pilar-shrine-logo.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    @vite(['resources/css/portal-theme.css'])
 
     <style>
         :root {
@@ -58,7 +59,7 @@
             margin: 0;
             background: var(--bg);
             color: var(--ink);
-            font-family: 'Montserrat', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: var(--font-body);
             font-size: 13px;
             line-height: 1.5;
             -webkit-font-smoothing: antialiased;

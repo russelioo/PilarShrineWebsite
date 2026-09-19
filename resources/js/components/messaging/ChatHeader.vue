@@ -121,8 +121,21 @@ defineEmits(['back', 'open-details', 'toggle-archive', 'toggle-search']);
 
 const imageError = ref(false);
 
+const isParishAdmin = computed(() => {
+  const name = (props.conversation.name || props.conversation.title || '').toLowerCase();
+  const peerName = (props.conversation.peer?.name || props.conversation.peer?.display_name || '').toLowerCase();
+  const peerRole = (props.conversation.peer?.role || '').toLowerCase();
+  const peerRoleLabel = (props.conversation.peer?.role_label || '').toLowerCase();
+  return name.includes('parish admin') || peerName.includes('parish admin') || ['admin', 'super_admin'].includes(peerRole) || peerRoleLabel.includes('admin');
+});
+
 const avatarUrl = computed(() => {
-  return props.conversation.avatar || props.conversation.peer?.avatar || null;
+  if (props.conversation.avatar) return props.conversation.avatar;
+  if (props.conversation.peer?.avatar) return props.conversation.peer.avatar;
+  if (isParishAdmin.value && !props.conversation.is_commission && !props.conversation.is_ministry) {
+    return '/images/pilar-shrine-logo.png';
+  }
+  return null;
 });
 
 watch(avatarUrl, () => {

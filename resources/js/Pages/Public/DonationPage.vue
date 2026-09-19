@@ -310,7 +310,7 @@ const handleRequestReceipt = () => {
 .donation-public-page {
   background: var(--bg-soft, #f7fafc);
   color: var(--navy, #062f78);
-  font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif);
+  font-family: var(--font-body);
   padding-bottom: 70px;
 }
 
@@ -339,7 +339,7 @@ const handleRequestReceipt = () => {
 
 .scripture-quote {
   margin: 0 0 8px;
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-heading);
   font-style: italic;
   font-size: 16px;
   line-height: 1.6;
@@ -377,7 +377,7 @@ const handleRequestReceipt = () => {
 }
 
 .section-title {
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-heading);
   font-size: 32px;
   font-weight: 700;
   color: var(--navy, #062f78);
@@ -486,7 +486,7 @@ const handleRequestReceipt = () => {
 .brand-initial {
   font-size: 24px;
   font-weight: 800;
-  font-family: Arial, sans-serif;
+  font-family: var(--font-body);
 }
 
 .instapay-circle {
@@ -496,7 +496,7 @@ const handleRequestReceipt = () => {
 
 .method-title {
   margin: 0;
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-heading);
   font-size: 20px;
   color: var(--navy, #062f78);
   font-weight: 700;
@@ -763,7 +763,7 @@ const handleRequestReceipt = () => {
 
 .callout-heading {
   margin: 0 0 6px;
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-heading);
   font-size: 22px;
   font-weight: 700;
   color: var(--navy, #062f78);

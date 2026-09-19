@@ -192,9 +192,14 @@ const quickLinks = [
         </div>
 
         <div class="bottom-legal">
-          <p class="copyright-text">
-            © 2026 Diocesan Shrine and Parish of Our Lady of the Pillar · Diocese of Sorsogon. All rights reserved.
-          </p>
+          <div class="copyright-group">
+            <p class="copyright-text">
+              © 2026 Diocesan Shrine and Parish of Our Lady of the Pillar · Diocese of Sorsogon. All rights reserved.
+            </p>
+            <p class="managed-by-text">
+              This project is managed by Social Communications and Mass Media
+            </p>
+          </div>
           <div class="legal-links">
             <a href="#/about">About Shrine</a>
             <span aria-hidden="true">|</span>
@@ -244,7 +249,7 @@ const quickLinks = [
 /* Headings */
 .col-heading {
   margin: 0;
-  font-family: var(--font-serif, "Cinzel", "Libre Baskerville", Georgia, serif);
+  font-family: var(--font-heading);
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -282,7 +287,7 @@ const quickLinks = [
 }
 
 .brand-title {
-  font-family: var(--font-serif, "Cinzel", "Libre Baskerville", Georgia, serif);
+  font-family: var(--font-heading);
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -550,7 +555,7 @@ const quickLinks = [
   justify-content: center;
   gap: 10px;
   padding: 18px 0 10px;
-  font-family: var(--font-serif, "Cinzel", "Libre Baskerville", Georgia, serif);
+  font-family: var(--font-heading);
   font-size: 11px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -578,14 +583,28 @@ const quickLinks = [
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 12px;
   padding: 8px 0 22px;
   font-size: 11px;
   color: rgba(255, 255, 255, 0.6);
 }
 
+.copyright-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
 .copyright-text {
   margin: 0;
+  line-height: 1.4;
+}
+
+.managed-by-text {
+  margin: 0;
+  font-size: 10.5px;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.4;
 }
 
 .legal-links {
@@ -646,6 +665,11 @@ const quickLinks = [
     flex-direction: column;
     text-align: center;
     gap: 8px;
+  }
+
+  .copyright-group {
+    align-items: center;
+    text-align: center;
   }
 }
 </style>

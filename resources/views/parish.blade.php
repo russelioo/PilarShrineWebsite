@@ -7,6 +7,9 @@
     <meta name="description" content="Our Lady of the Pillar Shrine parish website">
     <link rel="icon" type="image/png" href="/images/pilar-shrine-logo.png?v=2">
     <title>Our Lady of the Pillar Shrine</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     @php
         $authPayload = auth()->check() ? [
             'id' => auth()->user()->id,

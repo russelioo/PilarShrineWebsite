@@ -398,7 +398,7 @@
 /* Summary Stats */
 .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
 .stat-box { background: #ffffff; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; display: flex; flex-direction: column; gap: 4px; border-left: 4px solid var(--navy); }
-.stat-box strong { font-size: 24px; font-family: Georgia, serif; color: var(--navy); }
+.stat-box strong { font-size: 24px; font-family: var(--font-heading); font-weight: 700; color: var(--navy); }
 .stat-box span { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
 .stat-box.highlight-pinned { border-left-color: var(--gold); }
 .stat-box.highlight-high { border-left-color: #dc2626; }
@@ -460,7 +460,7 @@
 .modal-dialog-lg { max-width: 620px; }
 .modal-dialog form { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: hidden; }
 .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 22px; border-bottom: 1px solid #f1f5f9; background: #fafcff; flex-shrink: 0; }
-.modal-header h4 { margin: 0; font-size: 15px; color: var(--navy); font-weight: 700; font-family: Georgia, serif; }
+.modal-header h4 { margin: 0; font-size: 15px; color: var(--navy); font-weight: 700; font-family: var(--font-heading); }
 .modal-close { background: none; border: none; font-size: 22px; cursor: pointer; color: #64748b; line-height: 1; }
 .modal-close:hover { color: #0f172a; }
 .modal-body { padding: 20px 22px; }
@@ -519,13 +519,10 @@ async function compressImageIfNeeded(file) {
         return file;
     }
 
-    return new Promise((resolve) => {
-        const reader = new FileReader();
-    return new window.Promise((resolve) => {
-        const reader = new window.FileReader();
+    return new window['Promise']((resolve) => {
+        const reader = new window['FileReader']();
         reader.onload = (e) => {
-            const img = new Image();
-            const img = new window.Image();
+            const img = new window['Image']();
             img.onload = () => {
                 const canvas = document.createElement('canvas');
                 let width = img.width;
@@ -550,11 +547,9 @@ async function compressImageIfNeeded(file) {
                 canvas.toBlob((blob) => {
                     if (blob && blob.size < file.size) {
                         const newName = file.name.replace(/\.[^/.]+$/, "") + ".jpg";
-                        const compressedFile = new File([blob], newName, {
-                        const compressedFile = new window.File([blob], newName, {
+                        const compressedFile = new window['File']([blob], newName, {
                             type: 'image/jpeg',
-                            lastModified: Date.now(),
-                            lastModified: window.Date.now(),
+                            lastModified: window['Date'].now(),
                         });
                         resolve(compressedFile);
                     } else {
@@ -614,8 +609,7 @@ async function previewPhotos(input, containerId) {
 
     // Update input.files with optimized files via DataTransfer if supported
     try {
-        const dt = new DataTransfer();
-        const dt = new window.DataTransfer();
+        const dt = new window['DataTransfer']();
         optimizedFiles.forEach(f => dt.items.add(f));
         input.files = dt.files;
         files = Array.from(input.files);
@@ -732,8 +726,7 @@ function openEditModal(announcement, imageUrls) {
     }
 
     if (announcement.published_at) {
-        const d = new Date(announcement.published_at);
-        const d = new window.Date(announcement.published_at);
+        const d = new window['Date'](announcement.published_at);
         const yyyy = d.getFullYear();
         const mm = String(d.getMonth() + 1).padStart(2, '0');
         const dd = String(d.getDate()).padStart(2, '0');

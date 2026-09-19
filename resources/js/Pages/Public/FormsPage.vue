@@ -280,7 +280,7 @@ const handleSubmit = () => {
 }
 
 .form-card-header h2 {
-  font-family: var(--font-serif, "Cinzel", "Playfair Display", Georgia, serif);
+  font-family: var(--font-heading);
   font-size: clamp(1.5rem, 2.5vw, 1.85rem);
   color: var(--blue, #0e325f);
   margin: 0 0 0.5rem;
@@ -504,7 +504,7 @@ textarea:focus {
 }
 
 .info-panel-header h3 {
-  font-family: var(--font-serif, "Cinzel", "Playfair Display", Georgia, serif);
+  font-family: var(--font-heading);
   font-size: 1.25rem;
   color: var(--blue, #0e325f);
   margin: 0 0 0.5rem;

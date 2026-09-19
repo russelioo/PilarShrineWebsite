@@ -1,0 +1,152 @@
+/**
+ * ==============================================================================
+ * Pilar Shrine - Centralized Portal Design & Typography System
+ * ==============================================================================
+ * Shared across:
+ * 1. Super Admin Dashboard & Portal
+ * 2. Commission Admin / Coordinator Workspace
+ * 3. Parishioner Dashboard & Portal
+ *
+ * To change the font family across all three portals, simply change `--font-primary` below!
+ * ==============================================================================
+ */
+
+:root {
+  /* Centralized Typography Control */
+  --font-primary: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-heading: var(--font-primary);
+  --font-body: var(--font-primary);
+
+  /* Font Weights */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+
+  /* Line Heights */
+  --line-height-tight: 1.15;
+  --line-height-snug: 1.35;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.65;
+
+  /* Letter Spacing */
+  --letter-spacing-tight: -0.015em;
+  --letter-spacing-normal: 0em;
+  --letter-spacing-wide: 0.05em;
+  --letter-spacing-wider: 0.08em;
+  --letter-spacing-widest: 0.12em;
+}
+
+/* Base Global Typography */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body) !important;
+  font-weight: var(--font-weight-regular);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Universal Headings & Titles across all portals */
+h1, h2, h3, h4, h5, h6,
+.brand b, .brand strong, .brand-title,
+.topbar h1, .topbar-page-title,
+.welcome h2, .welcome-copy h2, .banner-heading,
+.page-header h2, .page-header > div h2, .form-heading h3 {
+  font-family: var(--font-heading) !important;
+}
+
+/* Form Controls & Buttons */
+input, select, textarea, button,
+.btn, .site-button, .button,
+.logout-button, .btn-action, .btn-topbar-website {
+  font-family: var(--font-body) !important;
+}
+
+/* Navigation items, sidebars, and topbars */
+.nav, .sidebar, .sidebar-nav, .admin-sidebar,
+.topbar, .admin-topbar, .parishioner-topbar {
+  font-family: var(--font-body) !important;
+}
+
+/* Cards & Statistics Hierarchy */
+.kpi-card .kpi-value,
+.stat-card .stat-count,
+.metric-value,
+.stats-number {
+  font-family: var(--font-heading) !important;
+  font-weight: var(--font-weight-extrabold, 800) !important;
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+.kpi-card .kpi-label,
+.stat-card .stat-title,
+.metric-label {
+  font-family: var(--font-body) !important;
+  font-weight: var(--font-weight-semibold, 600);
+}
+
+.banner-eyebrow,
+.welcome-eyebrow,
+.nav-section-title,
+.nav-group-label,
+.panel-eyebrow {
+  font-family: var(--font-body) !important;
+  letter-spacing: var(--letter-spacing-wider);
+}
+
+/* Tables across Admin, Coordinator & Parishioner */
+table, .data-table, .recent-requests-table, .members-table {
+  font-family: var(--font-body) !important;
+}
+
+table th, .table th {
+  font-family: var(--font-body) !important;
+  font-weight: var(--font-weight-bold, 700);
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+table td, .table td {
+  font-family: var(--font-body) !important;
+  font-weight: var(--font-weight-medium, 500);
+}
+
+/* Scripture quote in Admin Welcome Banner */
+.banner-scripture {
+  font-family: var(--font-body) !important;
+  font-style: italic;
+}
+
+.banner-scripture cite {
+  font-style: normal;
+  font-weight: var(--font-weight-semibold, 600);
+}
+
+/* Smooth transitions & Hover states */
+.kpi-card, .stat-card, .info-card, .activity-panel {
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.18s ease;
+}
+
+.kpi-card:hover, .stat-card.stat-card-interactive:hover {
+  transform: translateY(-2px);
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto !important;
+  }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .kpi-card:hover, .stat-card.stat-card-interactive:hover {
+    transform: none !important;
+  }
+}
+

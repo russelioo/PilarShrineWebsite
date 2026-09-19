@@ -16,7 +16,7 @@
             @if($actor->hasPermission('export_reports') || $actor->hasPermission('view_users'))
             <button class="btn btn-outline" type="button" onclick="exportStaffData()">📥 Export</button>
             @endif
-            @if($actor->hasPermission('create_users'))
+            @if(in_array($actor->role, ['super_admin', 'admin'], true))
             <button class="btn btn-primary" type="button" onclick="openStaffDrawer()">＋ Add New Staff</button>
             @endif
         </div>
@@ -73,7 +73,11 @@
     </form>
 
     <div class="table-wrap">
-        @php($canRevertStaff = $actor->hasPermission('edit_users') || $actor->hasPermission('delete_users') || $actor->hasPermission('staff_management') || $actor->canManagePermissions())
+        @php
+            $isParishAdmin = in_array($actor->role, ['super_admin', 'admin'], true);
+            $canRevertStaff = $isParishAdmin && ($actor->hasPermission('edit_users') || $actor->hasPermission('delete_users') || $actor->hasPermission('staff_management') || $actor->canManagePermissions());
+            $canDeleteStaff = $isParishAdmin && ($actor->role === 'super_admin' || $actor->role === 'admin' || $actor->hasPermission('delete_users'));
+        @endphp
         <table id="staff-table">
             <thead>
                 <tr>
@@ -138,17 +142,23 @@
                         @else
                             <button type="button" class="btn-action-icon" title="View Details"
                                onclick="openUserDetailsModal(event, {{ $s->id }})">👁</button>
-                            @if($actor->hasPermission('modify_permissions') || $actor->hasPermission('assign_permissions') || $actor->canManagePermissions())
+                            @if($isParishAdmin && ($actor->hasPermission('modify_permissions') || $actor->hasPermission('assign_permissions') || $actor->canManagePermissions()))
                             <button type="button" class="btn-action-icon btn-action-perm" title="Manage Permissions"
                                onclick="openPermissionsModal(event, {{ $s->id }})">🛡️</button>
                             @endif
+                            @if($isParishAdmin)
                             <a href="#" title="View Activity" class="btn-action-icon action-view-activity"
                                data-user-id="{{ $s->id }}"
                                data-user-name="{{ $s->name }}"
                                onclick="openActivityModal(event, {{ $s->id }}, '{{ addslashes($s->name) }}')">📋</a>
+                            @endif
                             @if($canRevertStaff && $s->id !== $actor->id)
                             <button type="button" class="btn-action-icon btn-action-revert" title="Remove from Staff (Revert to Parishioner)"
                                onclick="confirmRevertToParishioner(event, {{ $s->id }}, '{{ addslashes($s->name) }}')">👤↩️</button>
+                            @endif
+                            @if($canDeleteStaff && $s->id !== $actor->id)
+                            <button type="button" class="btn-action-icon btn-action-delete" title="Delete & Deactivate Account (Remove completely from database view)"
+                               onclick="confirmDeleteStaff(event, {{ $s->id }}, '{{ addslashes($s->name) }}')">✕</button>
                             @endif
                         @endif
                     </td>
@@ -602,7 +612,7 @@
         <div class="custom-modal-footer" id="user-details-modal-footer" style="display:none;">
             <button type="button" class="btn-modal-cancel" onclick="closeUserDetailsModal()">Close</button>
             <button type="button" class="btn-modal-action-secondary" id="btn-details-activity" onclick="openActivityFromDetails()">View Activity</button>
-            @if($actor->hasPermission('modify_permissions') || $actor->hasPermission('assign_permissions') || $actor->canManagePermissions())
+            @if($isParishAdmin && ($actor->hasPermission('modify_permissions') || $actor->hasPermission('assign_permissions') || $actor->canManagePermissions()))
             <button type="button" class="btn-modal-save" id="btn-details-perm" onclick="openPermissionsFromDetails()">Manage Permissions</button>
             @endif
             @if($canRevertStaff)
@@ -645,6 +655,44 @@
             <button type="button" class="btn-modal-save" id="btn-confirm-revert" style="background: #dc2626; border-color: #dc2626;" onclick="submitRevertToParishioner()">
                 <span id="text-confirm-revert">Remove & Revert to Parishioner</span>
                 <svg id="spinner-revert" class="spinner-svg" viewBox="0 0 24 24" width="16" height="16" style="display:none;"><circle class="spinner-path" cx="12" cy="12" r="10" fill="none" stroke-width="3"></circle></svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- DELETE STAFF ACCOUNT CONFIRMATION MODAL -->
+    <!-- ============================================== -->
+    <div id="delete-staff-modal-backdrop" class="modal-backdrop-common" onclick="closeDeleteStaffModal()" style="display:none;" aria-hidden="true"></div>
+    <div id="delete-staff-modal" class="custom-modal" role="dialog" aria-modal="true" aria-labelledby="delete-staff-modal-title" style="display:none; max-width: 490px;" aria-hidden="true">
+        <div class="custom-modal-header">
+            <div>
+                <div class="modal-pretitle" style="color:#b91c1c;">Permanent Removal / Deactivation</div>
+                <h3 id="delete-staff-modal-title" class="custom-modal-title">Delete Staff Account</h3>
+            </div>
+            <button type="button" class="drawer-close-btn" onclick="closeDeleteStaffModal()" aria-label="Close">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <div class="custom-modal-body" style="padding: 20px 24px;">
+            <p style="margin: 0 0 14px; font-size: 13px; line-height: 1.5; color: #1e293b;">
+                Are you sure you want to delete and deactivate the account for <strong id="delete-staff-target-name"></strong>?
+            </p>
+            <div style="background: #fff5f5; border: 1px solid #fed7d7; border-left: 4px solid #e53e3e; padding: 12px 14px; border-radius: 6px; font-size: 12px; color: #742a2a; line-height: 1.5;">
+                <strong style="color:#9b2c2c;">Effect of this action (Option B):</strong>
+                <ul style="margin: 6px 0 0; padding-left: 18px;">
+                    <li>Account is <strong>removed from active database view</strong> and staff roster immediately.</li>
+                    <li>The user will <strong>no longer be a parishioner</strong> and cannot log in.</li>
+                    <li>The email address is freed from the active system.</li>
+                    <li>If they register again with this email, their account will be <strong>reactivated</strong> as a parishioner.</li>
+                </ul>
+            </div>
+            <input type="hidden" id="delete-staff-target-id" value="">
+        </div>
+        <div class="custom-modal-footer">
+            <button type="button" class="btn-modal-cancel" onclick="closeDeleteStaffModal()">Cancel</button>
+            <button type="button" class="btn-modal-save" id="btn-confirm-delete-staff" style="background: #b91c1c; border-color: #b91c1c;" onclick="submitDeleteStaff()">
+                <span id="text-confirm-delete-staff">✕ Delete Account</span>
+                <svg id="spinner-delete-staff" class="spinner-svg" viewBox="0 0 24 24" width="16" height="16" style="display:none;"><circle class="spinner-path" cx="12" cy="12" r="10" fill="none" stroke-width="3"></circle></svg>
             </button>
         </div>
     </div>
@@ -932,7 +980,7 @@
             margin: 0 0 4px;
             font-size: 19px;
             color: var(--navy);
-            font-family: 'Libre Baskerville', Georgia, serif;
+            font-family: var(--font-heading);
             font-weight: 700;
         }
         .drawer-subtitle {
@@ -1326,6 +1374,14 @@
         }
         .btn-action-revert:hover {
             color: #dc2626;
+            background-color: #fee2e2;
+        }
+        .btn-action-delete {
+            color: #dc2626;
+            font-weight: 700;
+        }
+        .btn-action-delete:hover {
+            color: #b91c1c;
             background-color: #fee2e2;
         }
 
@@ -3033,9 +3089,118 @@
             }
         };
 
+        // --- Delete Staff Account (Option B) Handlers ---
+        window.confirmDeleteStaff = function(event, userId, userName) {
+            if (event && typeof event.preventDefault === 'function') event.preventDefault();
+
+            document.getElementById('delete-staff-target-id').value = userId;
+            document.getElementById('delete-staff-target-name').textContent = userName;
+
+            const modal = document.getElementById('delete-staff-modal');
+            const backdrop = document.getElementById('delete-staff-modal-backdrop');
+            if (modal) {
+                modal.style.display = 'flex';
+                modal.setAttribute('aria-hidden', 'false');
+            }
+            if (backdrop) {
+                backdrop.style.display = 'block';
+                backdrop.setAttribute('aria-hidden', 'false');
+            }
+            document.body.style.overflow = 'hidden';
+        };
+
+        window.closeDeleteStaffModal = function() {
+            const modal = document.getElementById('delete-staff-modal');
+            const backdrop = document.getElementById('delete-staff-modal-backdrop');
+            if (modal) {
+                modal.style.display = 'none';
+                modal.setAttribute('aria-hidden', 'true');
+            }
+            if (backdrop) {
+                backdrop.style.display = 'none';
+                backdrop.setAttribute('aria-hidden', 'true');
+            }
+            document.body.style.overflow = '';
+        };
+
+        window.submitDeleteStaff = async function() {
+            const userId = document.getElementById('delete-staff-target-id').value;
+            if (!userId) return;
+
+            const btn = document.getElementById('btn-confirm-delete-staff');
+            const btnText = document.getElementById('text-confirm-delete-staff');
+            const spinner = document.getElementById('spinner-delete-staff');
+
+            btn.disabled = true;
+            btnText.textContent = 'Deleting...';
+            spinner.style.display = 'inline-block';
+
+            try {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+                    || document.querySelector('input[name="_token"]')?.value;
+
+                const response = await fetch(`/admin/staff/${userId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Failed to delete staff account.');
+                }
+
+                closeDeleteStaffModal();
+
+                // Fade out and remove row from table
+                const row = document.querySelector(`tr[data-user-id="${userId}"]`);
+                if (row) {
+                    row.style.transition = 'all 0.35s ease';
+                    row.style.opacity = '0';
+                    row.style.transform = 'translateX(20px)';
+                    setTimeout(() => {
+                        row.remove();
+                        // Re-index remaining rows
+                        const tbody = document.getElementById('staff-tbody');
+                        const rows = tbody ? tbody.querySelectorAll('tr[data-user-id]') : [];
+                        rows.forEach((r, idx) => {
+                            const idxCell = r.querySelector('.row-index');
+                            if (idxCell) idxCell.textContent = idx + 1;
+                        });
+                        if (rows.length === 0 && tbody) {
+                            tbody.innerHTML = '<tr id="empty-staff-row"><td colspan="9" class="empty-cell">No staff members found.</td></tr>';
+                        }
+                    }, 350);
+                }
+
+                if (typeof showToast === 'function') {
+                    showToast('Account Deleted', data.message || 'Staff account has been deleted.');
+                } else {
+                    alert(data.message || 'Staff account has been deleted.');
+                }
+
+            } catch (err) {
+                console.error(err);
+                alert(err.message || 'An error occurred while deleting staff account.');
+            } finally {
+                btn.disabled = false;
+                btnText.textContent = '✕ Delete Account';
+                spinner.style.display = 'none';
+            }
+        };
+
         // ESC to close any open modal
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
+                const delModal = document.getElementById('delete-staff-modal');
+                if (delModal && delModal.style.display !== 'none') {
+                    closeDeleteStaffModal();
+                }
                 const permModal = document.getElementById('permissions-modal');
                 if (permModal && permModal.style.display !== 'none') {
                     closePermissionsModal();

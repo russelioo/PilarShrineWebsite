@@ -116,14 +116,24 @@ class UserManagementController extends Controller
 
         if ($allCommissionIds->isNotEmpty()) {
             foreach ($allCommissionIds as $cid) {
+                $isCoord = ($newRole === 'commission_admin' || str_contains(strtolower($position), 'coordinator'));
+                $isOff = $isCoord;
+                $memberPos = $position ?: ($isCoord ? 'Commission Coordinator' : 'Member');
+
                 \App\Models\CommissionMembership::updateOrCreate(
                     ['user_id' => $user->id, 'commission_id' => $cid],
                     [
-                        'role' => $newRole === 'commission_admin' ? 'coordinator' : 'member',
-                        'status' => 'active',
-                        'joined_at' => now(),
+                        'role'       => $isCoord ? 'coordinator' : 'member',
+                        'position'   => $memberPos,
+                        'is_officer' => $isOff,
+                        'status'     => 'active',
+                        'joined_at'  => now(),
                     ]
                 );
+
+                if ($isCoord) {
+                    Commission::where('id', $cid)->update(['head_user_id' => $user->id]);
+                }
             }
         }
 
@@ -375,14 +385,24 @@ class UserManagementController extends Controller
         // Connect multiple commissions
         foreach ($commissionIds as $cId) {
             $cRole = $request->input("commission_roles.{$cId}", ($user->role === 'commission_admin' ? 'coordinator' : 'member'));
+            $isCoordinator = ($cRole === 'coordinator' || $user->role === 'commission_admin' || str_contains(strtolower($position), 'coordinator'));
+            $isOfficer = $isCoordinator || ($cRole === 'officer');
+            $memberPos = $position ?: ($isCoordinator ? 'Commission Coordinator' : ($isOfficer ? 'Commission Officer' : 'Member'));
+
             CommissionMembership::updateOrCreate(
                 ['user_id' => $user->id, 'commission_id' => $cId],
                 [
-                    'role' => $cRole,
-                    'status' => $isActive ? 'active' : 'inactive',
-                    'joined_at' => now(),
+                    'role'       => $isCoordinator ? 'coordinator' : ($isOfficer ? 'admin' : 'member'),
+                    'position'   => $memberPos,
+                    'is_officer' => $isOfficer,
+                    'status'     => $isActive ? 'active' : 'inactive',
+                    'joined_at'  => now(),
                 ]
             );
+
+            if ($isCoordinator) {
+                Commission::where('id', $cId)->update(['head_user_id' => $user->id]);
+            }
         }
 
         // Connect multiple ministries
@@ -662,22 +682,12 @@ class UserManagementController extends Controller
             abort(403, 'Super Administrator accounts cannot be reverted to parishioner.');
         }
 
-        // Security: Actor must have permission (edit_users, delete_users, staff_management, or canManagePermissions)
+        // Strict Security: Only Parish Administrator / Super Admin can revert staff to parishioner
         abort_unless(
-            $actor->hasPermission('edit_users')
-            || $actor->hasPermission('delete_users')
-            || $actor->hasPermission('staff_management')
-            || $actor->canManagePermissions(),
+            in_array($actor->role, ['super_admin', 'admin'], true),
             403,
-            'You do not have permission to remove staff members.'
+            'Only Parish Administrators can revert staff members to parishioners.'
         );
-
-        // Commission admin scoping: can only revert members in their own commission
-        if (! $actor->hasParishWideAccess()) {
-            if ($user->hasParishWideAccess() || (int) $user->commission_id !== (int) $actor->commission_id) {
-                abort(403, 'You are not authorized to modify this staff member.');
-            }
-        }
 
         $oldRole = $user->role;
         $oldPosition = $user->position;
@@ -695,6 +705,7 @@ class UserManagementController extends Controller
 
         // 2. Detach or delete commission memberships
         \App\Models\CommissionMembership::where('user_id', $user->id)->delete();
+        Commission::where('head_user_id', $user->id)->update(['head_user_id' => null]);
 
         // 3. Record Audit Log
         AuditLogger::log(
@@ -726,6 +737,73 @@ class UserManagementController extends Controller
                 'role' => 'user',
                 'role_label' => $user->role_badge_label,
             ],
+        ]);
+    }
+
+    /**
+     * Delete/deactivate a staff member account (Soft Delete Option B).
+     * The account is removed from the database view, but historical records remain intact.
+     * If the person registers again with this email, their account will be reactivated as a parishioner.
+     */
+    public function deleteStaff(Request $request, User $user): JsonResponse
+    {
+        $actor = $request->user();
+        abort_unless($actor, 401);
+
+        // Security: Super Admin cannot be deleted
+        if ($user->role === 'super_admin' || $user->isSuperAdmin()) {
+            abort(403, 'Super Administrator accounts cannot be deleted.');
+        }
+
+        // Security: Cannot delete own account
+        if ($user->id === $actor->id) {
+            abort(403, 'You cannot delete your own account.');
+        }
+
+        // Strict Security: Only Parish Administrator / Super Admin can delete staff accounts
+        abort_unless(
+            in_array($actor->role, ['super_admin', 'admin'], true),
+            403,
+            'Only Parish Administrators can delete staff accounts.'
+        );
+
+        $userName = $user->name;
+        $userEmail = $user->email;
+        $oldRole = $user->role;
+        $oldCommissionId = $user->commission_id;
+
+        // 1. Detach from commission and ministries
+        \App\Models\CommissionMembership::where('user_id', $user->id)->delete();
+        \App\Models\MinistryMembership::where('user_id', $user->id)->delete();
+        Commission::where('head_user_id', $user->id)->update(['head_user_id' => null]);
+        \App\Models\Ministry::where('coordinator_user_id', $user->id)->update(['coordinator_user_id' => null]);
+
+        // 2. Clear commission_id, mark unverified
+        $user->commission_id = null;
+        $user->is_verified = false;
+        $user->save();
+
+        // 3. Soft delete user
+        $user->delete();
+
+        // 4. Audit Log
+        AuditLogger::log(
+            action: 'staff_account_deleted',
+            description: "Deleted and deactivated staff account for {$userName} ({$userEmail}). All roles revoked; account eligible for reactivation if re-registered.",
+            target: null,
+            commissionId: $oldCommissionId,
+            oldValues: [
+                'name' => $userName,
+                'email' => $userEmail,
+                'role' => $oldRole,
+                'commission_id' => $oldCommissionId,
+            ],
+            actor: $actor
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => "Account for {$userName} has been removed and deactivated.",
         ]);
     }
 

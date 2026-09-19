@@ -362,7 +362,9 @@ onMounted(() => {
 
 .news-announcement-card h3 {
   color: var(--color-primary, #062f78);
-  font: 700 17px 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-heading);
+  font-size: 17px;
+  font-weight: 700;
   margin: 0 0 10px;
   line-height: 1.35;
 }
@@ -375,6 +377,7 @@ onMounted(() => {
   flex-grow: 1;
   display: -webkit-box;
   -webkit-line-clamp: 4;
+  line-clamp: 4;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

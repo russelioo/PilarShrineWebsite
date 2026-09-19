@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -15,7 +16,7 @@ use Illuminate\Notifications\Notifiable;
 #[Hidden(['password_hash', 'remember_token', 'reset_token'])]
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, SoftDeletes;
 
     /**
      * Get the attributes that should be cast.
@@ -107,6 +108,9 @@ class User extends Authenticatable
     public function getAvatarUrlAttribute(): ?string
     {
         if (empty($this->avatar)) {
+            if ($this->isParishAdministrator()) {
+                return '/images/pilar-shrine-logo.png';
+            }
             return null;
         }
 
@@ -820,6 +824,19 @@ class User extends Authenticatable
         }
 
         return 'Active ' . $this->last_active_at->diffForHumans();
+    }
+
+    public function isParishAdministrator(): bool
+    {
+        $pos = strtolower($this->position ?? '');
+        $name = strtolower($this->name ?? '');
+        $email = strtolower($this->email ?? '');
+        $role = strtolower($this->role ?? '');
+
+        return str_contains($pos, 'parish administrator')
+            || str_contains($name, 'parish administrator')
+            || $email === 'admin@pilarshrine.test'
+            || (in_array($role, ['super_admin', 'admin'], true) && !str_contains($pos, 'secretary') && !str_contains($role, 'secretary'));
     }
 
     public function getRoleBadgeLabelAttribute(): string

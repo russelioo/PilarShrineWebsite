@@ -57,10 +57,10 @@
                     <td>{{ $p->last_login?->format('M d, Y h:i A') ?? 'Never' }}</td>
                     <td class="action-icons">
                         <a href="#" title="View">👁</a>
+                        @if(in_array($actor->role, ['super_admin', 'admin'], true))
                         <a href="#" title="Edit">✎</a>
                         <a href="#" title="Delete" style="color:#c0392b">✕</a>
-                        @if(in_array($actor->role, ['super_admin', 'admin'], true))
-                        <button type="button" class="btn-promote" title="Promote to Staff Roster (Super Admin Only)"
+                        <button type="button" class="btn-promote" title="Promote to Staff Roster (Parish Admin Only)"
                             onclick="openPromoteModal({{ $p->id }}, '{{ addslashes($p->name) }}', '{{ addslashes($p->email) }}')">
                             ⭐ Promote
                         </button>

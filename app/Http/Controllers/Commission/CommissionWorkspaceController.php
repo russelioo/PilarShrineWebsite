@@ -164,6 +164,9 @@ class CommissionWorkspaceController extends Controller
             $user->update(['commission_id' => $commission->id]);
         }
 
+        $isCoordinator = str_contains(strtolower($validated['position']), 'coordinator') || ($validated['role'] ?? '') === 'head' || ($validated['role'] ?? '') === 'coordinator';
+        $isOfficer = ! empty($validated['is_officer']) || ($validated['role'] ?? '') === 'officer' || $isCoordinator;
+
         $membership = CommissionMembership::updateOrCreate(
             [
                 'commission_id' => $commission->id,
@@ -171,13 +174,17 @@ class CommissionWorkspaceController extends Controller
             ],
             [
                 'position'   => $validated['position'],
-                'is_officer' => ! empty($validated['is_officer']) || ($validated['role'] ?? '') === 'officer',
-                'role'       => $validated['role'] ?? (! empty($validated['is_officer']) ? 'officer' : 'member'),
+                'is_officer' => $isOfficer,
+                'role'       => $isCoordinator ? 'head' : ($isOfficer ? 'officer' : 'member'),
                 'status'     => 'active',
                 'notes'      => $validated['notes'] ?? null,
                 'joined_at'  => now(),
             ]
         );
+
+        if ($isCoordinator) {
+            $commission->update(['head_user_id' => $user->id]);
+        }
 
         AuditLogger::log(
             action: 'commission.member_added',
@@ -213,14 +220,21 @@ class CommissionWorkspaceController extends Controller
             'notes'      => ['nullable', 'string', 'max:500'],
         ]);
 
+        $isCoordinator = str_contains(strtolower($validated['position']), 'coordinator');
+        $isOfficer = ! empty($validated['is_officer']) || $isCoordinator;
+
         $oldValues = $membership->toArray();
         $membership->update([
             'position'   => $validated['position'],
-            'is_officer' => ! empty($validated['is_officer']),
-            'role'       => ! empty($validated['is_officer']) ? 'officer' : 'member',
+            'is_officer' => $isOfficer,
+            'role'       => $isCoordinator ? 'head' : ($isOfficer ? 'officer' : 'member'),
             'status'     => $validated['status'],
             'notes'      => $validated['notes'] ?? null,
         ]);
+
+        if ($isCoordinator) {
+            $commission->update(['head_user_id' => $membership->user_id]);
+        }
 
         AuditLogger::log(
             action: 'commission.member_updated',

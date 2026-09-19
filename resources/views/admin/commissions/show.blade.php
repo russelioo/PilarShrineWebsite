@@ -27,17 +27,7 @@
 @section('content')
 <div class="page-header">
     <div>
-        <div class="breadcrumbs">
-            @if(! $isCoordinatorWorkspace)
-                <a href="{{ route('admin.commissions.index') }}">Pastoral Commissions</a>
-                <span class="crumb-separator">/</span>
-            @else
-                <span>Commission Workspace</span>
-                <span class="crumb-separator">/</span>
-            @endif
-            <span class="crumb-current">{{ $commission->name }}</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:12px;margin-top:4px;">
+        <div style="display:flex;align-items:center;gap:12px;">
             <div class="header-icon-box">
                 @if($commission->icon === 'cross')
                     <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="2" x2="12" y2="22"/><line x1="5" y1="8" x2="19" y2="8"/></svg>
@@ -64,8 +54,9 @@
                     <span class="status-pill {{ $commission->is_active ? 'status-active' : 'status-inactive' }}">
                         {{ $commission->is_active ? 'Active' : 'Inactive' }}
                     </span>
-                    @if($commission->coordinator)
-                        <span style="font-size:11.5px;color:#64748b;">• Coord: <strong>{{ $commission->coordinator->name }}</strong></span>
+                    @php $coordUser = $commission->coordinator ?? $commission->coordinator_user; @endphp
+                    @if($coordUser)
+                        <span style="font-size:11.5px;color:#64748b;">• Coord: <strong>{{ $coordUser->name }}</strong></span>
                     @endif
                 </div>
             </div>
@@ -185,6 +176,12 @@
                     <strong>{{ $commission->projects->whereIn('status', ['planning', 'ongoing'])->count() }}</strong>
                     <span>Active Projects</span>
                 </div>
+                @if($commission->official_population)
+                <div class="kpi-mini-box" style="border-color:#062f78;background:rgba(6,47,120,0.04);">
+                    <strong style="color:#062f78;">{{ number_format($commission->official_population) }}</strong>
+                    <span>Official Population</span>
+                </div>
+                @endif
             </div>
         </div>
 
@@ -222,18 +219,19 @@
         <!-- Coordinator Card -->
         <div class="content-card">
             <h3 class="card-title">Commission Coordinator</h3>
-            @if($commission->coordinator)
+            @php $coordUser = $commission->coordinator ?? $commission->coordinator_user; @endphp
+            @if($coordUser)
             <div style="display:flex;align-items:center;gap:12px;margin-top:12px;">
                 <div class="coord-avatar-pill" style="width:44px;height:44px;">
-                    @if($commission->coordinator->avatar_url)
-                        <img src="{{ $commission->coordinator->avatar_url }}" alt="{{ $commission->coordinator->name }}" class="coord-img">
+                    @if($coordUser->avatar_url)
+                        <img src="{{ $coordUser->avatar_url }}" alt="{{ $coordUser->name }}" class="coord-img">
                     @else
-                        <span class="coord-initials" style="font-size:14px;">{{ $commission->coordinator->initials }}</span>
+                        <span class="coord-initials" style="font-size:14px;">{{ $coordUser->initials }}</span>
                     @endif
                 </div>
                 <div>
-                    <strong style="font-size:13.5px;color:#0f172a;display:block;">{{ $commission->coordinator->name }}</strong>
-                    <span style="font-size:11.5px;color:#64748b;">{{ $commission->coordinator->email }}</span>
+                    <strong style="font-size:13.5px;color:#0f172a;display:block;">{{ $coordUser->name }}</strong>
+                    <span style="font-size:11.5px;color:#64748b;">{{ $coordUser->email }}</span>
                     <span style="font-size:10.5px;color:#062f78;display:block;font-weight:600;margin-top:2px;">Head Coordinator</span>
                 </div>
             </div>
@@ -320,7 +318,11 @@
             </thead>
             <tbody>
                 @forelse($commission->members as $member)
-                @php($membership = $member->pivot)
+                @php
+                    $membership = $member->pivot;
+                    $coordUserId = $commission->head_user_id ?: ($commission->coordinator?->id ?: $commission->coordinator_user?->id);
+                    $isMemberCoordinator = $coordUserId && (int) $coordUserId === (int) $member->id;
+                @endphp
                 <tr>
                     <td>
                         <div style="display:flex;align-items:center;gap:10px;">
@@ -333,7 +335,7 @@
                             </div>
                             <div>
                                 <strong style="font-size:12.5px;color:#0f172a;">{{ $member->name }}</strong>
-                                @if($commission->head_user_id === $member->id)
+                                @if($isMemberCoordinator)
                                     <span style="font-size:9.5px;color:#062f78;font-weight:700;display:block;">(HEAD COORDINATOR)</span>
                                 @endif
                             </div>
@@ -341,10 +343,18 @@
                     </td>
                     <td style="color:#64748b;">{{ $member->email }}</td>
                     <td>
-                        <span style="font-weight:600;color:#1e293b;">{{ $membership->position ?? 'Member' }}</span>
+                        <span style="font-weight:600;color:#1e293b;">
+                            @if($isMemberCoordinator && ($membership->position === 'Member' || empty($membership->position)))
+                                {{ $member->position ?: 'Commission Coordinator' }}
+                            @else
+                                {{ $membership->position ?? 'Member' }}
+                            @endif
+                        </span>
                     </td>
                     <td>
-                        @if(!empty($membership->is_officer))
+                        @if($isMemberCoordinator)
+                            <span class="status-pill" style="background:#e0e7ff;color:#062f78;font-weight:700;">Coordinator</span>
+                        @elseif(!empty($membership->is_officer))
                             <span class="status-pill" style="background:#e0e7ff;color:#4338ca;">Officer</span>
                         @else
                             <span class="status-pill" style="background:#f1f5f9;color:#64748b;">General Member</span>
@@ -706,6 +716,12 @@
                 </div>
                 <div class="form-group">
                     <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12.5px;">
+                        <input type="checkbox" name="is_coordinator" id="add_member_is_coordinator" value="1" onchange="if(this.checked){document.getElementById('add_member_is_officer').checked=true;}">
+                        <span style="font-weight:600;color:#062f78;">Designate as Head Commission Coordinator</span>
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12.5px;">
                         <input type="checkbox" name="is_officer" id="add_member_is_officer" value="1">
                         <span>Designate as Commission Officer (Executive Board)</span>
                     </label>
@@ -746,6 +762,12 @@
                             <option value="inactive">Inactive</option>
                         </select>
                     </div>
+                </div>
+                <div class="form-group">
+                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12.5px;">
+                        <input type="checkbox" name="is_coordinator" id="edit_member_is_coordinator" value="1" onchange="if(this.checked){document.getElementById('edit_member_is_officer').checked=true;}">
+                        <span style="font-weight:600;color:#062f78;">Designate as Head Commission Coordinator</span>
+                    </label>
                 </div>
                 <div class="form-group">
                     <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12.5px;">
@@ -927,6 +949,9 @@
                 <button type="submit" class="btn btn-primary">Upload File</button>
             </div>
         </form>
+    </div>
+</div>
+
 <!-- MODAL: ADD MINISTRY -->
 <div class="modal-backdrop" id="addMinistryModal" style="display:none;" onclick="if(event.target===this) closeAddMinistryModal()">
     <div class="modal-box" style="max-width: 580px;">
@@ -1253,8 +1278,10 @@ tr:hover td { background: #fafcfe; }
 @push('scripts')
 <script>
 // Member modals
-function openAddMemberModal(isOfficer = false) {
-    document.getElementById('add_member_is_officer').checked = Boolean(isOfficer);
+function openAddMemberModal(isOfficer = false, isCoordinator = false) {
+    document.getElementById('add_member_is_officer').checked = Boolean(isOfficer || isCoordinator);
+    const coordBox = document.getElementById('add_member_is_coordinator');
+    if (coordBox) coordBox.checked = Boolean(isCoordinator);
     document.getElementById('addMemberModal').style.display = 'flex';
 }
 function closeAddMemberModal() {
@@ -1270,10 +1297,14 @@ function openEditMemberModal(membership, memberName) {
         form.action = `/admin/commissions/{{ $commission->id }}/members/${membership.id}`;
     }
 
+    const isHead = (membership.role === 'head' || membership.role === 'coordinator' || {{ (int)($commission->head_user_id ?? 0) }} === membership.user_id || (membership.position && membership.position.toLowerCase().includes('coordinator')));
+
     document.getElementById('edit_member_name').innerText = memberName;
     document.getElementById('edit_member_position').value = membership.position || '';
     document.getElementById('edit_member_status').value = membership.status || 'active';
-    document.getElementById('edit_member_is_officer').checked = Boolean(membership.is_officer);
+    document.getElementById('edit_member_is_officer').checked = Boolean(membership.is_officer || isHead);
+    const coordBox = document.getElementById('edit_member_is_coordinator');
+    if (coordBox) coordBox.checked = Boolean(isHead);
     document.getElementById('edit_member_notes').value = membership.notes || '';
 
     document.getElementById('editMemberModal').style.display = 'flex';

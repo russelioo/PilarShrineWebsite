@@ -126,29 +126,68 @@ const displayedHolders = computed(() => {
       const nameMatch = c.name?.toLowerCase().includes(q)
       const descMatch = c.description?.toLowerCase().includes(q)
       const codeMatch = c.code?.toLowerCase().includes(q)
-      return nameMatch || descMatch || codeMatch
+      const coordMatch = c.coordinator_name?.toLowerCase().includes(q)
+      return nameMatch || descMatch || codeMatch || coordMatch
     })
   }
 
   return list
 })
 
+// Commissions that have NO individual ministry records — always shown as directory cards
+const commissionsWithNoMinistries = computed(() => {
+  // Get IDs of commissions that have at least 1 ministry
+  const commIdsWithMinistries = new Set(
+    ministries.value
+      .filter((m) => m.commission?.id)
+      .map((m) => m.commission.id)
+  )
+  return displayedHolders.value.filter((c) => !commIdsWithMinistries.has(c.id))
+})
+
+const selectedCommission = computed(() => {
+  if (selectedCommissionSlug.value === 'all') return null
+  return commissions.value.find(
+    (c) => c.slug?.toLowerCase() === selectedCommissionSlug.value.toLowerCase() ||
+           c.code?.toLowerCase() === selectedCommissionSlug.value.toLowerCase()
+  )
+})
+
 const openHolderModal = (c) => {
+  // Merge API posted_ministries with any full ministry records belonging to this commission
+  const apiPosted = c.posted_ministries || []
+  const fullMinistries = ministries.value.filter((m) => m.commission?.id === c.id)
+  // Build a merged list, de-duplicated by id
+  const seen = new Set(apiPosted.map((m) => m.id))
+  const merged = [
+    ...apiPosted,
+    ...fullMinistries.filter((m) => !seen.has(m.id)).map((m) => ({
+      id: m.id,
+      name: m.name,
+      description: m.description,
+      coordinator_name: m.coordinator_name,
+      official_population: m.official_population,
+      is_accepting_members: m.is_accepting_members,
+    })),
+  ]
+
   activeModalMinistry.value = {
-    id: `holder-${c.id || c.slug}`,
+    id: `comm-${c.id || c.slug}`,
     name: c.name,
     category: c.name.replace(/^Commission on\s+/i, ''),
     commission: c,
     icon: resolveIcon(c.icon),
     description: c.description || 'Oversees parish ministries, apostolates, and mandated lay organizations under this pastoral jurisdiction.',
-    about: 'Individual parish apostolates, liturgical guilds, and mandated lay associations under this commission are currently undergoing official registration in the parish database. Once registered by the Parish Pastoral Council and Commission leadership, their complete schedules, meeting venues, and coordinators will be published here.',
-    meeting_schedule: 'To be announced upon completion of parish registration',
-    meeting_location: 'Diocesan Shrine and Parish of Our Lady of the Pillar',
-    coordinator_name: 'Parish Office / Commission Secretariat',
-    coordinator_email: null,
-    coordinator_phone: null,
+    about: null,
+    meeting_schedule: null,
+    meeting_location: null,
+    coordinator_name: c.coordinator_name || 'Commission Secretariat / Parish Office',
+    coordinator_email: c.coordinator_email || null,
+    coordinator_phone: c.coordinator_phone || null,
     is_accepting_members: false,
-    is_holder: true,
+    is_commission: true,
+    posted_ministries: merged,
+    posted_projects: c.posted_projects || [],
   }
   document.body.style.overflow = 'hidden'
 }
@@ -227,10 +266,10 @@ const resetFilters = () => {
             <span v-if="isLoading">Loading parish ministries...</span>
             <span v-else-if="totalActiveCount === 0">
               <span v-if="selectedCommissionSlug !== 'all' || searchQuery">
-                Showing <strong>{{ displayedHolders.length }}</strong> of <strong>{{ commissions.length }}</strong> pastoral commission directories
+                Showing <strong>{{ displayedHolders.length }}</strong> of <strong>{{ commissions.length }}</strong> pastoral commissions
               </span>
               <span v-else>
-                Showing all <strong>{{ displayedHolders.length }}</strong> pastoral commission directories (awaiting individual ministry registration)
+                Showing all <strong>{{ displayedHolders.length }}</strong> active pastoral commissions
               </span>
             </span>
             <span v-else-if="searchQuery || selectedCommissionSlug !== 'all'">
@@ -278,9 +317,9 @@ const resetFilters = () => {
           </article>
         </div>
 
-        <!-- When 0 registered ministries exist in DB: Display Commission Directory Card Holders -->
+        <!-- When 0 registered ministries exist in DB: Display Commission Directory Cards -->
         <div v-else-if="totalActiveCount === 0">
-          <!-- Empty State: Search/Filter matched 0 commission holders -->
+          <!-- Empty State: no commissions matched search -->
           <div v-if="displayedHolders.length === 0" class="canonical-empty-card" role="status">
             <div class="empty-search-icon" aria-hidden="true">🔍</div>
             <h3 class="empty-title">No Commissions Found</h3>
@@ -291,8 +330,7 @@ const resetFilters = () => {
               Reset Search &amp; Filters
             </button>
           </div>
-
-          <!-- Live Commission Card Holders Grid -->
+          <!-- Commission Cards -->
           <div v-else class="ministries-cards-grid">
             <article
               v-for="c in displayedHolders"
@@ -305,121 +343,75 @@ const resetFilters = () => {
               @keydown.enter="openHolderModal(c)"
               @keydown.space.prevent="openHolderModal(c)"
             >
-              <!-- Top Row: Commission Tag & Icon -->
               <div class="card-eyebrow-row">
-                <span class="ministry-commission-tag">
-                  {{ c.name.replace(/^Commission on\s+/i, '') }}
-                </span>
+                <span class="ministry-commission-tag">{{ c.name.replace(/^Commission on\s+/i, '') }}</span>
                 <span class="ministry-icon-badge" aria-hidden="true">{{ resolveIcon(c.icon) }}</span>
               </div>
-
-              <!-- Title & Description from DB -->
               <h3 class="ministry-title">{{ c.name }}</h3>
-              <p class="ministry-desc">
-                {{ c.description || 'Oversees parish ministries, apostolates, and mandated lay organizations under this pastoral area.' }}
-              </p>
-
-              <!-- Key Logistics Placeholders (Without fabricated data) -->
-              <div class="ministry-logistics-list">
+              <p class="ministry-desc">{{ c.description || 'Oversees parish ministries, apostolates, and mandated lay organizations under this pastoral area.' }}</p>
+              <div v-if="c.coordinator_name" class="ministry-logistics-list">
                 <div class="logistics-item">
-                  <svg class="logistics-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                    <circle cx="12" cy="12" r="10" />
-                    <polyline points="12 6 12 12 16 14" />
-                  </svg>
-                  <span>Schedule: To be announced</span>
-                </div>
-                <div class="logistics-item">
-                  <svg class="logistics-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                    <circle cx="12" cy="10" r="3" />
-                  </svg>
-                  <span>Venue: Parish Shrine / Pastoral Center</span>
+                  <svg class="logistics-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                  <span>Coordinator: <strong>{{ c.coordinator_name }}</strong></span>
                 </div>
               </div>
-
-              <!-- Bottom Footer Row: Status Pill & View Details Action -->
               <div class="ministry-card-footer">
-                <span class="status-pill status-holder">
-                  ◌ Awaiting Registration
-                </span>
-                <span class="view-details-action">
-                  Inquire Details <span aria-hidden="true">&rarr;</span>
-                </span>
+                <span class="status-pill status-open">● Active Commission</span>
+                <span class="view-details-action">View Commission <span aria-hidden="true">&rarr;</span></span>
               </div>
             </article>
           </div>
         </div>
 
-        <!-- Empty State: Search/Filter yielded 0 matches -->
-        <div v-else-if="filteredMinistries.length === 0" class="canonical-empty-card" role="status">
-          <div class="empty-search-icon" aria-hidden="true">🔍</div>
-          <h3 class="empty-title">No Ministries Found</h3>
-          <p class="empty-subtitle">
-            We could not find any active ministries matching <strong v-if="searchQuery">"{{ searchQuery }}"</strong>
-            <span v-if="selectedCommissionSlug !== 'all'"> under the selected commission</span>.
-          </p>
-          <button type="button" class="button secondary button-sm" @click="resetFilters">
-            View All Ministries
-          </button>
-        </div>
+        <!-- Always show ALL commission cards — ministries appear inside the commission modal -->
+        <div v-else>
+          <!-- Empty State: search matched nothing -->
+          <div v-if="displayedHolders.length === 0" class="canonical-empty-card" role="status">
+            <div class="empty-search-icon" aria-hidden="true">🔍</div>
+            <h3 class="empty-title">No Commissions Found</h3>
+            <p class="empty-subtitle">
+              We could not find any pastoral commissions matching <strong v-if="searchQuery">"{{ searchQuery }}"</strong>.
+            </p>
+            <button type="button" class="button secondary button-sm" @click="resetFilters">
+              Reset Search &amp; Filters
+            </button>
+          </div>
 
-        <!-- Live Database-Driven Ministries Grid -->
-        <div v-else class="ministries-cards-grid">
-          <article
-            v-for="m in filteredMinistries"
-            :key="m.id || m.slug"
-            class="ministry-resource-card"
-            tabindex="0"
-            role="button"
-            :aria-label="`View details for ${m.name}`"
-            @click="openModal(m)"
-            @keydown.enter="openModal(m)"
-            @keydown.space.prevent="openModal(m)"
-          >
-            <!-- Top Row: Commission Tag & Icon -->
-            <div class="card-eyebrow-row">
-              <span class="ministry-commission-tag">
-                {{ m.commission ? m.commission.name.replace(/^Commission on\s+/i, '') : m.category }}
-              </span>
-              <span v-if="m.icon" class="ministry-icon-badge" aria-hidden="true">{{ m.icon }}</span>
-            </div>
-
-            <!-- Ministry Title & Description -->
-            <h3 class="ministry-title">{{ m.name }}</h3>
-            <p class="ministry-desc">{{ m.description }}</p>
-
-            <!-- Key Logistics Badges (only rendered if actual data exists) -->
-            <div v-if="m.meeting_schedule || m.meeting_location" class="ministry-logistics-list">
-              <div v-if="m.meeting_schedule" class="logistics-item">
-                <svg class="logistics-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                  <circle cx="12" cy="12" r="10" />
-                  <polyline points="12 6 12 12 16 14" />
-                </svg>
-                <span>{{ m.meeting_schedule }}</span>
+          <!-- All Commission Cards (always visible, ministries inside the modal) -->
+          <div v-else class="ministries-cards-grid">
+            <article
+              v-for="c in displayedHolders"
+              :key="c.id || c.slug"
+              class="ministry-resource-card holder-card"
+              tabindex="0"
+              role="button"
+              :aria-label="`View details for ${c.name}`"
+              @click="openHolderModal(c)"
+              @keydown.enter="openHolderModal(c)"
+              @keydown.space.prevent="openHolderModal(c)"
+            >
+              <div class="card-eyebrow-row">
+                <span class="ministry-commission-tag">{{ c.name.replace(/^Commission on\s+/i, '') }}</span>
+                <span class="ministry-icon-badge" aria-hidden="true">{{ resolveIcon(c.icon) }}</span>
               </div>
-              <div v-if="m.meeting_location" class="logistics-item">
-                <svg class="logistics-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                  <circle cx="12" cy="10" r="3" />
-                </svg>
-                <span>{{ m.meeting_location }}</span>
+              <h3 class="ministry-title">{{ c.name }}</h3>
+              <p class="ministry-desc">{{ c.description || 'Oversees parish ministries, apostolates, and mandated lay organizations under this pastoral area.' }}</p>
+              <div v-if="c.coordinator_name" class="ministry-logistics-list">
+                <div class="logistics-item">
+                  <svg class="logistics-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                  <span>Coordinator: <strong>{{ c.coordinator_name }}</strong></span>
+                </div>
               </div>
-            </div>
-
-            <!-- Bottom Footer Row: Status Pill & View Details Action -->
-            <div class="ministry-card-footer">
-              <span
-                class="status-pill"
-                :class="m.is_accepting_members ? 'status-open' : 'status-closed'"
-              >
-                {{ m.is_accepting_members ? '● Accepting Members' : 'Applications Closed' }}
-              </span>
-
-              <span class="view-details-action">
-                View Details <span aria-hidden="true">&rarr;</span>
-              </span>
-            </div>
-          </article>
+              <!-- Show ministry count badge if this commission has ministries -->
+              <div v-if="ministries.filter(m => m.commission?.id === c.id).length > 0" style="margin: 6px 0; font-size: 11.5px; color: #0a377f; font-weight: 600;">
+                {{ ministries.filter(m => m.commission?.id === c.id).length }} Registered {{ ministries.filter(m => m.commission?.id === c.id).length === 1 ? 'Ministry' : 'Ministries' }}
+              </div>
+              <div class="ministry-card-footer">
+                <span class="status-pill status-open">● Active Commission</span>
+                <span class="view-details-action">View Details <span aria-hidden="true">&rarr;</span></span>
+              </div>
+            </article>
+          </div>
         </div>
       </main>
 
@@ -481,26 +473,26 @@ const resetFilters = () => {
             <div class="modal-status-banner">
               <span
                 class="status-pill-lg"
-                :class="activeModalMinistry.is_holder ? 'status-holder' : (activeModalMinistry.is_accepting_members ? 'status-open' : 'status-closed')"
+                :class="activeModalMinistry.is_commission ? 'status-open' : (activeModalMinistry.is_accepting_members ? 'status-open' : 'status-closed')"
               >
-                {{ activeModalMinistry.is_holder ? '◌ Registration in Progress' : (activeModalMinistry.is_accepting_members ? '● Currently Accepting New Members' : 'Applications Currently Closed') }}
+                {{ activeModalMinistry.is_commission ? '● Active Pastoral Commission' : (activeModalMinistry.is_accepting_members ? '● Currently Accepting New Members' : 'Applications Currently Closed') }}
               </span>
               <p class="modal-lead-desc">{{ activeModalMinistry.description }}</p>
             </div>
 
             <!-- About / Apostolate Vision -->
             <div v-if="activeModalMinistry.about" class="modal-sub-section">
-              <h3 class="modal-section-title">Vision &amp; Apostolate Mission</h3>
+              <h3 class="modal-section-title">{{ activeModalMinistry.is_commission ? 'Pastoral Mandate & Mission' : 'Vision & Apostolate Mission' }}</h3>
               <p class="modal-about-text">{{ activeModalMinistry.about }}</p>
             </div>
 
             <!-- Logistics & Leadership Grid -->
             <div
-              v-if="activeModalMinistry.meeting_schedule || activeModalMinistry.meeting_location || activeModalMinistry.coordinator_name || activeModalMinistry.coordinator_email || activeModalMinistry.coordinator_phone"
+              v-if="(!activeModalMinistry.is_commission && (activeModalMinistry.meeting_schedule || activeModalMinistry.meeting_location)) || activeModalMinistry.coordinator_name || activeModalMinistry.coordinator_email || activeModalMinistry.coordinator_phone"
               class="modal-logistics-grid"
             >
-              <!-- Gathering Logistics -->
-              <div v-if="activeModalMinistry.meeting_schedule || activeModalMinistry.meeting_location" class="modal-info-block">
+              <!-- Gathering Logistics (Only for individual parish ministries with schedules/venues) -->
+              <div v-if="!activeModalMinistry.is_commission && (activeModalMinistry.meeting_schedule || activeModalMinistry.meeting_location)" class="modal-info-block">
                 <h4 class="info-block-title">
                   <svg class="info-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                     <circle cx="12" cy="12" r="10" />
@@ -553,6 +545,41 @@ const resetFilters = () => {
               </div>
             </div>
 
+            <!-- Connected Ministries / Apostolates under this Commission -->
+            <div v-if="activeModalMinistry.is_commission" class="modal-sub-section">
+              <h3 class="modal-section-title">Posted Ministries &amp; Apostolates</h3>
+              <div v-if="activeModalMinistry.posted_ministries && activeModalMinistry.posted_ministries.length > 0" class="modal-posted-items-grid">
+                <div v-for="pm in activeModalMinistry.posted_ministries" :key="pm.id || pm.slug" class="posted-item-card">
+                  <div class="posted-item-header">
+                    <strong class="posted-item-title">{{ pm.name }}</strong>
+                    <span v-if="pm.is_accepting_members" class="status-pill status-open">● Accepting Members</span>
+                  </div>
+                  <p v-if="pm.description" class="posted-item-desc">{{ pm.description }}</p>
+                  <div class="posted-item-meta" v-if="pm.coordinator_name || pm.meeting_schedule">
+                    <span v-if="pm.coordinator_name">👤 Coordinator: {{ pm.coordinator_name }}</span>
+                    <span v-if="pm.meeting_schedule">🕒 Schedule: {{ pm.meeting_schedule }}</span>
+                  </div>
+                </div>
+              </div>
+              <p v-else class="empty-subtext">
+                All pastoral programs and apostolates under this commission are managed directly by the Commission Coordinator and Parish Pastoral Council.
+              </p>
+            </div>
+
+            <!-- Connected Projects & Initiatives under this Commission -->
+            <div v-if="activeModalMinistry.is_commission && activeModalMinistry.posted_projects && activeModalMinistry.posted_projects.length > 0" class="modal-sub-section">
+              <h3 class="modal-section-title">Pastoral Projects &amp; Initiatives</h3>
+              <div class="modal-posted-items-grid">
+                <div v-for="pp in activeModalMinistry.posted_projects" :key="pp.id" class="posted-item-card">
+                  <div class="posted-item-header">
+                    <strong class="posted-item-title">{{ pp.title }}</strong>
+                    <span class="status-pill status-open">{{ pp.status_label || pp.status }}</span>
+                  </div>
+                  <p v-if="pp.description" class="posted-item-desc">{{ pp.description }}</p>
+                </div>
+              </div>
+            </div>
+
             <!-- Core Activities Checklist -->
             <div v-if="activeModalMinistry.activities && activeModalMinistry.activities.length > 0" class="modal-sub-section">
               <h3 class="modal-section-title">Core Activities &amp; Responsibilities</h3>
@@ -575,24 +602,15 @@ const resetFilters = () => {
               </ul>
             </div>
 
-            <!-- How to Join Callout Box -->
-            <div class="how-to-join-callout">
+            <!-- How to Join Callout Box (Only for individual parish ministries) -->
+            <div v-if="!activeModalMinistry.is_commission && activeModalMinistry.is_accepting_members" class="how-to-join-callout">
               <div class="callout-copy">
-                <strong>{{ activeModalMinistry.is_holder ? 'Parish Pastoral Directory Registration' : 'How to Join this Ministry' }}</strong>
+                <strong>How to Join this Ministry</strong>
                 <p>
-                  <span v-if="activeModalMinistry.is_holder">
-                    Parish ministries, liturgical guilds, and lay associations under this pastoral commission are currently undergoing official registration in the parish registry. To enroll an apostolate or inquire about volunteering, please contact the Parish Office.
-                  </span>
-                  <span v-else-if="activeModalMinistry.is_accepting_members">
-                    Interested in becoming a member? You may visit the Parish Office during official office hours (Tuesday–Sunday) or talk to any coordinator after Sunday Holy Masses.
-                  </span>
-                  <span v-else>
-                    Formal membership intake for this ministry is temporarily closed. You may inquire at the Parish Office for upcoming formation dates.
-                  </span>
+                  Interested in becoming a member? You may visit the Parish Office during official office hours (Tuesday–Sunday) or talk to any coordinator after Sunday Holy Masses.
                 </p>
               </div>
               <a
-                v-if="activeModalMinistry.is_accepting_members || activeModalMinistry.is_holder"
                 class="button button-sm"
                 href="#/contact"
                 @click="closeModal"
@@ -662,7 +680,7 @@ const resetFilters = () => {
   padding: 0 44px 0 46px;
   border: none;
   background: transparent;
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 14px;
   color: var(--ink, #17263a);
   outline: none;
@@ -702,7 +720,7 @@ const resetFilters = () => {
 
 .filter-nav-label {
   display: block;
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
@@ -728,7 +746,7 @@ const resetFilters = () => {
   background: #ffffff;
   border: 1px solid rgba(14, 50, 95, 0.16);
   color: #072a5a;
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -777,7 +795,7 @@ const resetFilters = () => {
   margin-top: 18px;
   padding-top: 16px;
   border-top: 1px solid rgba(220, 228, 236, 0.6);
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 13.5px;
   color: var(--muted, #607086);
 }
@@ -791,7 +809,7 @@ const resetFilters = () => {
   border: none;
   background: none;
   color: var(--blue, #0a377f);
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 12.5px;
   font-weight: 700;
   cursor: pointer;
@@ -835,7 +853,7 @@ const resetFilters = () => {
 }
 
 .empty-title {
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-heading);
   font-size: clamp(22px, 2.4vw, 28px);
   font-weight: 700;
   color: var(--blue, #0a377f);
@@ -844,7 +862,7 @@ const resetFilters = () => {
 }
 
 .empty-subtitle {
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 14.5px;
   color: var(--muted, #607086);
   max-width: 520px;
@@ -900,7 +918,7 @@ const resetFilters = () => {
   align-items: center;
   padding: 4px 10px;
   border-radius: 6px;
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 10.5px;
   font-weight: 700;
   text-transform: uppercase;
@@ -916,7 +934,7 @@ const resetFilters = () => {
 }
 
 .ministry-title {
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-heading);
   font-size: 19px;
   font-weight: 700;
   color: #072a5a;
@@ -925,13 +943,14 @@ const resetFilters = () => {
 }
 
 .ministry-desc {
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 13px;
   color: #475569;
   line-height: 1.6;
   margin: 0 0 16px;
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -952,7 +971,7 @@ const resetFilters = () => {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 12px;
   color: #55687d;
   line-height: 1.4;
@@ -979,7 +998,7 @@ const resetFilters = () => {
 .status-pill {
   display: inline-flex;
   align-items: center;
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 11px;
   font-weight: 600;
   padding: 3px 9px;
@@ -1005,8 +1024,8 @@ const resetFilters = () => {
 }
 
 .holder-card {
-  border-style: dashed;
-  border-color: rgba(10, 55, 127, 0.22);
+  border-style: solid;
+  border-color: rgba(10, 55, 127, 0.12);
 }
 
 .holder-card:hover {
@@ -1020,7 +1039,7 @@ const resetFilters = () => {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 12px;
   font-weight: 700;
   color: var(--blue, #0a377f);
@@ -1150,7 +1169,7 @@ const resetFilters = () => {
 
 .modal-commission-tag {
   display: inline-block;
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
@@ -1160,7 +1179,7 @@ const resetFilters = () => {
 }
 
 .modal-title {
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-heading);
   font-size: 22px;
   font-weight: 700;
   color: #072a5a;
@@ -1214,7 +1233,7 @@ const resetFilters = () => {
 .status-pill-lg {
   display: inline-flex;
   align-items: center;
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 11.5px;
   font-weight: 700;
   padding: 4px 12px;
@@ -1241,7 +1260,7 @@ const resetFilters = () => {
 }
 
 .modal-lead-desc {
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 14.5px;
   line-height: 1.7;
   color: #334155;
@@ -1249,7 +1268,7 @@ const resetFilters = () => {
 }
 
 .modal-section-title {
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-heading);
   font-size: 16px;
   font-weight: 700;
   color: var(--blue, #0a377f);
@@ -1257,7 +1276,7 @@ const resetFilters = () => {
 }
 
 .modal-about-text {
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 13.5px;
   line-height: 1.7;
   color: #475569;
@@ -1282,7 +1301,7 @@ const resetFilters = () => {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 12.5px;
   font-weight: 700;
   text-transform: uppercase;
@@ -1342,7 +1361,7 @@ const resetFilters = () => {
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 13px;
   color: #334155;
   line-height: 1.55;
@@ -1373,7 +1392,7 @@ const resetFilters = () => {
 
 .callout-copy strong {
   display: block;
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 13px;
   font-weight: 700;
   color: var(--blue, #0a377f);
@@ -1381,10 +1400,73 @@ const resetFilters = () => {
 }
 
 .callout-copy p {
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 12.5px;
   color: #475569;
   line-height: 1.55;
+  margin: 0;
+}
+
+.callout-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+/* Connected Posted Items inside Modal */
+.modal-posted-items-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.posted-item-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+
+.posted-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.posted-item-title {
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--blue, #0a377f);
+}
+
+.posted-item-desc {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: #475569;
+  line-height: 1.55;
+  margin: 0 0 8px;
+}
+
+.posted-item-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: #64748b;
+}
+
+.empty-subtext {
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  color: #64748b;
+  font-style: italic;
   margin: 0;
 }
 

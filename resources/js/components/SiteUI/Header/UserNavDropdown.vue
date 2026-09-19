@@ -292,7 +292,7 @@ onBeforeUnmount(() => {
 .user-avatar-initials {
   font-size: 11px;
   font-weight: 700;
-  font-family: Georgia, serif;
+  font-family: var(--font-body);
 }
 
 .user-trigger-name {

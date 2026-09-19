@@ -144,8 +144,9 @@
     }
 
     .page-heading h2 {
-        font-family: Georgia, serif;
+        font-family: var(--font-heading);
         font-size: 24px;
+        font-weight: 700;
         color: var(--navy, #062f78);
         margin: 0 0 6px;
     }

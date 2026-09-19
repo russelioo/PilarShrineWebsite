@@ -525,7 +525,9 @@
 .icon-green { background: #ecfdf5; color: #059669; }
 .icon-amber { background: #fffbeb; color: #d97706; }
 .summary-content strong {
-    font: 700 22px Georgia, serif;
+    font-family: var(--font-heading);
+    font-size: 22px;
+    font-weight: 700;
     color: var(--navy);
     display: block;
     line-height: 1.1;
@@ -700,7 +702,9 @@
 }
 .ministry-title {
     margin: 0 0 8px;
-    font: 700 16px Georgia, serif;
+    font-family: var(--font-heading);
+    font-size: 16px;
+    font-weight: 700;
     color: var(--navy);
     line-height: 1.3;
 }
@@ -810,7 +814,9 @@
 }
 .empty-state-wrap h4 {
     margin: 0 0 6px;
-    font: 700 16px Georgia, serif;
+    font-family: var(--font-heading);
+    font-size: 16px;
+    font-weight: 700;
     color: var(--navy);
 }
 .empty-state-wrap p {
@@ -857,7 +863,9 @@
 }
 .block-header h3 {
     margin: 0;
-    font: 700 16px Georgia, serif;
+    font-family: var(--font-heading);
+    font-size: 16px;
+    font-weight: 700;
     color: var(--navy);
 }
 .membership-count-badge {
@@ -964,7 +972,9 @@
 }
 .modal-card-header h3 {
     margin: 4px 0 0;
-    font: 700 17px Georgia, serif;
+    font-family: var(--font-heading);
+    font-size: 17px;
+    font-weight: 700;
     color: var(--navy);
 }
 .modal-close-btn {

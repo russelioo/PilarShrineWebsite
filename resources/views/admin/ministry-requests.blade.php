@@ -206,7 +206,7 @@
 .summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 18px; }
 .summary article { padding: 16px 18px; border: 1px solid var(--line); border-radius: 9px; background: #fff; }
 .summary strong, .summary span { display: block; }
-.summary strong { font: 700 20px Georgia, serif; color: var(--navy); }
+.summary strong { font-family: var(--font-heading); font-size: 20px; font-weight: 700; color: var(--navy); }
 .summary span { font-size: 9px; color: var(--muted); text-transform: uppercase; margin-top: 4px; }
 .highlight-pending strong { color: #d97706; }
 .highlight-approved strong { color: #059669; }

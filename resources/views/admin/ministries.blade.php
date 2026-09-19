@@ -549,7 +549,7 @@
 .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
 .stat-box { padding: 16px 18px; border: 1px solid var(--line); border-radius: 9px; background: #fff; }
 .stat-box strong, .stat-box span { display: block; }
-.stat-box strong { font: 700 22px Georgia, serif; color: var(--navy); }
+.stat-box strong { font-family: var(--font-heading); font-size: 22px; font-weight: 700; color: var(--navy); }
 .stat-box span { font-size: 9.5px; color: var(--muted); text-transform: uppercase; margin-top: 4px; letter-spacing: 0.03em; }
 .highlight-open strong { color: #059669; }
 .highlight-closed strong { color: #64748b; }
@@ -613,7 +613,7 @@ th { background: #f8fafc; color: var(--muted); font-size: 9.5px; font-weight: 70
 .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 22px; border-bottom: 1px solid #f1f5f9; background: #fafcff; }
 .modal-dialog form { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: hidden; }
 .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 22px; border-bottom: 1px solid #f1f5f9; background: #fafcff; flex-shrink: 0; }
-.modal-header h4 { margin: 0; font-size: 15px; color: var(--navy); font-weight: 700; font-family: Georgia, serif; }
+.modal-header h4 { margin: 0; font-size: 15px; color: var(--navy); font-weight: 700; font-family: var(--font-heading); }
 .modal-close { background: none; border: none; font-size: 22px; cursor: pointer; color: #64748b; line-height: 1; }
 .modal-close:hover { color: #0f172a; }
 .modal-body { padding: 20px 22px; }

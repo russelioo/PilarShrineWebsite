@@ -7,11 +7,15 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Pilar Shrine Parishioner')</title>
     <link rel="icon" href="/images/pilar-shrine-logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    @vite(['resources/css/portal-theme.css'])
 
     <style>
         :root{--navy:#062f78;--blue:#0b58b5;--gold:#d6aa3e;--ink:#1b2b40;--muted:#718096;--bg:#f3f7fb;--line:#dce5ee;--side-top:#052b69;--side-bottom:#073f94}
         *{box-sizing:border-box}
-        body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,sans-serif}
+        body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
         .layout{min-height:100vh;display:grid;grid-template-columns:280px 1fr;transition:grid-template-columns .25s ease}
         .layout.sidebar-collapsed{grid-template-columns:76px 1fr}
 
@@ -25,7 +29,7 @@
         .sidebar-toggle svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .25s ease}
         .brand-mark{width:42px;height:42px;flex:none;border-radius:50%;background:#fff;display:grid;place-items:center;overflow:hidden}
         .brand-mark img{width:26px;height:32px;object-fit:contain}
-        .brand b{display:block;font:700 14px Georgia,serif;color:#fff}
+        .brand b{display:block;font-family:var(--font-heading);font-weight:700;font-size:15px;color:#fff}
         .brand small{display:block;margin-top:2px;color:#c7c2ec;font-size:9px;text-transform:none}
 
         .nav{padding:0 2px}
@@ -52,13 +56,13 @@
         /* ===== Main / topbar / content shell ===== */
         .main{min-width:0}
         .topbar{height:78px;display:flex;align-items:center;justify-content:space-between;padding:0 36px;border-bottom:1px solid var(--line);background:#fff}
-        .topbar h1{margin:0;color:var(--navy);font-size:22px;font-family:Georgia,serif}
+        .topbar h1{margin:0;color:var(--navy);font-size:22px;font-family:var(--font-heading);font-weight:700}
         .profile-actions{display:flex;align-items:center;gap:16px}
         .profile-link{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;cursor:pointer;transition:opacity .15s ease}
         .profile-link:hover{opacity:0.85}
         .avatar-wrap{width:38px;height:38px;min-width:38px;min-height:38px;max-width:38px;max-height:38px;border-radius:50%;border:2px solid var(--gold);overflow:hidden;display:grid;place-items:center;background:#eaf2fb;flex-shrink:0;box-sizing:border-box}
         .avatar-wrap .avatar-img{width:100%;height:100%;max-width:100%;max-height:100%;object-fit:cover;display:block;border-radius:50%}
-        .avatar-wrap .avatar-initials{font-size:13px;font-weight:800;color:var(--navy);font-family:Arial,sans-serif}
+        .avatar-wrap .avatar-initials{font-size:13px;font-weight:800;color:var(--navy);font-family:var(--font-body)}
         .profile-meta{display:flex;flex-direction:column;min-width:0;line-height:1.25}
         .profile-name{font-size:12px;font-weight:700;color:var(--navy);white-space:nowrap;max-width:170px;overflow:hidden;text-overflow:ellipsis}
         .profile-role{font-size:10px;color:var(--muted);white-space:nowrap}
@@ -91,14 +95,14 @@
         .feature-soon-toast.show{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:auto}
         .toast-content{display:flex;align-items:center;gap:12px}
         .toast-content svg{flex-shrink:0;color:var(--gold)}
-        .toast-content strong{display:block;font-size:13px;font-family:Georgia,serif;color:#fff;margin-bottom:2px}
+        .toast-content strong{display:block;font-size:13px;font-family:var(--font-heading);font-weight:700;color:#fff;margin-bottom:2px}
         .toast-content p{margin:0;font-size:11px;color:#dce9f8;line-height:1.4}
         .toast-close{background:none;border:none;color:#dce9f8;font-size:20px;line-height:1;cursor:pointer;padding:0 4px;margin-left:auto}
         .toast-close:hover{color:#fff}
         .content{padding:32px 36px}
 
         .welcome{display:flex;justify-content:space-between;align-items:end;margin-bottom:25px}
-        .welcome h2{margin:0 0 6px;color:var(--navy);font-size:26px;font-family:Georgia,serif}
+        .welcome h2{margin:0 0 6px;color:var(--navy);font-size:26px;font-family:var(--font-heading);font-weight:700}
         .welcome p,.date{margin:0;color:var(--muted);font-size:11px}
 
         /* ===== Generic buttons used across admin pages ===== */
@@ -106,7 +110,7 @@
         .btn-primary{border:1px solid var(--navy);background:var(--navy);color:#fff}
         .btn-outline{border:1px solid var(--line);background:#fff;color:var(--ink)}
         .page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-        .page-header h2{margin:0;color:var(--navy);font-family:Georgia,serif}
+        .page-header h2{margin:0;color:var(--navy);font-family:var(--font-heading);font-weight:700}
         .page-header .actions{display:flex;gap:10px}
 
         @media(max-width:900px){

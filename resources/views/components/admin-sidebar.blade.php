@@ -67,39 +67,73 @@
     </div>
 
     <!-- COMMISSIONS -->
-    <div class="nav-section">
-      <span class="nav-section-title">COMMISSIONS</span>
-      <a href="{{ route('admin.commissions.index') }}" 
-         class="admin-nav-item {{ request()->routeIs('admin.commissions.index') ? 'active' : '' }}"
-         data-title="All Commissions">
-        <span class="nav-icon-box">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-            <path d="M2 17l10 5 10-5"></path>
-            <path d="M2 12l10 5 10-5"></path>
+    @php
+      try {
+          $sidebarCommissions = \Illuminate\Support\Facades\Schema::hasTable('commissions')
+              ? \App\Models\Commission::where('is_active', true)->orderBy('name')->get(['id', 'name', 'slug', 'code'])
+              : collect();
+      } catch (\Throwable $e) {
+          $sidebarCommissions = collect();
+      }
+      $currentRouteComm = request()->route('commission');
+      $isAnyCommChildActive = false;
+      foreach ($sidebarCommissions as $comm) {
+          if (request()->routeIs('admin.commissions.show') && (
+              (is_object($currentRouteComm) && ($currentRouteComm->slug === $comm->slug || $currentRouteComm->id == $comm->id)) ||
+              (is_string($currentRouteComm) && ($currentRouteComm === $comm->slug || $currentRouteComm == $comm->id))
+          )) {
+              $isAnyCommChildActive = true;
+              break;
+          }
+      }
+    @endphp
+    <div class="nav-section nav-dropdown-section {{ $isAnyCommChildActive ? 'expanded' : '' }}" id="commissions-nav-dropdown">
+      <div class="nav-section-header-row" style="display:flex;align-items:center;justify-content:space-between;padding-right:8px;">
+        <span class="nav-section-title">COMMISSIONS</span>
+      </div>
+      
+      <div class="nav-dropdown-trigger-row" style="display:flex;align-items:center;position:relative;">
+        <a href="{{ route('admin.commissions.index') }}" 
+           class="admin-nav-item {{ request()->routeIs('admin.commissions.index') ? 'active' : '' }}"
+           style="flex:1;padding-right:32px;"
+           data-title="All Commissions">
+          <span class="nav-icon-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+              <path d="M2 17l10 5 10-5"></path>
+              <path d="M2 12l10 5 10-5"></path>
+            </svg>
+          </span>
+          <span class="nav-label">All Commissions</span>
+        </a>
+        <button type="button" 
+                class="nav-dropdown-toggle-btn" 
+                aria-label="Toggle Commissions submenu" 
+                onclick="toggleCommissionsDropdown(event)"
+                title="Toggle commissions list"
+                style="position:absolute;right:6px;top:50%;transform:translateY(-50%);background:transparent;border:none;color:#8bb3e8;cursor:pointer;padding:6px;display:flex;align-items:center;justify-content:center;border-radius:6px;transition:all 0.2s ease;">
+          <svg class="dropdown-arrow-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="transition:transform 0.25s cubic-bezier(0.4, 0, 0.2, 1); transform: {{ $isAnyCommChildActive ? 'rotate(180deg)' : 'rotate(0deg)' }};">
+            <polyline points="6 9 12 15 18 9"></polyline>
           </svg>
-        </span>
-        <span class="nav-label">All Commissions</span>
-      </a>
+        </button>
+      </div>
 
-      @php
-        $sidebarCommissions = \App\Models\Commission::where('is_active', true)->orderBy('name')->get(['id', 'name', 'slug', 'code']);
-        $currentRouteComm = request()->route('commission');
-      @endphp
-      @foreach($sidebarCommissions as $comm)
-      @php
-        $isCurrentCommActive = request()->routeIs('admin.commissions.show') && (
-            (is_object($currentRouteComm) && ($currentRouteComm->slug === $comm->slug || $currentRouteComm->id == $comm->id)) ||
-            (is_string($currentRouteComm) && ($currentRouteComm === $comm->slug || $currentRouteComm == $comm->id))
-        );
-      @endphp
-      <a href="{{ route('admin.commissions.show', $comm->slug) }}" 
-         class="admin-nav-item admin-nav-subitem {{ $isCurrentCommActive ? 'active' : '' }}"
-         data-title="{{ $comm->name }}" title="{{ $comm->name }}">
-        <span class="nav-subitem-bullet"></span>
-        <span class="nav-label">{{ $comm->name }}</span>
-      </a>
-      @endforeach
+      <div class="nav-subitems-container" id="commissions-subitems-wrap" style="display: {{ $isAnyCommChildActive ? 'flex' : 'none' }}; flex-direction:column; gap:2px; overflow:hidden; transition:max-height 0.25s ease;">
+        @foreach($sidebarCommissions as $comm)
+        @php
+          $isCurrentCommActive = request()->routeIs('admin.commissions.show') && (
+              (is_object($currentRouteComm) && ($currentRouteComm->slug === $comm->slug || $currentRouteComm->id == $comm->id)) ||
+              (is_string($currentRouteComm) && ($currentRouteComm === $comm->slug || $currentRouteComm == $comm->id))
+          );
+        @endphp
+        <a href="{{ route('admin.commissions.show', $comm->slug) }}" 
+           class="admin-nav-item admin-nav-subitem {{ $isCurrentCommActive ? 'active' : '' }}"
+           data-title="{{ $comm->name }}" title="{{ $comm->name }}">
+          <span class="nav-subitem-bullet"></span>
+          <span class="nav-label">{{ $comm->name }}</span>
+        </a>
+        @endforeach
+      </div>
     </div>
     @endif
 
@@ -509,7 +543,7 @@
   }
 
   .brand-title {
-    font-family: 'Libre Baskerville', Georgia, serif;
+    font-family: var(--font-heading);
     font-weight: 700;
     font-size: 15px;
     color: #ffffff;
@@ -843,4 +877,63 @@
       display: none;
     }
   }
+
+  /* Nav Dropdown Toggle Button Hover */
+  .nav-dropdown-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.12) !important;
+    color: #ffffff !important;
+  }
 </style>
+
+<script>
+  function toggleCommissionsDropdown(event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    const container = document.getElementById('commissions-subitems-wrap');
+    const dropdown = document.getElementById('commissions-nav-dropdown');
+    const arrow = dropdown ? dropdown.querySelector('.dropdown-arrow-icon') : null;
+    if (!container) return;
+
+    const isVisible = window.getComputedStyle(container).display !== 'none';
+    if (isVisible) {
+      container.style.display = 'none';
+      if (arrow) arrow.style.transform = 'rotate(0deg)';
+      if (dropdown) dropdown.classList.remove('expanded');
+      try { localStorage.setItem('sidebar_commissions_expanded', '0'); } catch(e) {}
+    } else {
+      container.style.display = 'flex';
+      if (arrow) arrow.style.transform = 'rotate(180deg)';
+      if (dropdown) dropdown.classList.add('expanded');
+      try { localStorage.setItem('sidebar_commissions_expanded', '1'); } catch(e) {}
+    }
+  }
+
+  // Restore preferred state on page load unless current route actively overrides
+  document.addEventListener('DOMContentLoaded', function() {
+    const container = document.getElementById('commissions-subitems-wrap');
+    const dropdown = document.getElementById('commissions-nav-dropdown');
+    if (!container || !dropdown) return;
+    
+    // If a subitem is active, keep it expanded
+    const hasActiveChild = container.querySelector('.admin-nav-item.active');
+    if (hasActiveChild) {
+      container.style.display = 'flex';
+      const arrow = dropdown.querySelector('.dropdown-arrow-icon');
+      if (arrow) arrow.style.transform = 'rotate(180deg)';
+      dropdown.classList.add('expanded');
+      return;
+    }
+
+    try {
+      const saved = localStorage.getItem('sidebar_commissions_expanded');
+      if (saved === '1') {
+        container.style.display = 'flex';
+        const arrow = dropdown.querySelector('.dropdown-arrow-icon');
+        if (arrow) arrow.style.transform = 'rotate(180deg)';
+        dropdown.classList.add('expanded');
+      }
+    } catch(e) {}
+  });
+</script>

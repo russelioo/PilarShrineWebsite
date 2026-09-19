@@ -68,6 +68,7 @@ class CommissionManagementController extends Controller
             'active_commissions' => Commission::where('is_active', true)->count(),
             'total_members' => CommissionMembership::count(),
             'total_officers' => CommissionMembership::where('is_officer', true)->count(),
+            'active_officers' => CommissionMembership::where('is_officer', true)->where('status', 'active')->count(),
             'total_projects' => CommissionProject::count(),
             'active_projects' => CommissionProject::whereIn('status', ['planning', 'ongoing'])->count(),
             'total_documents' => CommissionDocument::count(),
@@ -150,11 +151,17 @@ class CommissionManagementController extends Controller
         Gate::authorize('create', Commission::class);
 
         $validated = $request->validate([
-            'name'         => ['required', 'string', 'max:255', 'unique:commissions,name'],
-            'code'         => ['nullable', 'string', 'max:50', 'unique:commissions,code'],
-            'description'  => ['nullable', 'string', 'max:2000'],
-            'icon'         => ['nullable', 'string', 'max:50'],
-            'head_user_id' => ['nullable', 'exists:users,id'],
+            'name'                => ['required', 'string', 'max:255', 'unique:commissions,name'],
+            'code'                => ['nullable', 'string', 'max:50', 'unique:commissions,code'],
+            'description'         => ['nullable', 'string', 'max:2000'],
+            'icon'                => ['nullable', 'string', 'max:50'],
+            'head_user_id'        => ['nullable', 'exists:users,id'],
+            'official_population' => ['nullable', 'integer', 'min:0'],
+            // Optional shrine ministry rows
+            'shrine_ministries'              => ['nullable', 'array'],
+            'shrine_ministries.*.name'       => ['nullable', 'string', 'max:255'],
+            'shrine_ministries.*.head'       => ['nullable', 'string', 'max:255'],
+            'shrine_ministries.*.population' => ['nullable', 'integer', 'min:0'],
         ]);
 
         $slug = Str::slug($validated['name']);
@@ -170,13 +177,14 @@ class CommissionManagementController extends Controller
             : strtoupper(substr(str_replace(' ', '', $validated['name']), 0, 8));
 
         $commission = Commission::create([
-            'name'         => $validated['name'],
-            'slug'         => $uniqueSlug,
-            'code'         => $code,
-            'description'  => $validated['description'] ?? null,
-            'icon'         => $validated['icon'] ?? 'cross',
-            'head_user_id' => $validated['head_user_id'] ?? null,
-            'is_active'    => true,
+            'name'                => $validated['name'],
+            'slug'                => $uniqueSlug,
+            'code'                => $code,
+            'description'         => $validated['description'] ?? null,
+            'icon'                => $validated['icon'] ?? 'cross',
+            'head_user_id'        => $validated['head_user_id'] ?? null,
+            'official_population' => isset($validated['official_population']) && $validated['official_population'] !== '' ? (int) $validated['official_population'] : null,
+            'is_active'           => true,
         ]);
 
         // If coordinator assigned, ensure commission_membership
@@ -196,6 +204,38 @@ class CommissionManagementController extends Controller
                         'joined_at'  => now(),
                     ]
                 );
+            }
+        }
+
+        // Save optional shrine ministry rows
+        if (! empty($validated['shrine_ministries'])) {
+            foreach ($validated['shrine_ministries'] as $row) {
+                $ministryName = trim($row['name'] ?? '');
+                if ($ministryName === '') {
+                    continue;
+                }
+                $baseSlug = Str::slug($ministryName);
+                $mSlug = $baseSlug;
+                $mCounter = 1;
+                while (Ministry::where('slug', $mSlug)->exists()) {
+                    $mSlug = "{$baseSlug}-{$mCounter}";
+                    $mCounter++;
+                }
+                Ministry::create([
+                    'name'               => $ministryName,
+                    'slug'               => $mSlug,
+                    'commission_id'      => $commission->id,
+                    'category'           => $commission->name,
+                    'icon'               => '✝',
+                    'description'        => "Ministry under {$commission->name}.",
+                    'status'             => 'active',
+                    'is_public'          => true,
+                    'coordinator_name'   => trim($row['head'] ?? '') ?: null,
+                    'official_population'=> isset($row['population']) && $row['population'] !== '' ? (int) $row['population'] : null,
+                    'is_accepting_members' => true,
+                    'created_by'         => $request->user()->id,
+                    'updated_by'         => $request->user()->id,
+                ]);
             }
         }
 
@@ -220,27 +260,37 @@ class CommissionManagementController extends Controller
         Gate::authorize('update', $commission);
 
         $validated = $request->validate([
-            'name'         => ['required', 'string', 'max:255', "unique:commissions,name,{$commission->id}"],
-            'code'         => ['nullable', 'string', 'max:50', "unique:commissions,code,{$commission->id}"],
-            'description'  => ['nullable', 'string', 'max:2000'],
-            'icon'         => ['nullable', 'string', 'max:50'],
-            'head_user_id' => ['nullable', 'exists:users,id'],
-            'is_active'    => ['nullable', 'boolean'],
+            'name'                => ['required', 'string', 'max:255', "unique:commissions,name,{$commission->id}"],
+            'code'                => ['nullable', 'string', 'max:50', "unique:commissions,code,{$commission->id}"],
+            'description'         => ['nullable', 'string', 'max:2000'],
+            'icon'                => ['nullable', 'string', 'max:50'],
+            'head_user_id'        => ['nullable', 'exists:users,id'],
+            'is_active'           => ['nullable', 'boolean'],
+            'official_population' => ['nullable', 'integer', 'min:0'],
+            // Optional shrine ministry rows
+            'shrine_ministries'              => ['nullable', 'array'],
+            'shrine_ministries.*.name'       => ['nullable', 'string', 'max:255'],
+            'shrine_ministries.*.head'       => ['nullable', 'string', 'max:255'],
+            'shrine_ministries.*.population' => ['nullable', 'integer', 'min:0'],
         ]);
 
-        $oldValues = $commission->only(['name', 'code', 'description', 'head_user_id', 'is_active', 'icon']);
+        $oldValues = $commission->only(['name', 'code', 'description', 'head_user_id', 'is_active', 'icon', 'official_population']);
 
         $commission->update([
-            'name'         => $validated['name'],
-            'code'         => ! empty($validated['code']) ? strtoupper($validated['code']) : $commission->code,
-            'description'  => $validated['description'] ?? null,
-            'icon'         => $validated['icon'] ?? $commission->icon,
-            'head_user_id' => $validated['head_user_id'] ?? null,
-            'is_active'    => $request->has('is_active') ? $request->boolean('is_active') : $commission->is_active,
+            'name'                => $validated['name'],
+            'code'                => ! empty($validated['code']) ? strtoupper($validated['code']) : $commission->code,
+            'description'         => $validated['description'] ?? null,
+            'icon'                => $validated['icon'] ?? $commission->icon,
+            'head_user_id'        => $validated['head_user_id'] ?? null,
+            'official_population' => isset($validated['official_population']) && $validated['official_population'] !== '' ? (int) $validated['official_population'] : null,
+            'is_active'           => $request->has('is_active') ? $request->boolean('is_active') : $commission->is_active,
         ]);
 
-        // Sync coordinator if updated
+        // Sync coordinator: assign new OR demote old when cleared
+        $oldHeadUserId = $commission->getOriginal('head_user_id') ?? $commission->head_user_id;
+
         if (! empty($validated['head_user_id'])) {
+            // Assign new coordinator
             $coord = User::find($validated['head_user_id']);
             if ($coord) {
                 if (! $coord->commission_id) {
@@ -256,6 +306,54 @@ class CommissionManagementController extends Controller
                         'joined_at'  => now(),
                     ]
                 );
+            }
+        } else {
+            // Coordinator was cleared — demote any existing head memberships
+            CommissionMembership::where('commission_id', $commission->id)
+                ->whereIn('role', ['head', 'coordinator'])
+                ->update([
+                    'role'       => 'member',
+                    'position'   => 'Commission Member',
+                    'is_officer' => false,
+                ]);
+
+            // Also demote any users whose role was commission_admin for this commission
+            User::where('commission_id', $commission->id)
+                ->where('role', 'commission_admin')
+                ->update([
+                    'role' => 'commission_member',
+                ]);
+        }
+
+        // Append new shrine ministry rows (only rows with a name)
+        if (! empty($validated['shrine_ministries'])) {
+            foreach ($validated['shrine_ministries'] as $row) {
+                $ministryName = trim($row['name'] ?? '');
+                if ($ministryName === '') {
+                    continue;
+                }
+                $baseSlug = Str::slug($ministryName);
+                $mSlug = $baseSlug;
+                $mCounter = 1;
+                while (Ministry::where('slug', $mSlug)->exists()) {
+                    $mSlug = "{$baseSlug}-{$mCounter}";
+                    $mCounter++;
+                }
+                Ministry::create([
+                    'name'                => $ministryName,
+                    'slug'                => $mSlug,
+                    'commission_id'       => $commission->id,
+                    'category'            => $commission->name,
+                    'icon'                => '✝',
+                    'description'         => "Ministry under {$commission->name}.",
+                    'status'              => 'active',
+                    'is_public'           => true,
+                    'coordinator_name'    => trim($row['head'] ?? '') ?: null,
+                    'official_population' => isset($row['population']) && $row['population'] !== '' ? (int) $row['population'] : null,
+                    'is_accepting_members' => true,
+                    'created_by'          => $request->user()->id,
+                    'updated_by'          => $request->user()->id,
+                ]);
             }
         }
 
@@ -373,8 +471,8 @@ class CommissionManagementController extends Controller
             'joined_at'     => now(),
         ]);
 
-        // If this is a Coordinator and commission has no head user, assign
-        if ($isCoordinator && empty($commission->head_user_id)) {
+        // If this is a Coordinator, assign as head user
+        if ($isCoordinator) {
             $commission->update(['head_user_id' => $user->id]);
         }
 
@@ -406,19 +504,28 @@ class CommissionManagementController extends Controller
         ]);
 
         $user = User::findOrFail($validated['user_id']);
-        $isOfficer = $request->boolean('is_officer') || str_contains(strtolower($validated['position']), 'coordinator');
+        $isCoordinator = str_contains(strtolower($validated['position']), 'coordinator') || $request->boolean('is_coordinator');
+        $isOfficer = $request->boolean('is_officer') || $isCoordinator;
 
         CommissionMembership::updateOrCreate(
             ['commission_id' => $commission->id, 'user_id' => $user->id],
             [
                 'position'   => $validated['position'],
                 'is_officer' => $isOfficer,
-                'role'       => $isOfficer ? 'admin' : 'member',
+                'role'       => $isCoordinator ? 'head' : ($isOfficer ? 'admin' : 'member'),
                 'status'     => 'active',
                 'joined_at'  => now(),
                 'notes'      => $validated['notes'] ?? null,
             ]
         );
+
+        // If designated as coordinator, update commission's head_user_id
+        if ($isCoordinator) {
+            $commission->update(['head_user_id' => $user->id]);
+            if (! $user->isCommissionAdmin() && ! $user->hasParishWideAccess()) {
+                $user->update(['role' => 'commission_admin', 'position' => $validated['position']]);
+            }
+        }
 
         // Update primary commission_id if user doesn't have one
         if (empty($user->commission_id)) {
@@ -454,14 +561,23 @@ class CommissionManagementController extends Controller
         ]);
 
         $oldPos = $membership->position;
-        $isOfficer = $request->boolean('is_officer') || str_contains(strtolower($validated['position']), 'coordinator');
+        $isCoordinator = str_contains(strtolower($validated['position']), 'coordinator') || $request->boolean('is_coordinator');
+        $isOfficer = $request->boolean('is_officer') || $isCoordinator;
 
         $membership->update([
             'position'   => $validated['position'],
             'is_officer' => $isOfficer,
+            'role'       => $isCoordinator ? 'head' : ($isOfficer ? 'admin' : 'member'),
             'status'     => $validated['status'],
             'notes'      => $validated['notes'] ?? null,
         ]);
+
+        if ($isCoordinator) {
+            $commission->update(['head_user_id' => $membership->user_id]);
+            if ($membership->user && ! $membership->user->isCommissionAdmin() && ! $membership->user->hasParishWideAccess()) {
+                $membership->user->update(['role' => 'commission_admin', 'position' => $validated['position']]);
+            }
+        }
 
         $userName = $membership->user?->name ?? 'Member';
 

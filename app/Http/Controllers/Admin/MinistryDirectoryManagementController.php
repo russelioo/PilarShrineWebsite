@@ -257,12 +257,16 @@ class MinistryDirectoryManagementController extends Controller
     /**
      * Remove the specified parish ministry from storage.
      */
-    public function destroy(Request $request, Ministry $ministry): RedirectResponse
+    public function destroy(Request $request, Ministry $ministry): \Illuminate\Http\Response|\Illuminate\Http\JsonResponse|RedirectResponse
     {
         $this->authorizeAction($request->user(), 'delete_ministries');
 
         $name = $ministry->name;
         $ministry->delete();
+
+        if ($request->expectsJson()) {
+            return response()->json(['success' => true, 'message' => "Ministry '{$name}' removed."]);
+        }
 
         return redirect()->route('admin.ministries')
             ->with('success', "Ministry '{$name}' has been deleted from the directory.");

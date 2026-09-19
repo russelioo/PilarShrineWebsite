@@ -7,9 +7,13 @@
     <link rel="icon" href="/images/pilar-shrine-logo.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    @vite(['resources/css/portal-theme.css'])
     <style>
         :root {
+            --font-primary: 'Manrope', sans-serif;
+            --font-heading: 'Manrope', sans-serif;
+            --font-body: 'Manrope', sans-serif;
             --navy: #062f78;
             --navy-dark: #041e4d;
             --navy-light: #0d4399;
@@ -32,7 +36,7 @@
         }
 
         body {
-            font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: var(--font-body);
             background: linear-gradient(135deg, #f0f4f9 0%, #e2e8f0 100%);
             color: var(--ink);
             min-height: 100vh;
@@ -100,7 +104,7 @@
         }
 
         .error-title {
-            font-family: 'Libre Baskerville', Georgia, serif;
+            font-family: var(--font-heading);
             font-size: 24px;
             font-weight: 700;
             color: var(--navy-dark);

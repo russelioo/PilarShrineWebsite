@@ -76,12 +76,12 @@
         .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
         .stat,.panel{padding:21px;border:1px solid var(--line);border-radius:11px;background:#fff;box-shadow:0 7px 20px #12345b0b}
         .icon{width:39px;height:39px;display:grid;place-items:center;border-radius:9px;background:#eaf2fb;color:var(--navy)}
-        .stat strong{display:block;margin:18px 0 5px;color:var(--navy);font:700 27px Georgia}
+        .stat strong{display:block;margin:18px 0 5px;color:var(--navy);font-family:var(--font-heading);font-size:27px;font-weight:700}
         .stat b{font-size:11px}
         .stat small{display:block;margin-top:7px;color:var(--muted);font-size:9px}
         .grid{display:grid;grid-template-columns:1.5fr 1fr;gap:20px;margin-top:22px}
         .panel-head{display:flex;justify-content:space-between;margin-bottom:18px}
-        .panel h3{margin:0;color:var(--navy);font-size:16px;font-family:Georgia,serif}
+        .panel h3{margin:0;color:var(--navy);font-size:16px;font-family:var(--font-heading);font-weight:700}
         .panel-head a{color:var(--blue);font-size:9px;font-weight:700;text-decoration:none}
         .request{display:grid;grid-template-columns:38px 1fr auto;gap:12px;align-items:center;padding:13px 0;border-top:1px solid #edf1f5}
         .request i{width:36px;height:36px;display:grid;place-items:center;border-radius:50%;background:#f0f5fa;font-style:normal}

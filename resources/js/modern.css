@@ -120,7 +120,7 @@ body .home-hero::before {
   display: inline-flex;
   align-items: center;
   color: #f2cd72;
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 13px;
   font-style: normal;
   font-weight: 700;
@@ -204,7 +204,7 @@ body .home-hero::before {
 
 .home-card-eyebrow {
   display: block;
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -214,7 +214,7 @@ body .home-hero::before {
 }
 
 .home-card-title {
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-heading);
   font-size: clamp(20px, 1.8vw, 24px);
   font-weight: 700;
   color: #072a5a;
@@ -297,7 +297,7 @@ body .home-hero::before {
 
 .badge-tag {
   display: inline-block;
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 9.5px;
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -308,7 +308,7 @@ body .home-hero::before {
 
 .badge-title {
   display: block;
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-heading);
   font-size: 16px;
   font-weight: 700;
   color: #ffffff;
@@ -332,7 +332,7 @@ body .home-hero::before {
 
 .schedule-group-title {
   display: block;
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 10.5px;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -413,7 +413,7 @@ body .home-hero::before {
 
 .home-section-eyebrow {
   display: inline-block;
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.16em;
@@ -423,7 +423,7 @@ body .home-hero::before {
 }
 
 .home-section-title {
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-heading);
   font-size: clamp(24px, 2.2vw, 32px);
   font-weight: 700;
   color: #072a5a;
@@ -485,7 +485,7 @@ body .home-hero::before {
 }
 
 .highlight-title {
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-heading);
   font-size: 15.5px;
   font-weight: 700;
   color: #072a5a;
@@ -568,7 +568,7 @@ body .home-hero::before {
 
 .marian-img-badge span {
   display: block;
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 9.5px;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -578,7 +578,7 @@ body .home-hero::before {
 
 .marian-img-badge strong {
   display: block;
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-heading);
   font-size: 15px;
   color: #fff;
   margin-top: 1px;
@@ -599,7 +599,7 @@ body .home-hero::before {
 
 .marian-eyebrow {
   display: inline-block;
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.15em;
@@ -609,7 +609,7 @@ body .home-hero::before {
 }
 
 .marian-title {
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-heading);
   font-size: clamp(24px, 2.4vw, 32px);
   font-weight: 700;
   color: #072a5a;
@@ -645,7 +645,7 @@ body .home-hero::before {
 
 .box-date {
   display: block;
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-heading);
   font-weight: 700;
   font-size: 15px;
   color: #072a5a;
@@ -749,7 +749,7 @@ body .home-hero::before {
   -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgba(247, 210, 126, 0.4);
   color: #f7d27e;
-  font-family: Montserrat, system-ui, sans-serif;
+  font-family: var(--font-body);
   font-size: 9.5px;
   font-weight: 800;
   letter-spacing: 0.08em;
@@ -804,7 +804,7 @@ body .home-hero::before {
 }
 
 .news-item-title {
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-heading);
   font-size: 1.15rem;
   font-weight: 700;
   color: #062f78;
@@ -934,7 +934,7 @@ body .home-hero::before {
 
 .cta-eyebrow {
   display: inline-block;
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.16em;
@@ -944,7 +944,7 @@ body .home-hero::before {
 }
 
 .cta-heading {
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-heading);
   font-size: clamp(22px, 2.2vw, 30px);
   font-weight: 700;
   color: #ffffff;
@@ -1124,7 +1124,7 @@ body .about-hero::before {
 .section-eyebrow {
   display: inline-block;
   color: var(--gold);
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: .15em;
@@ -1154,7 +1154,7 @@ body .about-hero::before {
 
 .about-intro-content h2 {
   color: var(--blue);
-  font: 700 clamp(28px, 2.7vw, 40px) 'Libre Baskerville', Georgia, serif;
+  font: 700 clamp(28px, 2.7vw, 40px) var(--font-heading);
   line-height: 1.22;
   margin: 0 0 16px;
 }
@@ -1266,7 +1266,7 @@ body .about-hero::before {
 .visual-caption strong {
   display: block;
   margin: 4px 0;
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-heading);
   font-size: 18px;
   color: #fff;
 }
@@ -1291,7 +1291,7 @@ body .about-hero::before {
 
 .section-header-block h2 {
   color: var(--blue);
-  font: 700 clamp(28px, 2.8vw, 42px) 'Libre Baskerville', Georgia, serif;
+  font: 700 clamp(28px, 2.8vw, 42px) var(--font-heading);
   margin: 10px 0 0;
 }
 
@@ -1321,7 +1321,7 @@ body .about-hero::before {
 .chapter-badge span {
   display: block;
   color: var(--blue);
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-heading);
   font-size: 16px;
   font-weight: 700;
   line-height: 1.25;
@@ -1339,7 +1339,7 @@ body .about-hero::before {
 
 .chapter-content h3 {
   color: var(--blue);
-  font: 700 23px 'Libre Baskerville', Georgia, serif;
+  font: 700 23px var(--font-heading);
   line-height: 1.3;
   margin: 0 0 16px;
 }
@@ -1354,7 +1354,7 @@ body .about-hero::before {
 .drop-cap-paragraph::first-letter {
   float: left;
   color: var(--blue);
-  font: 700 52px/42px 'Libre Baskerville', Georgia, serif;
+  font: 700 52px/42px var(--font-heading);
   margin: 6px 12px 0 0;
 }
 
@@ -1400,13 +1400,13 @@ body .about-hero::before {
   color: var(--gold);
   font-size: 32px;
   line-height: 1;
-  font-family: Georgia, serif;
+  font-family: var(--font-body);
 }
 
 .quote-badge strong {
   display: block;
   color: var(--blue);
-  font: 700 20px 'Libre Baskerville', Georgia, serif;
+  font: 700 20px var(--font-heading);
   font-style: italic;
   margin: 6px 0 10px;
 }
@@ -1511,7 +1511,7 @@ body .about-hero::before {
   border: 1px solid rgba(212, 160, 23, 0.35);
   padding: 6px 14px;
   border-radius: 20px;
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 10.5px;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -1575,7 +1575,7 @@ body .about-hero::before {
 }
 
 .caption-title {
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-heading);
   font-size: 19px;
   font-weight: 700;
   color: #072a5a;
@@ -1665,7 +1665,7 @@ body .about-hero::before {
 }
 
 .card-caption-title {
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-heading);
   font-size: 13.5px;
   font-weight: 700;
   color: #072a5a;
@@ -1809,7 +1809,7 @@ body .about-hero::before {
 
 .lightbox-eyebrow {
   display: block;
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 9.5px;
   font-weight: 700;
   text-transform: uppercase;
@@ -1819,7 +1819,7 @@ body .about-hero::before {
 }
 
 .lightbox-title {
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-heading);
   font-size: 16px;
   font-weight: 700;
   color: #ffffff;
@@ -1827,7 +1827,7 @@ body .about-hero::before {
 }
 
 .lightbox-counter {
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 12px;
   font-weight: 700;
   color: rgba(255, 255, 255, 0.85);
@@ -1954,7 +1954,7 @@ body .about-hero::before {
 .about-milestone .milestone-eyebrow {
   display: inline-block;
   color: #f2cd72;
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: .16em;
@@ -1964,7 +1964,7 @@ body .about-hero::before {
 
 .about-milestone .milestone-date {
   display: block;
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-heading);
   font-size: clamp(26px, 2.6vw, 34px);
   font-weight: 700;
   color: #fff;
@@ -1973,7 +1973,7 @@ body .about-hero::before {
 }
 
 .about-milestone .milestone-title {
-  font: 700 clamp(20px, 2vw, 26px) 'Libre Baskerville', Georgia, serif;
+  font: 700 clamp(20px, 2vw, 26px) var(--font-heading);
   color: #ffffff;
   margin: 0 0 16px;
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
@@ -2061,7 +2061,7 @@ body .about-hero::before {
 
 .about-titular h2 {
   color: var(--blue);
-  font: 700 clamp(28px, 2.7vw, 40px) 'Libre Baskerville', Georgia, serif;
+  font: 700 clamp(28px, 2.7vw, 40px) var(--font-heading);
   margin: 0 0 8px;
 }
 
@@ -2174,7 +2174,7 @@ body .about-hero::before {
 .titular-badge strong {
   display: block;
   margin: 4px 0;
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-heading);
   font-size: 19px;
   color: #fff;
 }
@@ -2205,7 +2205,7 @@ body .about-hero::before {
 .pilgrimage-copy span {
   display: block;
   color: var(--gold);
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: .15em;
@@ -2215,7 +2215,7 @@ body .about-hero::before {
 
 .pilgrimage-copy h2 {
   color: var(--blue);
-  font: 700 26px 'Libre Baskerville', Georgia, serif;
+  font: 700 26px var(--font-heading);
   margin: 0 0 10px;
 }
 
@@ -2371,7 +2371,7 @@ body .schedule-hero::before {
 
 .schedule-page .schedule-card h2 {
   color: var(--blue);
-  font: 700 19px 'Libre Baskerville', Georgia, serif;
+  font: 700 19px var(--font-heading);
   margin: 0 0 3px;
   letter-spacing: -.01em;
 }
@@ -2481,7 +2481,7 @@ body .schedule-hero::before {
 .sidebar-visual-caption strong {
   display: block;
   margin: 3px 0;
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-heading);
   font-size: 16px;
   color: #fff;
 }
@@ -2502,7 +2502,7 @@ body .schedule-hero::before {
 
 .office-header h3 {
   color: var(--blue);
-  font: 700 21px 'Libre Baskerville', Georgia, serif;
+  font: 700 21px var(--font-heading);
   margin: 4px 0 10px;
 }
 
@@ -2798,7 +2798,7 @@ body .sacraments-hero::before {
 
 .sacrament-card-header h2 {
   color: var(--blue);
-  font: 700 clamp(24px, 2.5vw, 32px) 'Libre Baskerville', Georgia, serif;
+  font: 700 clamp(24px, 2.5vw, 32px) var(--font-heading);
   margin: 0 0 6px;
   letter-spacing: -.01em;
   line-height: 1.25;
@@ -2845,7 +2845,7 @@ body .sacraments-hero::before {
 
 .sub-section-header h3 {
   color: var(--blue);
-  font: 700 17px 'Libre Baskerville', Georgia, serif;
+  font: 700 17px var(--font-heading);
   margin: 0 0 2px;
 }
 
@@ -3038,7 +3038,7 @@ body .news-hero::before {
 
 .news-section-header h2 {
   color: var(--blue);
-  font: 700 clamp(24px, 2.8vw, 32px) 'Libre Baskerville', Georgia, serif;
+  font: 700 clamp(24px, 2.8vw, 32px) var(--font-heading);
   margin: 0;
   letter-spacing: -.01em;
 }
@@ -3104,7 +3104,7 @@ body .news-hero::before {
 
 .news-announcement-card h3 {
   color: var(--ink);
-  font: 700 17px 'Libre Baskerville', Georgia, serif;
+  font: 700 17px var(--font-heading);
   margin: 0 0 8px;
   line-height: 1.35;
 }
@@ -3221,7 +3221,7 @@ body .news-hero::before {
 
 .featured-content h3 {
   color: var(--blue);
-  font: 700 clamp(22px, 2.3vw, 30px) 'Libre Baskerville', Georgia, serif;
+  font: 700 clamp(22px, 2.3vw, 30px) var(--font-heading);
   margin: 0 0 8px;
   line-height: 1.3;
 }
@@ -3334,7 +3334,7 @@ body .news-hero::before {
 
 .modern-news-card h3 {
   color: var(--blue);
-  font: 700 18px 'Libre Baskerville', Georgia, serif;
+  font: 700 18px var(--font-heading);
   margin: 0 0 10px;
   line-height: 1.35;
 }
@@ -3530,7 +3530,7 @@ body .news-hero::before {
 
 .modal-body h2 {
   color: var(--blue);
-  font: 700 24px 'Libre Baskerville', Georgia, serif;
+  font: 700 24px var(--font-heading);
   margin: 0 0 6px;
   line-height: 1.3;
 }
@@ -3623,7 +3623,7 @@ body .news-hero::before {
 
 .novena-image-caption strong {
   display: block;
-  font-family: var(--font-serif, "Cinzel", "Libre Baskerville", Georgia, serif);
+  font-family: var(--font-heading);
   font-size: 16px;
   color: #fff;
   line-height: 1.25;
@@ -3655,7 +3655,7 @@ body .news-hero::before {
 
 .feature-title {
   color: #082e63;
-  font-family: var(--font-serif, "Cinzel", "Libre Baskerville", Georgia, serif);
+  font-family: var(--font-heading);
   font-size: clamp(28px, 2.6vw, 40px);
   line-height: 1.15;
   letter-spacing: -.02em;
@@ -3762,7 +3762,7 @@ body .news-hero::before {
 
 .section-header-block .section-heading {
   color: #082e63;
-  font-family: var(--font-serif, "Cinzel", "Libre Baskerville", Georgia, serif);
+  font-family: var(--font-heading);
   font-size: clamp(26px, 2.5vw, 36px);
   letter-spacing: -.02em;
   margin: 0 0 12px;
@@ -3852,7 +3852,7 @@ body .news-hero::before {
 }
 
 .devotion-title {
-  font-family: var(--font-serif, "Cinzel", "Libre Baskerville", Georgia, serif);
+  font-family: var(--font-heading);
   font-size: 20px;
   color: #082e63;
   margin: 0 0 10px;
@@ -3986,7 +3986,7 @@ body .news-hero::before {
 }
 
 .novena-milestone-eyebrow {
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 11px;
   font-weight: 700;
   color: #88661d;
@@ -3996,7 +3996,7 @@ body .news-hero::before {
 }
 
 .novena-milestone-date {
-  font-family: var(--font-serif, "Cinzel", "Libre Baskerville", Georgia, serif);
+  font-family: var(--font-heading);
   font-size: 22px;
   font-weight: 700;
   color: var(--blue, #0a377f);
@@ -4058,7 +4058,7 @@ body .news-hero::before {
 }
 
 .progress-label {
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -4221,7 +4221,7 @@ body .news-hero::before {
 }
 
 .summary-eyebrow {
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 10.5px;
   font-weight: 700;
   text-transform: uppercase;
@@ -4230,7 +4230,7 @@ body .news-hero::before {
 }
 
 .summary-title {
-  font-family: var(--font-serif, "Cinzel", "Libre Baskerville", Georgia, serif);
+  font-family: var(--font-heading);
   font-size: 17px;
   font-weight: 700;
   color: var(--blue, #0a377f);
@@ -4306,7 +4306,7 @@ details[open] .accordion-icon::after {
 }
 
 .current-prayer-title {
-  font-family: var(--font-serif, "Cinzel", "Libre Baskerville", Georgia, serif);
+  font-family: var(--font-heading);
   font-size: clamp(28px, 3.2vw, 36px);
   font-weight: 700;
   color: var(--blue, #0a377f);
@@ -4361,7 +4361,7 @@ details[open] .accordion-icon::after {
 }
 
 .prayer-section-tag {
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 11.5px;
   font-weight: 700;
   text-transform: uppercase;
@@ -4383,7 +4383,7 @@ details[open] .accordion-icon::after {
 }
 
 .prayer-prose {
-  font-family: Georgia, "Libre Baskerville", serif;
+  font-family: var(--font-heading);
   font-size: 16.5px;
   line-height: 1.95;
   color: #233446;
@@ -4471,7 +4471,7 @@ details[open] .accordion-icon::after {
 }
 
 .pagination-indicator {
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 12.5px;
   font-weight: 700;
   color: #76889b;
@@ -4490,14 +4490,14 @@ details[open] .accordion-icon::after {
 }
 
 .gozos-antiphon-call {
-  font-family: Georgia, serif;
+  font-family: var(--font-body);
   font-size: 15.5px;
   color: var(--blue, #0a377f);
   margin-bottom: 4px;
 }
 
 .gozos-antiphon-resp {
-  font-family: Georgia, serif;
+  font-family: var(--font-body);
   font-size: 15.5px;
   color: #082e63;
   margin: 0;
@@ -4530,7 +4530,7 @@ details[open] .accordion-icon::after {
 }
 
 .stanza-lines {
-  font-family: Georgia, serif;
+  font-family: var(--font-body);
   font-size: 14px;
   line-height: 1.7;
   color: #233446;
@@ -4540,7 +4540,7 @@ details[open] .accordion-icon::after {
 
 .stanza-response {
   display: block;
-  font-family: Georgia, serif;
+  font-family: var(--font-body);
   font-size: 13px;
   color: var(--blue, #0a377f);
   font-style: italic;
@@ -4569,7 +4569,7 @@ details[open] .accordion-icon::after {
 }
 
 .feast-banner-eyebrow {
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 11px;
   font-weight: 700;
   color: #f3cf7a;
@@ -4580,7 +4580,7 @@ details[open] .accordion-icon::after {
 }
 
 .feast-banner-title {
-  font-family: var(--font-serif, "Cinzel", "Libre Baskerville", Georgia, serif);
+  font-family: var(--font-heading);
   font-size: clamp(26px, 3vw, 34px);
   font-weight: 700;
   color: #ffffff;
@@ -4644,7 +4644,7 @@ details[open] .accordion-icon::after {
   right: 40px;
   top: 50%;
   transform: translateY(-50%);
-  font-family: var(--font-serif, "Cinzel", "Libre Baskerville", Georgia, serif);
+  font-family: var(--font-heading);
   font-size: 170px;
   font-weight: 700;
   line-height: 1;
@@ -5499,7 +5499,7 @@ details[open] .accordion-icon::after {
   display: inline-flex;
   align-items: center;
   color: #f2cd72;
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 13px;
   font-style: normal;
   font-weight: 700;
@@ -5516,7 +5516,7 @@ details[open] .accordion-icon::after {
   line-height: 1.2;
   letter-spacing: -.02em;
   text-shadow: 0 3px 20px rgba(0, 0, 0, .25);
-  font-family: var(--font-serif, "Cinzel", "Libre Baskerville", "Playfair Display", Georgia, serif);
+  font-family: var(--font-heading);
   font-weight: 700;
 }
 
@@ -5617,7 +5617,7 @@ details[open] .accordion-icon::after {
   background: #ffffff;
   border: 1px solid rgba(14, 50, 95, 0.16);
   color: #072a5a;
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 13.5px;
   font-weight: 600;
   cursor: pointer;
@@ -5692,7 +5692,7 @@ details[open] .accordion-icon::after {
   align-items: center;
   padding: 4px 10px;
   border-radius: 6px;
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 10.5px;
   font-weight: 700;
   text-transform: uppercase;
@@ -5717,7 +5717,7 @@ details[open] .accordion-icon::after {
 }
 
 .resource-title {
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-heading);
   font-size: 20px;
   font-weight: 700;
   color: #072a5a;
@@ -5741,7 +5741,7 @@ details[open] .accordion-icon::after {
   align-items: flex-start;
   gap: 6px;
   line-height: 1.4;
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
 }
 
 .attribution-bullet {
@@ -5861,7 +5861,7 @@ details[open] .accordion-icon::after {
   background: rgba(255, 255, 255, 0.12);
   padding: 4px 10px;
   border-radius: 6px;
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 10.5px;
   font-weight: 700;
   text-transform: uppercase;
@@ -5870,7 +5870,7 @@ details[open] .accordion-icon::after {
 }
 
 .reader-kind-pill {
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 10.5px;
   font-weight: 700;
   text-transform: uppercase;
@@ -5912,7 +5912,7 @@ details[open] .accordion-icon::after {
 }
 
 .reader-main-title {
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-heading);
   font-size: 24px;
   font-weight: 700;
   color: #072a5a;
@@ -5931,7 +5931,7 @@ details[open] .accordion-icon::after {
 .reader-attribution-row {
   font-size: 12.5px;
   color: #64748b;
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   margin-bottom: 12px;
 }
 
@@ -5960,7 +5960,7 @@ details[open] .accordion-icon::after {
 
 .stanza-label-badge {
   display: inline-block;
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -5993,7 +5993,7 @@ details[open] .accordion-icon::after {
 }
 
 .stanza-verse-line {
-  font-family: Georgia, 'Libre Baskerville', serif;
+  font-family: var(--font-heading);
   font-size: 16.5px;
   line-height: 1.88;
   color: #1e293b;
@@ -6020,7 +6020,7 @@ details[open] .accordion-icon::after {
 
 .gateway-title {
   display: block;
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-heading);
   font-size: 15px;
   color: #072a5a;
   margin-bottom: 4px;
@@ -6198,7 +6198,7 @@ details[open] .accordion-icon::after {
 
 .prayer-eyebrow {
   display: block;
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
@@ -6208,7 +6208,7 @@ details[open] .accordion-icon::after {
 }
 
 .prayer-title {
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-heading);
   font-size: clamp(24px, 3.5vw, 34px);
   font-weight: 700;
   color: #ffffff;
@@ -6239,7 +6239,7 @@ details[open] .accordion-icon::after {
 .prayer-shrine-subtitle {
   font-size: 13px;
   color: rgba(255, 255, 255, 0.72);
-  font-family: Montserrat, Arial, sans-serif;
+  font-family: var(--font-body);
   margin: 0;
   line-height: 1.5;
 }
@@ -6253,7 +6253,7 @@ details[open] .accordion-icon::after {
 }
 
 .prayer-stanza {
-  font-family: Georgia, 'Libre Baskerville', serif;
+  font-family: var(--font-heading);
   font-size: clamp(16.5px, 2vw, 19px);
   line-height: 1.8;
   color: #f8fafc;
