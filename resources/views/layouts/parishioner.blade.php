@@ -144,7 +144,7 @@
 
         <main class="main">
             <!-- Top Bar -->
-            <x-parishioner-topbar :title="$title ?? 'Dashboard'" />
+            <x-parishioner-topbar :title="$title ?? (trim($__env->yieldContent('title')) ?: 'Dashboard')" />
 
             <!-- Content -->
             <div class="content">

@@ -36,7 +36,15 @@
 
 /* Two-column layout */
 .settings-layout{display:grid;grid-template-columns:1fr 340px;gap:24px;align-items:start}
-.settings-column-main,.settings-column-side{display:flex;flex-direction:column;gap:22px}
+.settings-column-main,.settings-column-side{display:flex;flex-direction:column;gap:22px;min-width:0;margin:0}
+.password-card{scroll-margin-top:90px}
+.password-card .alert-success,.password-card .alert-danger{display:block;margin-bottom:18px}
+.password-card .alert-danger p{margin:4px 0}
+.password-card .spec-note{margin:0 0 18px;font-size:11px;line-height:1.6}
+.password-card .btn-save-changes{width:100%;justify-content:center;padding:11px 14px;text-decoration:none;box-sizing:border-box}
+.password-visibility{border:0;background:transparent;color:var(--navy);font:inherit;font-size:11px;font-weight:700;cursor:pointer;padding:6px 0;margin-bottom:12px}
+.password-visibility:focus-visible{outline:2px solid var(--navy);outline-offset:3px;border-radius:3px}
+.hero-email,.spec-val{overflow-wrap:anywhere}
 
 /* Clean Cards */
 .card{background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 2px 8px rgba(6,47,120,0.03);overflow:hidden}
@@ -91,7 +99,7 @@
     <div class="settings-header">
         <div>
             <h2>Parishioner Profile &amp; Settings</h2>
-            <p>Manage your parish account identity, personal details, and residence records.</p>
+            <p>Manage your personal details, residence, and parish login password.</p>
         </div>
         <div class="header-actions">
             <a href="/" class="btn-outline-website" title="Return to Official Public Parish Website">
@@ -175,14 +183,11 @@
         </div>
     </div>
 
-    <!-- MAIN SETTINGS FORM -->
-    <form method="POST" action="{{ route('parishioner.profile-settings.update') }}">
-        @csrf
-        @method('PUT')
-
-        <div class="settings-layout">
-            <!-- Left Column: Personal Information & Residence -->
-            <div class="settings-column-main">
+    <div class="settings-layout">
+            <!-- Personal information and password changes use independent forms. -->
+            <form class="settings-column-main" method="POST" action="{{ route('parishioner.profile-settings.update') }}">
+                @csrf
+                @method('PUT')
 
                 <!-- 1. PERSONAL INFORMATION (PARISH COLLECTED DATA) -->
                 <div class="card">
@@ -283,10 +288,54 @@
                         <span>Save Changes</span>
                     </button>
                 </div>
-            </div>
+            </form>
 
-            <!-- Right Column: Connected Google Account & Account Status -->
+            <!-- Right Column: Password & Connected Account -->
             <div class="settings-column-side">
+
+                <section class="card password-card" id="password-security" aria-labelledby="password-heading">
+                    <div class="card-head">
+                        <div class="head-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V6a4 4 0 0 1 8 0v4"/><path d="M12 14v3"/></svg>
+                        </div>
+                        <div><h4 id="password-heading">{{ $hasParishPassword ? 'Change password' : 'Create parish password' }}</h4><p>Email and password sign-in for this website.</p></div>
+                    </div>
+                    <div class="card-body">
+                        @if(session('password_success'))<div class="alert-success" role="status">{{ session('password_success') }}</div>@endif
+                        @if($errors->password->any())<div class="alert-danger" role="alert">@foreach($errors->password->all() as $error)<p>{{ $error }}</p>@endforeach</div>@endif
+                        @if($user->google_id)<p class="spec-note">Your parish password is separate from your Google password. You can continue signing in with Google.</p>@endif
+
+                        @if($hasParishPassword || $passwordSetupConfirmed)
+                            @if(!$hasParishPassword)<div class="alert-success" role="status">Google account confirmed. Create your parish password within 10 minutes.</div>@endif
+                            <form method="POST" action="{{ route('parishioner.password.update') }}" id="parish-password-form">
+                                @csrf
+                                @method('PUT')
+                                @if($hasParishPassword)
+                                    <div class="form-group">
+                                        <label for="parish-current-password">Current parish password</label>
+                                        <input class="form-input" id="parish-current-password" name="current_password" type="password" required autocomplete="current-password">
+                                    </div>
+                                @endif
+                                <div class="form-group">
+                                    <label for="parish-new-password">New parish password</label>
+                                    <input class="form-input" id="parish-new-password" name="password" type="password" required minlength="8" maxlength="255" autocomplete="new-password" aria-describedby="parish-password-help">
+                                    <small class="hint" id="parish-password-help">Use at least 8 characters and choose a password you do not use elsewhere.</small>
+                                </div>
+                                <div class="form-group">
+                                    <label for="parish-confirm-password">Confirm new password</label>
+                                    <input class="form-input" id="parish-confirm-password" name="password_confirmation" type="password" required minlength="8" maxlength="255" autocomplete="new-password">
+                                </div>
+                                <button type="button" class="password-visibility" id="parish-password-visibility" aria-pressed="false" aria-controls="parish-new-password parish-confirm-password{{ $hasParishPassword ? ' parish-current-password' : '' }}">Show passwords</button>
+                                <button type="submit" class="btn-save-changes">{{ $hasParishPassword ? 'Change password' : 'Create parish password' }}</button>
+                            </form>
+                        @elseif($user->google_id)
+                            <p class="spec-note">Confirm your connected Google account first. Then create a password to sign in here with your email.</p>
+                            <a class="btn-save-changes" href="{{ route('parishioner.password.confirm') }}">Confirm with Google</a>
+                        @else
+                            <p class="spec-note">Contact the parish office for help restoring password access to your account.</p>
+                        @endif
+                    </div>
+                </section>
 
                 <!-- 3. CONNECTED ACCOUNT (READ-ONLY GOOGLE DATA) -->
                 <div class="card">
@@ -296,25 +345,25 @@
                         </div>
                         <div>
                             <h4>Connected Account</h4>
-                            <p>Authentication and Google identity.</p>
+                            <p>Your email and available sign-in methods.</p>
                         </div>
                     </div>
 
                     <div class="card-body">
                         <div class="spec-row">
-                            <span class="spec-label">Google Account Email</span>
+                            <span class="spec-label">{{ $user->google_id ? 'Google Account Email' : 'Account Email' }}</span>
                             <div class="spec-val-wrap">
                                 <span class="spec-val">{{ $user->email }}</span>
-                                <span class="pill pill-green">Verified &check;</span>
+                                @if($user->email_verified_at || $user->is_verified)<span class="pill pill-green">Verified &check;</span>@else<span class="pill pill-amber">Unverified</span>@endif
                             </div>
-                            <small class="spec-note">Managed by Google OAuth. To protect your security, email cannot be overwritten as parish data.</small>
+                            <small class="spec-note">{{ $user->google_id ? 'Managed by Google OAuth. This email identifies your connected account.' : 'Use this email and your parish password to sign in.' }}</small>
                         </div>
 
                         <div class="spec-row">
-                            <span class="spec-label">Google Account</span>
+                            <span class="spec-label">Sign-in methods</span>
                             <div class="spec-val-wrap">
                                 @if($user->google_id)
-                                    <span class="spec-val">Connected</span>
+                                    <span class="spec-val">{{ $hasParishPassword ? 'Google & parish password' : 'Google' }}</span>
                                     <span class="pill pill-green">&check; Active</span>
                                 @else
                                     <span class="spec-val">Email &amp; Password</span>
@@ -361,8 +410,8 @@
                         <div class="spec-row">
                             <span class="spec-label">Email Verification</span>
                             <div class="spec-val-wrap">
-                                <span class="spec-val">Verified</span>
-                                <span class="pill pill-green">&check;</span>
+                                <span class="spec-val">{{ $user->email_verified_at || $user->is_verified ? 'Verified' : 'Unverified' }}</span>
+                                @if($user->email_verified_at || $user->is_verified)<span class="pill pill-green">&check;</span>@else<span class="pill pill-amber">Pending</span>@endif
                             </div>
                         </div>
 
@@ -442,6 +491,21 @@
 
             </div>
         </div>
-    </form>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+(() => {
+    const toggle = document.getElementById('parish-password-visibility');
+    toggle?.addEventListener('click', () => {
+        const show = toggle.getAttribute('aria-pressed') !== 'true';
+        document.querySelectorAll('#parish-password-form input[autocomplete$="password"]').forEach(input => {
+            input.type = show ? 'text' : 'password';
+        });
+        toggle.setAttribute('aria-pressed', String(show));
+        toggle.textContent = show ? 'Hide passwords' : 'Show passwords';
+    });
+})();
+</script>
+@endpush

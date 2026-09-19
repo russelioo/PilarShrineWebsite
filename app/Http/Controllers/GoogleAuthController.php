@@ -48,6 +48,10 @@ class GoogleAuthController extends Controller
      */
     public function callback(Request $request): RedirectResponse
     {
+        if ($request->session()->get('google_oauth_intent') === 'parish_password_setup') {
+            return app(\App\Http\Controllers\Parishioner\PasswordController::class)->completeGoogleConfirmation($request);
+        }
+
         if ($request->has('error') || $request->has('denied')) {
             $intent = session()->pull('google_oauth_intent', 'login');
             $target = $intent === 'register' ? '/#/register' : '/#/login';

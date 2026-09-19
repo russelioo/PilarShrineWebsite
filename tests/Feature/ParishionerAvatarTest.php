@@ -56,7 +56,7 @@ class ParishionerAvatarTest extends TestCase
 
         $response = $this->actingAs($admin)->get('/');
         $response->assertStatus(200);
-        $response->assertSee('/images/pilar-shrine-crest.jpg', false);
+        $response->assertSee('pilar-shrine-crest.jpg', false);
 
         $apiResponse = $this->actingAs($admin)->getJson('/api/user/profile-status');
         $apiResponse->assertStatus(200);

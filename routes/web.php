@@ -122,6 +122,8 @@ Route::prefix('parishioner')->name('parishioner.')->middleware('auth')->group(fu
     Route::get('/messages-inquiries', [InquiryController::class, 'index'])->name('messages-inquiries');
     Route::get('/profile-settings', [ProfileSettingsController::class, 'index'])->name('profile-settings');
     Route::put('/profile-settings', [ProfileSettingsController::class, 'update'])->name('profile-settings.update');
+    Route::put('/profile-settings/password', [\App\Http\Controllers\Parishioner\PasswordController::class, 'update'])->middleware('throttle:6,1')->name('password.update');
+    Route::get('/profile-settings/password/confirm', [\App\Http\Controllers\Parishioner\PasswordController::class, 'confirmWithGoogle'])->middleware('throttle:6,1')->name('password.confirm');
     Route::post('/logout', [AdminDashboardController::class, 'logout'])->name('logout');
 });
 Route::prefix('admin')->name('admin.')->group(function () {

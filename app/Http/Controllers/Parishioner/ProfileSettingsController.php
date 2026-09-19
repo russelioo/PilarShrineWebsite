@@ -17,7 +17,10 @@ class ProfileSettingsController extends Controller
         $user = $request->user();
         $user->load(['ministryMemberships.ministry']);
 
-        return view('parishioner.profile-settings', compact('user'));
+        $hasParishPassword = filled($user->password_hash);
+        $passwordSetupConfirmed = PasswordController::googleConfirmed($request);
+
+        return view('parishioner.profile-settings', compact('user', 'hasParishPassword', 'passwordSetupConfirmed'));
     }
 
     /**
