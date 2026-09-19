@@ -269,9 +269,6 @@ const additionalDevotions = [
             <span>{{ devotion.schedule }}</span>
           </div>
 
-          <div class="devotion-footer">
-            <a :href="devotion.actionHref" class="devotion-link">
-              {{ devotion.actionLabel }} <span aria-hidden="true">&rarr;</span>
           <div class="devotion-footer" :class="{ 'has-dual-actions': devotion.secondaryActionHref }">
             <a
               :href="devotion.actionHref"

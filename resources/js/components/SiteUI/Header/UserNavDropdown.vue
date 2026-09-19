@@ -30,6 +30,11 @@ const getInitials = (name) => {
   return parts[0].charAt(0).toUpperCase()
 }
 
+const imageLoadFailed = ref(false)
+const onImageError = () => {
+  imageLoadFailed.value = true
+}
+
 let closeTimer = null
 
 const openMenu = () => {
@@ -135,11 +140,12 @@ onBeforeUnmount(() => {
     >
       <div class="user-trigger-avatar">
         <img
-          v-if="user.avatar"
+          v-if="user.avatar && !imageLoadFailed"
           :src="user.avatar"
           :alt="user.name"
           class="user-avatar-img"
           referrerpolicy="no-referrer"
+          @error="onImageError"
         />
         <span v-else class="user-avatar-initials">{{ getInitials(user.name) }}</span>
       </div>
@@ -164,11 +170,12 @@ onBeforeUnmount(() => {
       <div class="menu-user-header">
         <div class="menu-user-avatar">
           <img
-            v-if="user.avatar"
+            v-if="user.avatar && !imageLoadFailed"
             :src="user.avatar"
             :alt="user.name"
             class="user-avatar-img"
             referrerpolicy="no-referrer"
+            @error="onImageError"
           />
           <span v-else class="user-avatar-initials">{{ getInitials(user.name) }}</span>
         </div>

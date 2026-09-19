@@ -128,8 +128,7 @@
 
     $isParishAdministrator = str_contains($pos, 'parish administrator')
       || str_contains($name, 'parish administrator')
-      || $email === 'admin@pilarshrine.test'
-      || (in_array($role, ['super_admin', 'admin'], true) && !str_contains($pos, 'secretary') && !str_contains($role, 'secretary'));
+      || $email === 'admin@pilarshrine.test';
   }
 
   $authAvatar = $user?->avatar;

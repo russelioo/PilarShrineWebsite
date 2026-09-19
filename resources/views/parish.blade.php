@@ -11,19 +11,36 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     @php
-        $authPayload = auth()->check() ? [
-            'id' => auth()->user()->id,
-            'name' => auth()->user()->name,
-            'first_name' => auth()->user()->first_name,
-            'last_name' => auth()->user()->last_name,
-            'email' => auth()->user()->email,
-            'avatar' => auth()->user()->avatar,
-            'role' => auth()->user()->role,
-            'is_complete' => auth()->user()->isProfileComplete(),
+        $authUser = auth()->user();
+        $isParishAdmin = false;
+        if ($authUser) {
+            $pos = strtolower($authUser->position ?? '');
+            $name = strtolower($authUser->name ?? '');
+            $email = strtolower($authUser->email ?? '');
+            $isParishAdmin = str_contains($pos, 'parish administrator')
+                || str_contains($name, 'parish administrator')
+                || $email === 'admin@pilarshrine.test';
+        }
+
+        $avatar = $authUser?->avatar;
+        if (empty($avatar) && $isParishAdmin) {
+            $avatar = '/images/pilar-shrine-crest.jpg';
+        }
+
+        $authPayload = $authUser ? [
+            'id' => $authUser->id,
+            'name' => $authUser->name,
+            'first_name' => $authUser->first_name,
+            'last_name' => $authUser->last_name,
+            'email' => $authUser->email,
+            'avatar' => $avatar,
+            'role' => $authUser->role,
+            'is_parish_administrator' => $isParishAdmin,
+            'is_complete' => $authUser->isProfileComplete(),
         ] : null;
     @endphp
     <script>
-        window.__AUTH_USER__ = {!! json_encode($authPayload) !!};
+        window.__AUTH_USER__ = {!! json_encode($authPayload, JSON_UNESCAPED_SLASHES) !!};
     </script>
     @vite('resources/js/parish.js')
 </head>

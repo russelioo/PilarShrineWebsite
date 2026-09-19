@@ -18,6 +18,18 @@ class ProfileCompletionController extends Controller
             return response()->json(['authenticated' => false], 401);
         }
 
+        $pos = strtolower($user->position ?? '');
+        $name = strtolower($user->name ?? '');
+        $email = strtolower($user->email ?? '');
+        $isParishAdmin = str_contains($pos, 'parish administrator')
+            || str_contains($name, 'parish administrator')
+            || $email === 'admin@pilarshrine.test';
+
+        $avatar = $user->avatar;
+        if (empty($avatar) && $isParishAdmin) {
+            $avatar = '/images/pilar-shrine-crest.jpg';
+        }
+
         return response()->json([
             'authenticated' => true,
             'user' => [
@@ -26,7 +38,8 @@ class ProfileCompletionController extends Controller
                 'first_name' => $user->first_name,
                 'last_name' => $user->last_name,
                 'email' => $user->email,
-                'avatar' => $user->avatar,
+                'avatar' => $avatar,
+                'is_parish_administrator' => $isParishAdmin,
                 'date_of_birth' => $user->date_of_birth?->format('Y-m-d'),
                 'phone' => $user->phone,
                 'country' => $user->country ?? 'Philippines',
