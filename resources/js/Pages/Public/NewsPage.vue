@@ -1,5 +1,6 @@
 <script setup>
 import { onMounted, ref } from 'vue'
+import AnnouncementCaption from '../../components/AnnouncementCaption.vue'
 
 const defaultNews = [
   {
@@ -130,7 +131,7 @@ onMounted(() => {
               </time>
             </div>
             <h3>{{ a.title }}</h3>
-            <p class="announcement-desc">{{ a.description }}</p>
+            <AnnouncementCaption class="announcement-desc" :text="a.description" />
             <div class="announcement-meta">
               <span class="announcement-place">
                 <svg class="news-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -139,7 +140,7 @@ onMounted(() => {
                 </svg>
                 <span>{{ a.place || 'Diocesan Shrine & Parish' }}</span>
               </span>
-              <span class="announcement-read-link">Read Details &rarr;</span>
+              <button class="announcement-read-link" type="button" @click.stop="activeNewsModal = a">Read Details &rarr;</button>
             </div>
           </article>
         </div>
@@ -177,7 +178,7 @@ onMounted(() => {
             </div>
             <h3>{{ news[0].title }}</h3>
             <div class="gold-rule left small">✣</div>
-            <p class="featured-desc">{{ news[0].description }}</p>
+            <AnnouncementCaption :key="news[0].id || news[0].title" class="featured-desc" :text="news[0].description" initially-expanded />
             <div class="featured-actions">
               <button class="button" type="button" @click="activeNewsModal = news[0]">
                 Read Full Story
@@ -219,7 +220,7 @@ onMounted(() => {
                 </span>
               </div>
               <h3>{{ n.title }}</h3>
-              <p class="card-summary">{{ n.description }}</p>
+              <AnnouncementCaption class="card-summary" :text="n.description" />
               <div class="card-footer">
                 <button class="button secondary card-cta" type="button" @click="activeNewsModal = n">
                   Read more &rarr;
@@ -264,8 +265,8 @@ onMounted(() => {
           </div>
           <h2>{{ activeNewsModal.title }}</h2>
           <div class="gold-rule left small">✣</div>
-          <p class="modal-lead">{{ activeNewsModal.description }}</p>
-          <p v-if="activeNewsModal.fullText && activeNewsModal.fullText !== activeNewsModal.description" class="modal-fulltext">{{ activeNewsModal.fullText }}</p>
+          <AnnouncementCaption class="modal-lead" :text="activeNewsModal.description" initially-expanded />
+          <AnnouncementCaption v-if="activeNewsModal.fullText && activeNewsModal.fullText !== activeNewsModal.description" class="modal-fulltext" :text="activeNewsModal.fullText" initially-expanded />
           <div class="modal-actions">
             <button class="button secondary" type="button" @click="activeNewsModal = null">Close</button>
           </div>
@@ -370,16 +371,8 @@ onMounted(() => {
 }
 
 .announcement-desc {
-  color: #475569;
-  font-size: 13.5px;
-  line-height: 1.6;
   margin: 0 0 16px;
   flex-grow: 1;
-  display: -webkit-box;
-  -webkit-line-clamp: 4;
-  line-clamp: 4;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
 }
 
 .announcement-meta {
@@ -407,6 +400,11 @@ onMounted(() => {
 }
 
 .announcement-read-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  cursor: pointer;
   font-size: 11.5px;
   font-weight: 700;
   color: var(--color-accent, #0b58b5);

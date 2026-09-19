@@ -11,6 +11,28 @@ body:has(#messages-app) {
     overflow: hidden !important;
 }
 
+/* Align the conversation content with the desktop page title. */
+@media (min-width: 901px) {
+    #messages-app {
+        --conversation-inset: 32px;
+    }
+
+    #messages-app .conversation-sidebar-header {
+        padding-inline: var(--conversation-inset);
+    }
+
+    #messages-app .conversation-list-item {
+        padding-left: calc(var(--conversation-inset) - 3px);
+        padding-right: var(--conversation-inset);
+    }
+}
+
+@media (min-width: 901px) and (max-width: 1024px) {
+    .admin-layout #messages-app {
+        --conversation-inset: 24px;
+    }
+}
+
 /* Hide global topbar search bar and divider on Messages / Inquiries workspace */
 .admin-topbar .global-search-wrap,
 .admin-topbar .topbar-title-divider,

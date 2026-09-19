@@ -1,10 +1,10 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
+import ParishHeritage from '../../components/ParishHeritage.vue'
 
 const parishAerial = '/images/pilar-shrine-aerial.png'
 const altar = '/images/pilar-shrine-sanctuary.jpg'
 const pillarOfficial = '/images/our-lady-of-the-pillar-official.jpg'
-const coronationCrowns = '/images/pilar-coronation-crowns.png'
 
 // Archival Photography Collection (5 Historical Photographs)
 const archivePhotos = [
@@ -88,7 +88,7 @@ onUnmounted(() => {
   if (typeof window !== 'undefined') {
     window.removeEventListener('keydown', handleKeydown)
   }
-  if (typeof document !== 'undefined') {
+  if (typeof document !== 'undefined' && activeLightboxIndex.value !== null) {
     document.body.style.overflow = ''
   }
 })
@@ -303,45 +303,7 @@ onUnmounted(() => {
       </div>
     </section>
 
-    <!-- 3. Historic Milestone Card (October 12, 2018) -->
-    <section id="milestones" class="about-milestone page-width">
-      <div class="milestone-card">
-        <div class="milestone-crown-bg" aria-hidden="true">
-          <img :src="coronationCrowns" alt="Episcopal Coronation Crowns of Our Lady of the Pillar and the Child Jesus" class="milestone-crown-img">
-        </div>
-        <div class="milestone-header">
-          <span class="milestone-eyebrow">✦ Important Historical Date &amp; Parish Milestone</span>
-          <time class="milestone-date" datetime="2018-10-12">October 12, 2018</time>
-          <h2 class="milestone-title">Solemn Dedication, Declaration as Diocesan Shrine &amp; Episcopal Coronation</h2>
-        </div>
-        <p class="milestone-lead">
-          Solemn Dedication of the Church, Declaration as Diocesan Shrine and Episcopal Coronation of the Image of Our Lady of the Pillar
-        </p>
-        <div class="milestone-badges">
-          <div class="milestone-badge-item">
-            <span class="badge-icon">✣</span>
-            <div>
-              <strong>Solemn Dedication</strong>
-              <small>Solemn Dedication of the Church</small>
-            </div>
-          </div>
-          <div class="milestone-badge-item">
-            <span class="badge-icon">♛</span>
-            <div>
-              <strong>Diocesan Shrine</strong>
-              <small>Declaration as Diocesan Shrine</small>
-            </div>
-          </div>
-          <div class="milestone-badge-item">
-            <span class="badge-icon">👑</span>
-            <div>
-              <strong>Episcopal Coronation</strong>
-              <small>Episcopal Coronation of the Image of Our Lady of the Pillar</small>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+    <ParishHeritage />
 
     <!-- 4. Sacred Titular: Our Lady of the Pillar Section -->
     <section class="about-titular page-width">
@@ -473,4 +435,3 @@ onUnmounted(() => {
     </Teleport>
   </div>
 </template>
-

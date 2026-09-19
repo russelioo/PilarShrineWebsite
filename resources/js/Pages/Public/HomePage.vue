@@ -1,5 +1,7 @@
 <script setup>
 import { onMounted, ref } from 'vue'
+import AnnouncementCaption from '../../components/AnnouncementCaption.vue'
+import ParishHeritage from '../../components/ParishHeritage.vue'
 
 const parishAerial = '/images/pilar-shrine-aerial.png'
 const pillarOfficial = '/images/our-lady-of-the-pillar-official.jpg'
@@ -216,6 +218,8 @@ onMounted(() => {
       </div>
     </section>
 
+    <ParishHeritage />
+
     <!-- 2. Important Parish Information: 4 Pastoral Highlights -->
     <section class="home-highlights-section page-width" aria-label="Parish Life Highlights">
       <div class="home-section-header">
@@ -363,16 +367,10 @@ onMounted(() => {
           v-for="item in featuredNews"
           :key="item.id || item.title"
           class="home-news-card"
-          tabindex="0"
-          role="button"
-          :aria-label="'Read announcement: ' + item.title"
           @click="activeNewsModal = item"
-          @keydown.enter="activeNewsModal = item"
-          @keydown.space.prevent="activeNewsModal = item"
         >
           <div class="news-img-wrap">
             <img :src="item.image" :alt="item.title" loading="lazy" onerror="this.src='/images/church-interior.png'">
-            <div class="news-img-overlay" aria-hidden="true"></div>
             <span class="news-tag">
               <span class="tag-spark" aria-hidden="true">✦</span>
               <span>{{ item.category }}</span>
@@ -397,9 +395,9 @@ onMounted(() => {
               </span>
             </div>
             <h3 class="news-item-title">{{ item.title }}</h3>
-            <p class="news-item-desc">{{ item.description }}</p>
+            <AnnouncementCaption class="news-item-desc" :text="item.description" />
             <div class="news-item-footer">
-              <div class="news-more-link">
+              <button class="news-more-link" type="button" :aria-label="'Read announcement: ' + item.title" @click.stop="activeNewsModal = item">
                 <span class="link-label">Read Full Announcement</span>
                 <span class="link-arrow-circle" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -407,7 +405,7 @@ onMounted(() => {
                     <polyline points="12 5 19 12 12 19"></polyline>
                   </svg>
                 </span>
-              </div>
+              </button>
             </div>
           </div>
         </article>
@@ -467,8 +465,8 @@ onMounted(() => {
           </div>
           <h2>{{ activeNewsModal.title }}</h2>
           <div class="gold-rule left small">✣</div>
-          <p class="modal-lead">{{ activeNewsModal.description }}</p>
-          <p v-if="activeNewsModal.fullText && activeNewsModal.fullText !== activeNewsModal.description" class="modal-fulltext">{{ activeNewsModal.fullText }}</p>
+          <AnnouncementCaption class="modal-lead" :text="activeNewsModal.description" initially-expanded />
+          <AnnouncementCaption v-if="activeNewsModal.fullText && activeNewsModal.fullText !== activeNewsModal.description" class="modal-fulltext" :text="activeNewsModal.fullText" initially-expanded />
           <div class="modal-actions">
             <a class="button" href="#/news" @click="activeNewsModal = null">Browse Full Bulletin</a>
             <button class="button secondary" type="button" @click="activeNewsModal = null">Close</button>
@@ -478,4 +476,3 @@ onMounted(() => {
     </div>
   </div>
 </template>
-

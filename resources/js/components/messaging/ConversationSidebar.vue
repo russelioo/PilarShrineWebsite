@@ -1,7 +1,7 @@
 <template>
   <aside class="w-full md:w-[380px] border-r border-slate-200 bg-white flex flex-col h-full flex-shrink-0">
     <!-- Top Header -->
-    <div class="px-5 py-4 border-b border-slate-200 bg-white flex-shrink-0">
+    <div class="conversation-sidebar-header px-5 py-4 border-b border-slate-200 bg-white flex-shrink-0">
       <div class="flex items-center justify-between mb-3">
         <div class="flex items-center gap-2">
           <h1 class="text-xl font-bold text-slate-900 tracking-tight">Messages</h1>
@@ -208,4 +208,3 @@ const filteredConversations = computed(() => {
   return list;
 });
 </script>
-

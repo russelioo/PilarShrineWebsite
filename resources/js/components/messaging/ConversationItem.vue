@@ -3,7 +3,7 @@
     type="button"
     @click="$emit('select')"
     :class="[
-      'w-full text-left px-4 py-3 transition duration-150 relative flex items-center gap-3 select-none group cursor-pointer border-l-3',
+      'conversation-list-item w-full text-left px-4 py-3 transition duration-150 relative flex items-center gap-3 select-none group cursor-pointer border-l-3',
       isActive ? 'bg-[#062f78]/8 border-l-[#062f78]' : 'hover:bg-slate-50 border-l-transparent'
     ]"
   >
