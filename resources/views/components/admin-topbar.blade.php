@@ -28,7 +28,7 @@
     'admin.appointments'        => 'Appointments',
     'admin.sacramental-records' => 'Sacramental Records',
     'admin.form-submissions'    => 'Form Submissions',
-    'admin.notifications'       => 'Settings',
+    'admin.settings'            => 'Settings',
     'admin.events'              => 'Events',
     'admin.reports'             => 'Reports',
   ];
@@ -303,7 +303,7 @@
               <span class="unread-count">{{ $totalNotificationCount }} unread</span>
             @endif
           </div>
-          <a href="{{ route('admin.notifications') }}" class="mark-read-btn">View all</a>
+          <a href="{{ route('admin.settings') }}#notifications" class="mark-read-btn">View all</a>
         </div>
         <div class="notification-list">
           @if($pendingMinistryCount > 0)
@@ -347,7 +347,7 @@
           @endif
 
           @forelse($recentSystemNotifs as $sNotif)
-            <a href="{{ route('admin.notifications') }}" class="notification-item {{ $sNotif->status === 'unread' ? 'unread' : '' }}">
+            <a href="{{ route('admin.settings') }}#notifications" class="notification-item {{ $sNotif->status === 'unread' ? 'unread' : '' }}">
               <span class="notif-dot"></span>
               <div>
                 <p><strong>{{ $sNotif->subject }}</strong></p>
@@ -438,7 +438,7 @@
             </svg>
             <span>My Profile &amp; Staff</span>
           </a>
-          <a href="{{ route('admin.notifications') }}" class="popover-link">
+          <a href="{{ route('admin.settings') }}#account" class="popover-link">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="3"></circle>
               <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>

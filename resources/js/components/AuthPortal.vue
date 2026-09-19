@@ -1,5 +1,6 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { siteSettings, parishPhoneHref, parishGmailUrl } from '../services/siteSettings'
 import { SearchableSelect } from './SiteUI'
 import {
   getRegions,
@@ -1851,19 +1852,19 @@ const register = async () => {
               <div class="office-contact-card">
                 <div class="contact-row">
                   <strong>Parish Office:</strong>
-                  <span>Binanuahan, Pilar, Sorsogon</span>
+                  <span>{{ siteSettings.address }}</span>
                 </div>
                 <div class="contact-row">
                   <strong>Direct Telephone:</strong>
-                  <a href="tel:+639468691254">0946-869-1254</a>
+                  <a :href="parishPhoneHref">{{ siteSettings.phone }}</a>
                 </div>
                 <div class="contact-row">
                   <strong>Official Email:</strong>
-                  <a href="https://mail.google.com/mail/?view=cm&fs=1&to=olppspilarsorsogon@gmail.com&su=Parish%20Inquiry%20-%20Pilar%20Shrine" target="_blank" rel="noopener noreferrer">olppspilarsorsogon@gmail.com</a>
+                  <a :href="parishGmailUrl" target="_blank" rel="noopener noreferrer">{{ siteSettings.email }}</a>
                 </div>
                 <div class="contact-row">
                   <strong>Office Hours:</strong>
-                  <span>Mon, Wed&ndash;Sat: 8:00 AM &ndash; 11:30 AM | 1:00 PM &ndash; 5:00 PM; Sun: 8:30 AM &ndash; 12:00 NN (Closed Tuesdays &amp; Holidays)</span>
+                  <span style="white-space: pre-line">{{ siteSettings.office_hours }}</span>
                 </div>
               </div>
 

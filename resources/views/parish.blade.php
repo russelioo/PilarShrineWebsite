@@ -40,7 +40,8 @@
         ] : null;
     @endphp
     <script>
-        window.__AUTH_USER__ = {!! json_encode($authPayload, JSON_UNESCAPED_SLASHES) !!};
+        window.__AUTH_USER__ = {{ Illuminate\Support\Js::from($authPayload) }};
+        window.__SITE_SETTINGS__ = {{ Illuminate\Support\Js::from($siteSettings) }};
     </script>
     @vite('resources/js/parish.js')
 </head>

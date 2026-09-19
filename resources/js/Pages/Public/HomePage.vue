@@ -1,5 +1,6 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import { siteSettings } from '../../services/siteSettings'
 import AnnouncementCaption from '../../components/AnnouncementCaption.vue'
 import ParishHeritage from '../../components/ParishHeritage.vue'
 
@@ -7,7 +8,7 @@ const parishAerial = '/images/pilar-shrine-aerial.png'
 const pillarOfficial = '/images/our-lady-of-the-pillar-official.jpg'
 
 // Pastoral & Community Highlights
-const pastoralHighlights = [
+const pastoralHighlights = computed(() => [
   {
     icon: '✦',
     badge: 'Monthly Devotion',
@@ -28,7 +29,7 @@ const pastoralHighlights = [
     icon: '⌖',
     badge: 'Shrine Office',
     title: 'Parish Office Hours',
-    desc: 'Mon, Wed–Sat: 8:00 AM – 11:30 AM & 1:00 PM – 5:00 PM (Sun 8:30 AM – 12:00 NN). Closed on Tuesdays & Holidays.',
+    desc: siteSettings.office_hours,
     link: '#/contact',
     linkText: 'Office & Inquiries',
   },
@@ -40,7 +41,7 @@ const pastoralHighlights = [
     link: '#/forms',
     linkText: 'Request Intention',
   },
-]
+])
 
 // Fallback Featured News
 const defaultFeaturedNews = [

@@ -246,7 +246,7 @@
 
                 <label class="check">
                     <input type="checkbox" name="is_livestreamed" value="1" @checked(old('is_livestreamed', $editing?->is_livestreamed ?? false))>
-                    <span>Broadcast Live (FB Live badge)</span>
+                    <span>Livestreamed Mass (automatic Live button)</span>
                 </label>
 
                 <label class="check">

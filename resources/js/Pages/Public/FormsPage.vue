@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue'
+import { siteSettings } from '../../services/siteSettings'
 
 const intentionTypes = [
   'Thanksgiving',
@@ -222,7 +223,7 @@ const handleSubmit = () => {
 
           <div class="office-help-box">
             <h4>Need In-Person Assistance?</h4>
-            <p>You can also visit the Parish Office during regular hours or call us at <strong>0946-869-1254</strong>.</p>
+            <p>You can also visit the Parish Office during regular hours or call us at <strong>{{ siteSettings.phone }}</strong>.</p>
             <a href="#/contact" class="link-contact">Contact Parish Office →</a>
           </div>
         </aside>
@@ -594,4 +595,3 @@ textarea:focus {
   text-decoration: underline;
 }
 </style>
-

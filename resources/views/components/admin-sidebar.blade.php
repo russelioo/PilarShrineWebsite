@@ -374,11 +374,11 @@
     @endif
 
     <!-- SYSTEM -->
-    @if(!auth()->check() || auth()->user()->hasPermission('settings') || auth()->user()->hasPermission('view_settings'))
+    @if(!auth()->check() || auth()->user()->hasPermission('view_settings') || auth()->user()->hasPermission('edit_settings'))
     <div class="nav-section">
       <span class="nav-section-title">SYSTEM</span>
-      <a href="{{ route('admin.notifications') }}" 
-         class="admin-nav-item {{ request()->routeIs('admin.notifications') ? 'active' : '' }}"
+      <a href="{{ route('admin.settings') }}"
+         class="admin-nav-item {{ request()->routeIs('admin.settings', 'admin.settings.*') ? 'active' : '' }}"
          data-title="Settings &amp; Notifications">
         <span class="nav-icon-box">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

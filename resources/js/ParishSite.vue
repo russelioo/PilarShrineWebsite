@@ -4,6 +4,7 @@ import AuthPortal from './components/AuthPortal.vue'
 import SiteLayout from './components/SiteUI/Layout/SiteLayout.vue'
 import MasterPageShell from './components/SiteUI/Layout/MasterPageShell.vue'
 import { getPublicPage } from './publicPageMap'
+import { siteSettings, refreshSiteSettings } from './services/siteSettings'
 
 const route = ref('home')
 const syncRoute = () => {
@@ -18,15 +19,31 @@ onMounted(() => {
 })
 onUnmounted(() => removeEventListener('hashchange', syncRoute))
 
-const livestream = ref({ is_live: false, title: null, url: 'https://www.facebook.com/PilarShrineSorsogon' })
+const livestream = ref({ is_live: false, title: null, url: siteSettings.facebook_url })
 let livestreamTimer = null
+let livestreamClosingTimer = null
 let notificationTimer = null
 
 const refreshLivestream = async () => {
+  const requestedAt = performance.now()
   try {
-    const res = await fetch('/api/livestream-status', { headers: { Accept: 'application/json' } })
+    const res = await fetch('/api/livestream-status', { cache: 'no-store', headers: { Accept: 'application/json' } })
     if (res.ok) {
       livestream.value = await res.json()
+      clearTimeout(livestreamClosingTimer)
+      if (livestream.value.is_live && livestream.value.closes_at && livestream.value.server_time) {
+        const remaining = Date.parse(livestream.value.closes_at) - Date.parse(livestream.value.server_time)
+          - (performance.now() - requestedAt)
+        // Close on schedule even if a later status refresh fails or the visitor's clock is wrong.
+        if (remaining <= 0) {
+          livestream.value = { ...livestream.value, is_live: false }
+        } else {
+          livestreamClosingTimer = setTimeout(() => {
+            livestream.value = { ...livestream.value, is_live: false }
+            refreshLivestream()
+          }, remaining)
+        }
+      }
     }
   } catch {
     // Keep the last known state when the status endpoint is temporarily unavailable.
@@ -78,13 +95,19 @@ const checkNotification = () => {
 }
 
 onMounted(() => {
+  refreshSiteSettings()
+  addEventListener('focus', refreshSiteSettings)
+  addEventListener('focus', refreshLivestream)
   refreshLivestream()
   livestreamTimer = setInterval(refreshLivestream, 15000)
   checkNotification()
 })
 
 onUnmounted(() => {
+  removeEventListener('focus', refreshSiteSettings)
+  removeEventListener('focus', refreshLivestream)
   clearInterval(livestreamTimer)
+  clearTimeout(livestreamClosingTimer)
   if (notificationTimer) clearTimeout(notificationTimer)
 })
 

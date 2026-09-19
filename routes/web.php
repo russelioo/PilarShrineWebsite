@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AuditLogController;
+use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\MinistryDirectoryManagementController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\GoogleAuthController;
@@ -48,15 +49,19 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/', function () {
-    return view('parish');
+    return view('parish', ['siteSettings' => \App\Models\SiteSetting::publicValues()]);
 });
+
+Route::get('/api/site-settings', function () {
+    return response()->json(\App\Models\SiteSetting::publicValues())->header('Cache-Control', 'no-store');
+})->name('api.site-settings');
 
 Route::get('/api/announcements', [AnnouncementController::class, 'publicIndex'])->name('api.announcements');
 Route::get('/api/mass-schedules', [MassScheduleController::class, 'publicIndex'])->name('api.mass-schedules');
 Route::get('/api/ministries', [PublicMinistryController::class, 'publicIndex'])->name('api.ministries');
 
 Route::get('/api/livestream-status', function (FacebookLiveService $facebookLive) {
-    return response()->json($facebookLive->status());
+    return response()->json($facebookLive->status())->header('Cache-Control', 'no-store');
 })->middleware('throttle:60,1')->name('livestream.status');
 
 Route::get('/login', function () {
@@ -121,6 +126,15 @@ Route::prefix('parishioner')->name('parishioner.')->middleware('auth')->group(fu
 });
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware('auth')->group(function () {
+        Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
+        Route::get('/notifications', function (\Illuminate\Http\Request $request) {
+            return redirect()->route('admin.settings', $request->query(), 301);
+        })->name('notifications');
+        Route::put('/settings/account', [SettingsController::class, 'updateAccount'])->name('settings.account');
+        Route::put('/settings/password', [SettingsController::class, 'updatePassword'])->middleware('throttle:6,1')->name('settings.password');
+        Route::put('/settings/website', [SettingsController::class, 'updateWebsite'])->name('settings.website');
+        Route::put('/settings/livestream', [SettingsController::class, 'updateLivestream'])->name('settings.livestream');
+        Route::get('/settings/notifications/export', [SettingsController::class, 'exportNotifications'])->name('settings.notifications.export');
         Route::get('/parishioners', [UserManagementController::class, 'parishioners'])->name('parishioners');
         Route::post('/parishioners/{user}/promote', [UserManagementController::class, 'promoteParishioner'])->name('parishioners.promote');
         Route::get('/staff', [UserManagementController::class, 'staff'])->name('staff');
@@ -183,7 +197,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::view('/appointments', 'admin.appointments')->name('appointments');
     Route::view('/sacramental-records', 'admin.sacramental-records')->name('sacramental-records');
     Route::view('/form-submissions', 'admin.form-submissions')->name('form-submissions');
-    Route::view('/notifications', 'admin.notifications')->name('notifications');
 });
 
 // Dedicated Pastoral Commission Workspace (Coordinators & Commission Officers)

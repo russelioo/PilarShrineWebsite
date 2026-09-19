@@ -1,5 +1,6 @@
 <script setup>
 import { primaryNavigation, moreNavigation } from '../Navigation/navigationItems'
+import { siteSettings, parishPhoneHref, parishGmailUrl, officeHoursRows } from '../../../services/siteSettings'
 
 const quickLinks = [
   ...primaryNavigation,
@@ -34,22 +35,22 @@ const quickLinks = [
           <div class="info-list">
             <p class="info-item">
               <span class="icon" aria-hidden="true">⌖</span>
-              <span>Binanuahan, Pilar, Sorsogon, 4714 Philippines</span>
+              <span>{{ siteSettings.address }}</span>
             </p>
             <p class="info-item">
               <span class="icon" aria-hidden="true">☎</span>
-              <a href="tel:+639468691254" class="info-link">0946-869-1254</a>
+              <a :href="parishPhoneHref" class="info-link">{{ siteSettings.phone }}</a>
             </p>
             <p class="info-item">
               <span class="icon" aria-hidden="true">✉</span>
-              <a href="https://mail.google.com/mail/?view=cm&fs=1&to=olppspilarsorsogon@gmail.com&su=Parish%20Inquiry%20-%20Pilar%20Shrine" target="_blank" rel="noopener noreferrer" class="info-link" title="Compose message in Gmail">olppspilarsorsogon@gmail.com</a>
+              <a :href="parishGmailUrl" target="_blank" rel="noopener noreferrer" class="info-link" title="Compose message in Gmail">{{ siteSettings.email }}</a>
             </p>
           </div>
 
           <!-- Official Social Channels -->
           <div class="footer-socials" aria-label="Official Social Media Channels">
             <a
-              href="https://www.facebook.com/PilarShrineSorsogon"
+              :href="siteSettings.facebook_url"
               target="_blank"
               rel="noopener noreferrer"
               class="footer-social-link"
@@ -61,7 +62,7 @@ const quickLinks = [
               </svg>
             </a>
             <a
-              href="https://www.youtube.com/@PilarShrineSorsogon"
+              :href="siteSettings.youtube_url"
               target="_blank"
               rel="noopener noreferrer"
               class="footer-social-link"
@@ -73,7 +74,7 @@ const quickLinks = [
               </svg>
             </a>
             <a
-              href="https://www.tiktok.com/@PilarShrineSorsogon"
+              :href="siteSettings.tiktok_url"
               target="_blank"
               rel="noopener noreferrer"
               class="footer-social-link"
@@ -121,7 +122,7 @@ const quickLinks = [
             <span class="pin-icon" aria-hidden="true">📍</span>
             <div>
               <strong>Our Lady of the Pillar Shrine</strong>
-              <span>Binanuahan (Poblacion), Pilar, Sorsogon</span>
+              <span>{{ siteSettings.address }}</span>
             </div>
           </div>
 
@@ -155,17 +156,9 @@ const quickLinks = [
           <div class="divider-heading" aria-hidden="true"></div>
 
           <div class="hours-card">
-            <div class="hours-item">
-              <span class="days-label">Monday, Wednesday – Saturday</span>
-              <span class="time-label">8:00 AM – 11:30 AM | 1:00 PM – 5:00 PM</span>
-            </div>
-            <div class="hours-item">
-              <span class="days-label">Sunday</span>
-              <span class="time-label">8:30 AM – 12:00 NN</span>
-            </div>
-            <div class="hours-item">
-              <span class="days-label">Tuesday & Holidays</span>
-              <span class="time-label" style="color: #f0cd71;">Closed (Day Off)</span>
+            <div v-for="(row, index) in officeHoursRows" :key="index" class="hours-item">
+              <span v-if="row.days" class="days-label">{{ row.days }}</span>
+              <span class="time-label">{{ row.hours }}</span>
             </div>
           </div>
 

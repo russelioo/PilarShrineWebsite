@@ -1,5 +1,6 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
+import { siteSettings } from '../../services/siteSettings'
 
 const defaultCategories = [
   {
@@ -180,7 +181,7 @@ onMounted(() => {
             </li>
           </ul>
 
-          <a v-if="card.items.some(item => item.live)" class="worship-stream-link" href="https://www.facebook.com/PilarShrineSorsogon" target="_blank" rel="noopener noreferrer">
+          <a v-if="card.items.some(item => item.live)" class="worship-stream-link" :href="siteSettings.facebook_url" target="_blank" rel="noopener noreferrer">
             Watch livestreamed Masses on Facebook <span aria-hidden="true">↗</span>
           </a>
         </article>

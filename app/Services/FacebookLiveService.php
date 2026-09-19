@@ -3,97 +3,34 @@
 namespace App\Services;
 
 use App\Models\LivestreamSetting;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Http;
-use Throwable;
+use App\Models\SiteSetting;
+use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\Schema;
 
 class FacebookLiveService
 {
+    public function __construct(private MassLivestreamSchedule $schedule) {}
+
     /**
-     * Return the currently active Facebook Live broadcast, if one exists.
+     * Show the Facebook broadcast link only during a scheduled livestream window.
+     * No administrator action or Facebook API credentials are needed for each Mass.
      *
-     * @return array{is_live: bool, title: ?string, url: string}
+     * @return array{is_live: bool, title: ?string, url: string, opens_at: ?string, closes_at: ?string, server_time: string}
      */
     public function status(): array
     {
-        $pageUrl = config('services.facebook.page_url');
+        $now = CarbonImmutable::now(MassLivestreamSchedule::TIMEZONE);
+        $pageUrl = SiteSetting::publicValues()['facebook_url'];
+        $settings = Schema::hasTable('livestream_settings') ? LivestreamSetting::query()->orderBy('id')->first() : null;
+        $window = Schema::hasTable('mass_schedules') ? $this->schedule->currentWindow($now) : null;
 
-        try {
-            $manual = LivestreamSetting::query()->first();
-
-            if ($manual?->is_live) {
-                return [
-                    'is_live' => true,
-                    'title' => $manual->title,
-                    'url' => $manual->url ?: $pageUrl,
-                ];
-            }
-        } catch (Throwable) {
-            // Allow the public site to load before the settings migration is run.
-        }
-
-        $pageId = config('services.facebook.page_id');
-        $accessToken = config('services.facebook.page_access_token');
-
-        if (! $pageId || ! $accessToken) {
-            return $this->offline($pageUrl);
-        }
-
-        return Cache::remember('facebook-live-status', now()->addSeconds(45), function () use ($pageUrl, $pageId, $accessToken) {
-            try {
-                $response = Http::connectTimeout(3)
-                    ->timeout(8)
-                    ->retry(2, 200)
-                    ->get(sprintf(
-                        'https://graph.facebook.com/%s/%s/live_videos',
-                        config('services.facebook.graph_version'),
-                        $pageId
-                    ), [
-                        'access_token' => $accessToken,
-                        'broadcast_status' => 'LIVE',
-                        'fields' => 'id,title,status,permalink_url',
-                        'limit' => 1,
-                    ]);
-
-                if (! $response->successful()) {
-                    return $this->offline($pageUrl);
-                }
-
-                $video = $response->json('data.0');
-
-                if (! is_array($video) || ($video['status'] ?? null) !== 'LIVE') {
-                    return $this->offline($pageUrl);
-                }
-
-                return [
-                    'is_live' => true,
-                    'title' => $video['title'] ?? 'Pilar Shrine is live',
-                    'url' => $this->videoUrl($video, $pageUrl),
-                ];
-            } catch (Throwable) {
-                return $this->offline($pageUrl);
-            }
-        });
-    }
-
-    private function videoUrl(array $video, string $pageUrl): string
-    {
-        $permalink = $video['permalink_url'] ?? null;
-
-        if (is_string($permalink) && $permalink !== '') {
-            return str_starts_with($permalink, 'http')
-                ? $permalink
-                : 'https://www.facebook.com'.$permalink;
-        }
-
-        return isset($video['id'])
-            ? 'https://www.facebook.com/watch/?v='.$video['id']
-            : $pageUrl;
-    }
-
-    /** @return array{is_live: false, title: null, url: string} */
-    private function offline(string $pageUrl): array
-    {
-        return ['is_live' => false, 'title' => null, 'url' => $pageUrl];
+        return [
+            'is_live' => $window !== null,
+            'title' => $window ? ($settings?->title ?: $window['schedule']->title) : null,
+            'url' => $settings?->url ?: $pageUrl,
+            'opens_at' => $window ? $window['opens_at']->toIso8601String() : null,
+            'closes_at' => $window ? $window['closes_at']->toIso8601String() : null,
+            'server_time' => $now->toIso8601String(),
+        ];
     }
 }

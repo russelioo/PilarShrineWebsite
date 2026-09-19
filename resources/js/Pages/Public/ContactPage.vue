@@ -1,7 +1,8 @@
 <script setup>
 import { ref, computed } from 'vue'
+import { siteSettings, parishPhoneHref } from '../../services/siteSettings'
 
-const parishEmail = 'olppspilarsorsogon@gmail.com'
+const parishEmail = computed(() => siteSettings.email)
 const isCopied = ref(false)
 const selectedTopic = ref('General Parish Inquiry')
 
@@ -19,28 +20,28 @@ const subjectParam = computed(() => {
 })
 
 const gmailUrl = computed(() => {
-  return `https://mail.google.com/mail/?view=cm&fs=1&to=${parishEmail}&su=${subjectParam.value}`
+  return `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(parishEmail.value)}&su=${subjectParam.value}`
 })
 
 const yahooUrl = computed(() => {
-  return `https://compose.mail.yahoo.com/?to=${parishEmail}&subj=${subjectParam.value}`
+  return `https://compose.mail.yahoo.com/?to=${encodeURIComponent(parishEmail.value)}&subj=${subjectParam.value}`
 })
 
 const outlookUrl = computed(() => {
-  return `https://outlook.live.com/mail/0/deeplink/compose?to=${parishEmail}&subject=${subjectParam.value}`
+  return `https://outlook.live.com/mail/0/deeplink/compose?to=${encodeURIComponent(parishEmail.value)}&subject=${subjectParam.value}`
 })
 
 const defaultMailUrl = computed(() => {
-  return `mailto:${parishEmail}?subject=${subjectParam.value}`
+  return `mailto:${parishEmail.value}?subject=${subjectParam.value}`
 })
 
 const copyEmail = async () => {
   try {
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      await navigator.clipboard.writeText(parishEmail)
+      await navigator.clipboard.writeText(parishEmail.value)
     } else {
       const el = document.createElement('textarea')
-      el.value = parishEmail
+      el.value = parishEmail.value
       el.setAttribute('readonly', '')
       el.style.position = 'absolute'
       el.style.left = '-9999px'
@@ -79,7 +80,7 @@ const copyEmail = async () => {
               <div class="card-icon" aria-hidden="true">⌖</div>
               <div class="card-content">
                 <h3>Physical Address</h3>
-                <p>Binanuahan, Pilar, Sorsogon, 4714 Philippines</p>
+                <p>{{ siteSettings.address }}</p>
                 <span class="sub-text">Diocese of Sorsogon</span>
               </div>
             </div>
@@ -88,7 +89,7 @@ const copyEmail = async () => {
               <div class="card-icon" aria-hidden="true">☏</div>
               <div class="card-content">
                 <h3>Telephone / Mobile</h3>
-                <p><a href="tel:+639468691254">0946-869-1254</a></p>
+                <p><a :href="parishPhoneHref">{{ siteSettings.phone }}</a></p>
                 <span class="sub-text">Available during parish office hours</span>
               </div>
             </div>
@@ -129,9 +130,7 @@ const copyEmail = async () => {
               <div class="card-icon" aria-hidden="true">◷</div>
               <div class="card-content">
                 <h3>Office Hours</h3>
-                <p><strong>Monday, Wednesday – Saturday</strong>: 8:00 AM – 11:30 AM | 1:00 PM – 5:00 PM</p>
-                <p><strong>Sunday</strong>: 8:30 AM – 12:00 NN</p>
-                <span class="sub-text text-amber">Tuesday: Closed for Day Off and During Holidays</span>
+                <p style="white-space: pre-line">{{ siteSettings.office_hours }}</p>
               </div>
             </div>
 
@@ -141,18 +140,18 @@ const copyEmail = async () => {
                 <h3>Official Social Media</h3>
                 <div class="contact-social-channels">
                   <p>
-                    <a href="https://www.facebook.com/PilarShrineSorsogon" target="_blank" rel="noopener noreferrer">
-                      Facebook: @PilarShrineSorsogon
+                    <a :href="siteSettings.facebook_url" target="_blank" rel="noopener noreferrer">
+                      Official Facebook Page
                     </a>
                   </p>
                   <p>
-                    <a href="https://www.youtube.com/@PilarShrineSorsogon" target="_blank" rel="noopener noreferrer">
-                      YouTube: @PilarShrineSorsogon
+                    <a :href="siteSettings.youtube_url" target="_blank" rel="noopener noreferrer">
+                      Official YouTube Channel
                     </a>
                   </p>
                   <p>
-                    <a href="https://www.tiktok.com/@PilarShrineSorsogon" target="_blank" rel="noopener noreferrer">
-                      TikTok: @PilarShrineSorsogon
+                    <a :href="siteSettings.tiktok_url" target="_blank" rel="noopener noreferrer">
+                      Official TikTok Account
                     </a>
                   </p>
                 </div>
@@ -335,7 +334,7 @@ const copyEmail = async () => {
             <div class="secretariat-notice">
               <span class="notice-icon" aria-hidden="true">ℹ</span>
               <p>
-                Emails are attended to during parish office hours (Mon, Wed–Sat 8:00 AM – 5:00 PM; Sun 8:30 AM – 12:00 NN). For emergency sick calls or viaticum, call directly at <a href="tel:+639468691254">0946-869-1254</a>.
+                Emails are attended to during the office hours listed above. For emergency sick calls or viaticum, call directly at <a :href="parishPhoneHref">{{ siteSettings.phone }}</a>.
               </p>
             </div>
 
@@ -902,4 +901,3 @@ const copyEmail = async () => {
   color: #ffffff;
 }
 </style>
-

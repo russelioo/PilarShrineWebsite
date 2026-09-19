@@ -52,7 +52,7 @@ class AdminDashboardTest extends TestCase
             '/admin/donations'      => 'Donations',
             '/admin/ministries'     => 'Ministries',
             '/admin/announcements'  => 'Announcements',
-            '/admin/notifications'  => 'Settings',
+            '/admin/settings'  => 'Settings',
             '/admin/appointments'   => 'Appointments',
         ];
 

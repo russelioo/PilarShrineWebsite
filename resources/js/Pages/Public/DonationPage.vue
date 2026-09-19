@@ -1,5 +1,6 @@
 <script setup>
 import { onMounted, ref } from 'vue'
+import { siteSettings, parishPhoneHref } from '../../services/siteSettings'
 
 const gcashNumber = '09214309753'
 const gcashName = 'JOSE BURT SARE'
@@ -286,8 +287,8 @@ const handleRequestReceipt = () => {
             </div>
             <div class="office-meta-links">
               <span>📍 Binanuahan, Pilar, Sorsogon</span>
-              <span>☎ <a href="tel:+639468691254">0946-869-1254</a></span>
-              <span>✉ <a href="mailto:olppspilarsorsogon@gmail.com">olppspilarsorsogon@gmail.com</a></span>
+              <span>☎ <a :href="parishPhoneHref">{{ siteSettings.phone }}</a></span>
+              <span>✉ <a :href="'mailto:' + siteSettings.email">{{ siteSettings.email }}</a></span>
             </div>
           </div>
         </div>
